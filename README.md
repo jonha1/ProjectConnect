@@ -52,5 +52,68 @@
   ```bash
   npm -v
   ```
-#### 3. Install Vite,React, and Typesript:
+#### 3. Install Node and Npm:
+
+MacOs:
+- Install node using homebrew:
+  ```bash
+  brew install node
+  ```
+- Install Node.js 21:
+``` bash
+nvm install 21
+nvm use 21
+```
+
+- Check versions:
+```
+node -v
+npm -v
+```
+Node: v21.7.3
+Npm: 10.5.0
+
+Widnows:
+- Download nvm using this repoistroy
+(https://github.com/coreybutler/nvm-windows):
+
+- Install Node.js:
+  ```bash
+  nvm install 21
+  nvm use 21
+  ```
+
+- Check versions:
+```
+node -v
+npm -v
+```
+Node: v21.7.3
+Npm: 10.5.0
+
+ 
+#### 4. Install Vite,React, and Typesript:
+
+**Mac:**
+- Install create-vite:
+npm install -g create-vite
+
+- Create Project:
+``` bash
+npm create vite@latest my-react-app -- --template react-ts
+```
+
+- Navgiate to project directory:
+```bash
+cd my-react-app
+```
+
+- Install project dependencies:
+``` bash
+npm install
+```
+
+- 
+
+#### 5. Install PostgreSQL:
 
