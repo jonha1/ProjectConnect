@@ -1,15 +1,13 @@
-
 # ProjectConnect
 
 ### Developer Installation Guide
 
-#### 1. Install Node.js:
+#### 1. Install Node.js (v18)
 
-**Windows:**
-
+**Windows**:
 - Install Node.js using Chocolatey:
   ```bash
-  choco install nodejs-lts --version="20.18.0"
+  choco install nodejs-lts --version="18.20.4"
   ```
 
 - Verify the installation:
@@ -20,12 +18,16 @@
   ```bash
   npm -v
   ```
+
+  **Node:** v18.20.4
+  <br>
+  **Npm:** 10.7.0
 
 **macOS:**
 
 - Install Node.js using Homebrew:
   ```bash
-  brew install node@20
+  brew install node@18
   ```
 
 - Verify the installation:
@@ -37,83 +39,86 @@
   npm -v
   ```
 
-#### 2. Install Flask (Python should be installed):
-**Windows and Mac:**
+  **Node:** v18.20.4
+  <br>
+  **Npm:** 10.7.0
 
-- Install Flask:
+
+#### 2. Install Flask (Python should be installed):
+
+**Windows and macOS**:
+- Install Flask (requires Python):
   ```bash
   pip install Flask
   ```
 
-- Verify the installation:
+- Verify Installation:
   ```bash
   python3 -m flask --version
   ```
+ **Flask:** 2.2.5
+
+
+#### 3. Install Vite, React, and TypeScript
+
+**macOS**:
+- Install `create-vite` globally:
   ```bash
-  npm -v
-  ```
-#### 3. Install Node and Npm:
-
-MacOs:
-- Install node using homebrew:
-  ```bash
-  brew install node
-  ```
-- Install Node.js 21:
-``` bash
-nvm install 21
-nvm use 21
-```
-
-- Check versions:
-```
-node -v
-npm -v
-```
-Node: v21.7.3
-Npm: 10.5.0
-
-Widnows:
-- Download nvm using this repoistroy
-(https://github.com/coreybutler/nvm-windows):
-
-- Install Node.js:
-  ```bash
-  nvm install 21
-  nvm use 21
+  npm install -g create-vite
   ```
 
-- Check versions:
-```
-node -v
-npm -v
-```
-Node: v21.7.3
-Npm: 10.5.0
+- Create a Vite project with React and TypeScript:
+  ```bash
+  npm create vite@latest my-react-app -- --template react-ts
+  ```
 
- 
-#### 4. Install Vite,React, and Typesript:
+- Navigate to the project directory:
+  ```bash
+  cd my-react-app
+  ```
 
-**Mac:**
-- Install create-vite:
-npm install -g create-vite
+- Install Yarn:
+  - Install Yarn globally:
+    ```bash
+    npm install -g yarn
+    ```
+  - Install project dependencies using Yarn:
+    ```bash
+    yarn install
+    ```
 
-- Create Project:
-``` bash
-npm create vite@latest my-react-app -- --template react-ts
-```
+#### 4. Install Bootstrap
 
-- Navgiate to project directory:
+**macOs and Windows:**
+
 ```bash
-cd my-react-app
+npm install bootstrap
 ```
 
-- Install project dependencies:
-``` bash
-npm install
+#### 5. Install PostgreSQL
+
+**macOS:**
+
+```bash
+brew install postgresql
+```
+- Check version:
+```bash
+postgresql --version
 ```
 
-- 
+**Postgres:** 14.13
+<br>
 
-#### 5. Install PostgreSQL:
+**Windows:**
+```bash
+choco install postgresql
+```
+
+- Check version:
+```bash
+postgresql --version
+```
+**Postgres:** 14.13
+
 
