@@ -7,7 +7,7 @@
 **Windows**:
 - Install Node.js using Chocolatey:
   ```bash
-  choco install nodejs-lts --version="18.20.4"
+  choco install nodejs --version=23.0.0
   ```
 
 - Verify the installation:
@@ -19,15 +19,15 @@
   npm -v
   ```
 
-  **Node:** v18.20.4
+  **Node:** v23.0.0
   <br>
-  **Npm:** 10.7.0
+  **Npm:** 10.9.0
 
 **macOS:**
 
 - Install Node.js using Homebrew:
   ```bash
-  brew install node@18
+  brew install node@23
   ```
 
 - Verify the installation:
@@ -39,9 +39,9 @@
   npm -v
   ```
 
-  **Node:** v18.20.4
+  **Node:** v23.0.0
   <br>
-  **Npm:** 10.7.0
+  **Npm:** 10.9.0
 
 
 #### 2. Install Flask (Python should be installed):
@@ -49,7 +49,8 @@
 **Windows and macOS**:
 - Install Flask (requires Python):
   ```bash
-  pip install Flask
+  pip install flask==2.2.5
+
   ```
 
 - Verify Installation:
@@ -59,23 +60,7 @@
  **Flask:** 2.2.5
 
 
-#### 3. Install Vite, React, and TypeScript
-
-**macOS**:
-- Install `create-vite` globally:
-  ```bash
-  npm install -g create-vite
-  ```
-
-- Create a Vite project with React and TypeScript:
-  ```bash
-  npm create vite@latest my-react-app -- --template react-ts
-  ```
-
-- Navigate to the project directory:
-  ```bash
-  cd my-react-app
-  ```
+#### 3. Install Yarn
 
 - Install Yarn:
   - Install Yarn globally:
@@ -86,6 +71,7 @@
     ```bash
     yarn install
     ```
+  **Yarn:** 1.22.22
 
 #### 4. Install Bootstrap
 
