@@ -1,13 +1,8 @@
-import React from 'react';
-import Button from '../components/Button';  // Adjust the import path as needed
+import Image from "next/image";
+import styles from "./page.module.css";
 
-const HomePage = () => {
+export default function Home() {
   return (
-    <div>
-      <h1>Welcome to ProjectConnect!</h1>
-      <Button />  {/* Use the Button component here */}
-    </div>
+    <div>Hello Project Connect!</div>
   );
-};
-
-export default HomePage;
+}
