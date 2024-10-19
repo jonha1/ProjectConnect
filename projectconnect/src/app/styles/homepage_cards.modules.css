@@ -1,0 +1,24 @@
+.tagContainer{
+    display: grid;
+    justify-content: center;
+    grid-template-columns: repeat(3, 1fr);
+    grid-gap: 20px;
+    margin: 6vh auto 0; /* Helps center grid */
+    width: 80vw;
+}
+
+.tagItem{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding-top: 10px;
+    height: 22vh;
+    width: 25vw;
+    background-color: #2D2D2D;
+    border-radius: 20px;
+}
+
+.tagText{
+    color: white;
+    font-size: 3.5em;
+}
