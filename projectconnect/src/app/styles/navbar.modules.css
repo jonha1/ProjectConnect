@@ -1,0 +1,29 @@
+/* navbar.modules.css */
+.navbarClass {
+    background-color: #303A48 !important;
+    border-bottom: 1px solid white;
+}
+
+.navbarTitle{
+    margin-top: 5px;
+    color: white;
+    margin-left: 10px;
+}
+
+.navbarComponent,
+.navbarComponent:hover, 
+.navbarComponent:focus, 
+.navbarComponent:active {
+    color: white !important; /* Override any color change on hover, focus, or active */
+    text-decoration: none; /* Remove underline or other text decorations */
+    transform: scale(1.6);
+}
+
+li{
+    margin-left: 50px;
+}
+
+a{
+    padding: 0px !important;
+    margin: 0px !important;
+}

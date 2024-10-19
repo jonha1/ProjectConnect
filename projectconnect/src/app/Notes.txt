@@ -1,0 +1,7 @@
+In Next.js the entry point file needs to be named "page.tsx"
+
+Routing:
+    - To have an about page -> create folder "about" in src (needs to be lowercase) and add a page.tsx file
+
+Layout.tsx:
+    - sets up the layouts of the project -> import bootstrap there
