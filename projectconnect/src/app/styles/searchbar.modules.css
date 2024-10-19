@@ -1,0 +1,35 @@
+.parentContainer{
+    display: flex;
+    justify-content: center;
+    margin-top: 6vh;
+    height: 50px;
+}
+
+.searchContainer{
+    display: inline-block;
+    margin: 0 auto;
+    display: flex;
+    gap: 10px;
+}
+
+#search{
+    width: 40vw;
+    background-color: #2D2D2D;
+    color: white;
+    border: none;
+    padding-left: 15px;
+    border-radius: 6px;
+}
+
+
+.searchButtons,
+.searchButtons:hover,
+.searchButtons:active,
+.searchButtons:focus {
+    background-color: #2D2D2D !important;
+    color: white !important;
+    border: none; /* Remove border */
+    outline: none; /* Remove outline on focus */
+    padding-left: 30px;
+    padding-right: 30px;
+}

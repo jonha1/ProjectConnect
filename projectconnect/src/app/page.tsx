@@ -1,8 +1,15 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+import Navbar from './components/navbar';
+import Searchbar from './components/searchbar';
+import HomepageCards from './components/homepage_cards';
 
 export default function Home() {
+  const tags = ["Arts/Crafts", "Business", "Coding", "Engineering", "Math", "Music", "Science", "Writing", "Other"];
+
   return (
-    <div>Hello Project Connect!</div>
+    <>
+      <Navbar />
+      <Searchbar />
+      <HomepageCards tags={tags} />
+    </>
   );
 }
