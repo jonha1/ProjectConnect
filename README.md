@@ -152,13 +152,22 @@ This will install all the required **Node.js**, **Next.js**, **React**, and **Bo
 ---
 
 ## Server
-   - Start the Node.js server:
-     ```bash
-     npm start
-     ```
+
+## Make sure you are in the projectConnect folder:
+
+
    - Run the Next.js development server:
      ```bash
      npm run dev
-     ```
 
+     ```
+   - Run the production server:
+   - Build the app:
+    ```bash
+    npm run build
+    ``` 
+  - Run the Next.js produciton server:
+  ```
+  npm start
+  ```
    - Open your browser and navigate to `http://localhost:3000`.
