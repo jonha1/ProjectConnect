@@ -1,0 +1,5 @@
+Flask==2.2.5
+SQLAlchemy==2.0.21
+Alembic==1.12.0
+psycopg2-binary==2.9.9
+Flask-SQLAlchemy==2.5.1
