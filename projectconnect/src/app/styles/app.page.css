@@ -1,0 +1,6 @@
+.searchBarContainer{
+    display: flex;
+    justify-content: center;
+    margin-top: 6vh;
+    height: 50px;
+}
