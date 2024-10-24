@@ -19,3 +19,10 @@ CREATE TABLE posts (
     MoreContactInfo VARCHAR(255),
     PRIMARY KEY (PostID)
 );
+
+CREATE TABLE Bookmarks (
+    PostId VARCHAR(255),
+    UserID VARCHAR(255),
+    Timestamp TIMESTAMP,
+    Type VARCHAR(255)
+);

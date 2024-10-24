@@ -1,0 +1,10 @@
+Connect to db: 
+
+Make sure you are in projectconnect folder.
+
+Create tables:
+psql 'postgres://postgres.vkutknnonriybpwvhhkg:ProjectConnect123!@aws-0-us-east-1.pooler.supabase.com:6543/postgres' -f src/api/db/tables.sql
+
+Find a way to connect Supabase to Flask which will server as an API.
+Finda way to connect SUpabase fo Node.js for authentication or real-time data
+Supabase is able to handle user authentacation()
