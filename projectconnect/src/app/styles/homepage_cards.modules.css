@@ -16,9 +16,18 @@
     width: 25vw;
     background-color: #2D2D2D;
     border-radius: 20px;
+    text-align: center; /* Center text horizontally */
+    overflow: hidden; /* Prevent text from overflowing */
+    word-break: break-word;
 }
 
 .tagText{
     color: white;
-    font-size: 3.5em;
+    font-size: 5cqh;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    white-space: normal;
+    width: 90%;
+    text-align: center;
+    padding: 0 10px; /* Add padding to avoid touching edges */
 }

@@ -10,7 +10,8 @@ export default function HomepageCards({ tags }: Props) {
       {tags.map((tag, index) => (
         <div className="tagItem">
             <h1 key={index} className="tagText">
-            {tag}
+              {/* <span className="text">{tag}</span> */}
+              {tag}
             </h1>
         </div>
       ))}
