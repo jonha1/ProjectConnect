@@ -3,7 +3,7 @@ const nextConfig = {
     async rewrites() {
       return [
         {
-          source: '/home',
+          source: '/',
           destination: '/pages/home',
         },
       ];
