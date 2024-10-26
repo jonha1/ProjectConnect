@@ -3,8 +3,7 @@ import './styles/globals.css';
 import '@fortawesome/fontawesome-svg-core/styles.css';
 
 export const metadata = {
-  title: 'Project Connect',
-  description: 'A sample project',
+  title: 'ProjectConnect',
 };
 
 export default function RootLayout({

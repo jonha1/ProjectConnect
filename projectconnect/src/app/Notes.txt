@@ -1,8 +1,13 @@
 In Next.js the entry point file needs to be named "page.tsx"
 
 Routing:
-    - To have an about page -> create folder "about" in src (needs to be lowercase) and add a page.tsx file
+    - To have an about page -> create folder "about" in pages (needs to be lowercase) and add a page.tsx file
     - When linking href to another page, use same lowercase name as folder
+    - Add to next.config.mjs the source of /about with destination of /pages/about
+    
+    GPT NOTES:
+        - The .mjs extension in next.config.mjs specifies that the file is a module and uses ESM (ECMAScript Module) syntax
+        - Uses "export default"
 
 Layout.tsx:
     - sets up the layouts of the project -> import bootstrap there
