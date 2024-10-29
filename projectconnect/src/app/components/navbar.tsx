@@ -18,7 +18,7 @@ export default function Navbar() {
           <div className="collapse navbar-collapse" id="navbarNav">
             <ul className="navbar-nav">
               <li className="nav-item">
-                <a className="nav-link navbarComponent" aria-current="page" href="#">
+                <a className="nav-link navbarComponent" aria-current="page" href="/createpost">
                   <FontAwesomeIcon icon={faPlus} />
                 </a>
               </li>
