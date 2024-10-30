@@ -1,0 +1,61 @@
+h2, h4{
+    color: white; 
+}
+.wrapper {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh; /* Ensure it takes up the full viewport height */
+}
+
+.contentContainer {
+    flex-grow: 1; /* Allows the container to take up remaining space */
+    display: grid;
+    grid-template-columns: 30% 70%
+}
+
+.sidePanel{
+    margin-left: 5%;
+    grid-column: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: center;
+}
+
+.mainContent{
+    grid-column: 2;
+}
+
+.profileCard{
+    background-color: #2D2D2D;
+    border-radius: 20px;
+    color: white;
+    padding: 10px;
+    word-wrap: break-word; /* Ensures long words wrap */
+    overflow-wrap: break-word; /* For better compatibility */
+    width: 100%; /* Ensure it takes full width of its container */
+}
+
+
+.buttonContainer{
+    display: flex;
+    gap: 10px;
+}
+
+.profileActionButtons,
+.profileActionButtons:hover,
+.profileActionButtons:active,
+.profileActionButtons:focus {
+    background-color: #2D2D2D !important;
+    color: white !important;
+    border: none; /* Remove border */
+    outline: none; /* Remove outline on focus */
+    padding: 10px 20px;
+}
+
+.tabs{
+    color:white;
+    font-size: 2rem;
+    display: flex;
+    justify-content: space-evenly;
+}
