@@ -1,0 +1,17 @@
+.postName {
+  font-size: 1.5em;
+  margin: 0 0 8px;
+  color: white;
+}
+
+.postInfo {
+  font-size: 1em;
+  margin: 8px 0;
+  color: white;
+}
+
+.creatorName {
+  font-size: 0.9em;
+  color: white;
+  text-align: right;
+}

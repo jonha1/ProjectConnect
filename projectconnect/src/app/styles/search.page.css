@@ -1,0 +1,9 @@
+/* Container styling for two-column layout */
+.postContainer {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr); /* Two columns */
+  gap: 20px;
+  padding: 20px;
+  background-color: #303A48;
+  color: white;
+}
