@@ -1,7 +1,7 @@
 import Navbar from '../../components/navbar';
 import Searchbar from '../../components/searchbar';
-import Postcard from'../../components/post_card';
-import '../../styles/search.page.css';  // Import the CSS file for styling
+import Postcard from '../../components/post_card';
+import styles from '../../styles/searchpage.module.css';  // Import the CSS file for styling
 
 export default function Search() {
   const posts = [
@@ -26,13 +26,14 @@ export default function Search() {
     <>
       <Navbar />
       <Searchbar />
-      <div className="postContainer">
+      <div className={styles.postContainer}>
         {posts.map((post, index) => (
           <Postcard
             key={index}
             postName={post.postName}
             postInfo={post.postInfo}
             creatorName={post.creatorName}
+            className={styles.postCard}  // Apply class to each card
           />
         ))}
       </div>
