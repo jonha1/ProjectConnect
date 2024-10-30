@@ -1,0 +1,31 @@
+  .inputBox {
+    padding: 10px;
+    border: 1px transparent;
+    border-radius: 30px;
+    font-size: 30px;
+    background-color: #2d2d2d;
+    color:white;
+  }
+  
+  .submit-button {
+    padding: 10px 20px;
+    font-size: 16px;
+    margin-top: 30P;
+    margin-left: 30px;
+    background-color: #ffffff;
+    color: #757575;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    /* float:right; */
+  }
+  
+  #title{
+    width:50%;
+  }
+  #title, #links, #contact {
+    height: 3vw;
+  }
+  #description{
+    height: 10vw;
+  }
