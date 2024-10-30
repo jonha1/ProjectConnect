@@ -6,6 +6,10 @@ const nextConfig = {
           source: '/',
           destination: '/pages/home',
         },
+        {
+          source: '/addproject',
+          destination: '/pages/addproject',
+        }
       ];
     },
   };
