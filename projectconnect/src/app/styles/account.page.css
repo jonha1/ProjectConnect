@@ -1,6 +1,7 @@
-h2, h4{
-    color: white; 
+*{
+    color: white;
 }
+
 .wrapper {
     display: flex;
     flex-direction: column;
@@ -10,17 +11,51 @@ h2, h4{
 .contentContainer {
     flex-grow: 1; /* Allows the container to take up remaining space */
     display: grid;
-    grid-template-columns: 30% 70%
+    grid-template-columns: 30% 70%;
+    margin-top: 40px;
+    margin-bottom: 40px;
 }
 
-.sidePanel{
+.sidePanel {
     margin-left: 5%;
     grid-column: 1;
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    grid-template-columns: 1fr; /* Single column */
+    grid-template-rows: 7% 7% 25% 25% 25% 7%; 
     gap: 10px;
     align-items: center;
+    justify-items: center;
+    height: 100%; /* Ensure it takes up the full height of its parent */
 }
+
+/* .displayName{
+    font-size: 3rem;
+}
+
+.userName{
+    font-size: 1.5rem;
+}
+
+.displayName, .userName{
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    word-wrap: break-word; /* Ensures long words wrap */
+    /* overflow-wrap: break-word; /* For better compatibility */
+/* } */ 
+
+.displayName {
+    font-size: 3rem;
+    width: 100%; /* Ensures it takes full width */
+    height: auto; /* Adjust height automatically */
+    text-align: center; /* Center the text */
+    word-wrap: break-word; /* Allows words to wrap */
+    overflow: hidden; /* Hide overflow content */
+    white-space: nowrap; /* Prevents text from wrapping */
+    text-overflow: ellipsis; /* Adds "..." for overflow text */
+}
+
+
 
 .mainContent{
     grid-column: 2;
@@ -34,6 +69,7 @@ h2, h4{
     word-wrap: break-word; /* Ensures long words wrap */
     overflow-wrap: break-word; /* For better compatibility */
     width: 100%; /* Ensure it takes full width of its container */
+    height: 100%;
 }
 
 

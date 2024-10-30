@@ -10,12 +10,12 @@ export default function Home() {
       <div className="contentContainer">
 
         <div className="sidePanel">
-          <h2>
-            USERNAME
-          </h2>
-          <h4>
-            PROFILE IMAGE
-          </h4>
+          <div className="displayName">
+            William Li BLAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+          </div>
+          <div className="userName">
+            SuaveSailor
+          </div>
           <div className="profileCard">
             About Me: This is temporary about me BLAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
           </div>
