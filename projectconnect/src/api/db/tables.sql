@@ -33,3 +33,13 @@ CREATE TABLE
     title text,
     datebookmarked timestamp with time zone default current_timestamp
   );
+
+  CREATE TABLE joinedprojects (
+    MembersUserName TEXT NOT NULL,
+    CreatorUserName TEXT NOT NULL,
+    ProjectTitle TEXT NOT NULL,
+    dateJoined TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (MembersUserName, CreatorUserName, ProjectTitle),
+    FOREIGN KEY (MembersUserName) REFERENCES "User" (userName) ON DELETE CASCADE,
+    FOREIGN KEY (CreatorUserName, ProjectTitle) REFERENCES Project (creatorUserName, title) ON DELETE CASCADE
+);

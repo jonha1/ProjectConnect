@@ -31,7 +31,7 @@ VALUES
 ON CONFLICT DO NOTHING;
 
 -- -- Insert sample joined projects changeee
-INSERT INTO JoinedProjects (membersUserName, projectTitle, creatorUserName, dateJoined)
+INSERT INTO joinedProjects (membersUserName, projectTitle, creatorUserName, dateJoined)
 VALUES 
     ('alice', 'AI Research', 'charlie',CURRENT_TIMESTAMP),
     ('bob', 'Green Energy', 'alice',CURRENT_TIMESTAMP),
