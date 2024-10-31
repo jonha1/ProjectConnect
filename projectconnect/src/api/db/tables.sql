@@ -1,28 +1,35 @@
-CREATE TABLE user_account (
-    user_id SERIAL PRIMARY KEY, 
-    name TEXT,
-    email TEXT NOT NULL UNIQUE,  
-    password TEXT
-);
+-- CREATE TABLE "User" (
+--     user_id SERIAL PRIMARY KEY, 
+--     name TEXT,
+--     email TEXT NOT NULL UNIQUE,  
+--     password TEXT
+-- );
 
 
-CREATE TABLE posts (
-    PostID VARCHAR(255) NOT NULL,
-    UserID VARCHAR(255) NOT NULL,  
-    PostName TEXT NOT NULL,
-    Description VARCHAR(255),
-    MemberNames VARCHAR(255),
-    IsOpen BOOLEAN NOT NULL,
-    Links VARCHAR(255),
-    Tags VARCHAR(255),
-    MoreInfo VARCHAR(255),
-    MoreContactInfo VARCHAR(255),
-    PRIMARY KEY (PostID)
+CREATE TABLE Project (
+    creatorusername TEXT NOT NULL,
+    title TEXT NOT NULL,
+    description TEXT,
+    links TEXT,
+    memberdescription TEXT,
+    memberlinks TEXT,
+    membercontactinfo TEXT,
+    dateposted TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    isarchived BOOLEAN DEFAULT FALSE,
+    PRIMARY KEY (creatorusername, title)
 );
 
-CREATE TABLE Bookmarks (
-    PostId VARCHAR(255),
-    UserID VARCHAR(255),
-    Timestamp TIMESTAMP,
-    Type VARCHAR(255)
-);
+CREATE TABLE
+  JoinedProjects (
+    membersUserName text references "User" (userName) on delete cascade,
+    projectID int references Project (projectID) on delete cascade,
+    dateJoined timestamp with time zone default current_timestamp,
+    primary key (membersUserName, projectID)
+  );
+
+CREATE TABLE
+  Bookmarks (
+    username text,
+    title text,
+    datebookmarked timestamp with time zone default current_timestamp
+  );
