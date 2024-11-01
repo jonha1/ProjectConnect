@@ -18,22 +18,22 @@ export default function Navbar() {
           <div className="collapse navbar-collapse" id="navbarNav">
             <ul className="navbar-nav">
               <li className="nav-item">
-                <a className="nav-link navbarComponent" aria-current="page" href="#">
+                <a className="nav-link navbarComponent" aria-current="page" href="/">
                   <FontAwesomeIcon icon={faPlus} />
                 </a>
               </li>
               <li className="nav-item">
-                <a className="nav-link navbarComponent" href="#">
+                <a className="nav-link navbarComponent" href="/">
                   <FontAwesomeIcon icon={faBell} />
                 </a>
               </li>
               <li className="nav-item">
-                <a className="nav-link navbarComponent" href="#">
+                <a className="nav-link navbarComponent" href="/">
                   <FontAwesomeIcon icon={faBookmark} />
                 </a>
               </li>
               <li className="nav-item">
-                <a className="nav-link navbarComponent" href="#">
+                <a className="nav-link navbarComponent" href="/">
                   <FontAwesomeIcon icon={faUser} />
                 </a>
               </li>
