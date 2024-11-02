@@ -1,12 +1,14 @@
 'use client';
 import '../styles/searchbar.modules.css'
+import { useRouter } from "next/navigation";
 export default function Searchbar() {
+  const router = useRouter();
   const searchEnterPress = (event) => {
     if (event.key === 'Enter') {
       const query = event.target.value.trim();
-      console.log(query);
       if (query) {
-        window.location.href = '/search' //?query=${encodeURIComponent(query)';
+        //window.location.href = '/search?query=${encodeURIComponent(query)';
+        router.push("/search");
       }
     }
   };
