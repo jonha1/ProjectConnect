@@ -1,5 +1,5 @@
 -- Insert sample users
-INSERT INTO "User" (userName, displayName, loginEmail, password, aboutMe, contactInfo, skills)
+INSERT INTO "user" (userName, displayName, loginEmail, password, aboutMe, contactInfo, skills)
 VALUES 
     ('alice', 'Alice Smith', 'alice@example.com', 'securepassword1', 'Alice is a software engineer.', 'alice_contact_info', 'Python, SQL'),
     ('bob', 'Bob Jones', 'bob@example.com', 'securepassword2', 'Bob is a data analyst.', 'bob_contact_info', 'Excel, SQL, Python'),
@@ -23,7 +23,7 @@ VALUES
 ON CONFLICT DO NOTHING;
 
 -- -- Insert sample bookmarks
-INSERT INTO Bookmarks (username, title, dateBookmarked)
+INSERT INTO Bookmark (username, title, dateBookmarked)
 VALUES 
     ('alice', 'Green Energy', CURRENT_TIMESTAMP),
     ('bob', 'Green Energy', CURRENT_TIMESTAMP),
@@ -31,7 +31,7 @@ VALUES
 ON CONFLICT DO NOTHING;
 
 -- -- Insert sample joined projects changeee
-INSERT INTO joinedProjects (membersUserName, projectTitle, creatorUserName, dateJoined)
+INSERT INTO joinedProject (membersUserName, projectTitle, creatorUserName, dateJoined)
 VALUES 
     ('alice', 'AI Research', 'charlie',CURRENT_TIMESTAMP),
     ('bob', 'Green Energy', 'alice',CURRENT_TIMESTAMP),
