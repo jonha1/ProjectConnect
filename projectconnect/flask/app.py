@@ -12,7 +12,7 @@ CORS(app)  # Allows cross-origin requests from your frontend
 
 # Connect to PostgreSQL database
 def get_db_connection():
-    conn = psycopg2.connect(os.getenv('DATABASE_URL'), cursor_factory=RealDictCursor)
+    conn = psycopg2.connect(os.getenv('DATABASE_URL=postgresql://postgres.vkutknnonriybpwvhhkg:ProjectConnect123%21@localhost:6432/postgres'), cursor_factory=RealDictCursor)
     return conn
 
 # Sign Up Route
