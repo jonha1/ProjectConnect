@@ -21,6 +21,7 @@ export default function Login() {
 
       if (loginData) {
         console.log("Logged in:", loginData);
+        router.refresh();
         router.push("/");
       }
 
