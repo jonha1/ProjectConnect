@@ -59,18 +59,23 @@
 
 .mainContent{
     grid-column: 2;
+    margin: 0 5%;
+    overflow-y: auto; 
 }
 
-.profileCard{
+.profileCard {
     background-color: #2D2D2D;
     border-radius: 20px;
-    color: white;
     padding: 10px;
     word-wrap: break-word; /* Ensures long words wrap */
     overflow-wrap: break-word; /* For better compatibility */
-    width: 100%; /* Ensure it takes full width of its container */
+    width: 100%; /* Take full width of the container */
+    max-height: 100%; /* Set max height to limit the card size */
+    overflow-y: auto; /* Enable vertical scrolling */
     height: 100%;
+    text-align: left; /* Adjust text alignment if needed */
 }
+
 
 
 .buttonContainer{
@@ -90,8 +95,30 @@
 }
 
 .tabs{
-    color:white;
     font-size: 2rem;
     display: flex;
     justify-content: space-evenly;
+}
+.tabs:hover{
+    cursor: pointer;
+}
+
+.activeTab{
+    border-bottom: 1px solid white;
+}
+
+.projects{
+    height: 100%;
+    width: 100%;
+    padding: 3%;
+}
+
+.createdProjects{
+
+}
+.joinedProjects{
+    
+}
+.bookmarks{
+    
 }
