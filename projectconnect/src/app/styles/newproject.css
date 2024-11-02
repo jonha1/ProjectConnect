@@ -1,14 +1,14 @@
 .formHeader{
     color:white;
-    margin-left: 2VW;
+    margin-left: 5VW;
   }
   
   .formDropdown {
-    margin-bottom: 20px;  
-    margin-left: 20px;
+    margin-bottom: 10px;  
+    margin-left: 1VW;
     width: 20%;  /* Space between dropdown and other elements */
   }
-  
+
   .formDropdown select {
     width: 100%;
     padding: 10px;
@@ -18,51 +18,77 @@
     background-color: #2d2d2d;
     appearance: none;
     -webkit-appearance: none;
-    color:white;
+    color: #757575;
+    margin-left: 4vw;
   }
   
   .formDropdown select option {
     padding: 10px;
-    line-height: 1.8;        /* Increase space between options */
+    line-height: 1.1;
   }
   
   .formInput {
     display: flex;
     flex-direction: column;
     gap: 15px;    
-    margin-left: 2vw;
-    width: 50%;
-  }
-  
-  .inputBox {
-    padding: 10px;
-    border: 1px transparent;
-    border-radius: 30px;
-    font-size: 30px;
-    background-color: #2d2d2d;
-    color:white;
-  }
-  
-  .submit-button {
-    padding: 10px 20px;
-    font-size: 16px;
-    margin-top: 30P;
-    margin-left: 30px;
-    background-color: #ffffff;
-    color: #757575;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    /* float:right; */
+    margin-left: 5vw;
+    margin-bottom: 1vw;
+    width: 80%;
   }
   
   #title{
     width:50%;
   }
-  #title, #links, #contact {
-    height: 3vw;
+  #title, #links, #contact, #more-links, #more-contact {
+    height: 4vw;
+    resize: none;
   }
-  #description{
-    height: 10vw;
+  #description, #more-description{
+    height: 7vw;
+    resize: none;
+  }
+
+  .inputBox {
+    padding: 10px;
+    border: 1px transparent;
+    border-radius: 30px;
+    font-size: 20px;
+    background-color: #2d2d2d;
+    color:white;
+  }
+
+  .formToggle {
+    display: flex;
+    justify-content: left;
+    margin-left: 3vw;
+    margin-bottom: 20px;
   }
   
+  .toggleButton {
+    padding: 10px 20px;
+    font-size: 16px;
+    background-color: #2d2d2d;
+    color: #757575;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+    margin: 0 3vw;
+  }
+  
+  .toggleButton.active {
+    background-color: #ffffff;
+    color: #2d2d2d;
+  }
+  
+  .submit-button {
+    padding: 10px 20px;
+    font-size: 16px;
+    margin-top: 10px;
+    margin-left: 5vw;
+    margin-bottom: 20px;
+    background-color: #ffffff;
+    color: black;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
