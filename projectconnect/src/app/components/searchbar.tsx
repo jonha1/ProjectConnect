@@ -3,11 +3,11 @@ import '../styles/searchbar.modules.css'
 import { useRouter } from "next/navigation";
 export default function Searchbar() {
   const router = useRouter();
-  const searchEnterPress = (event) => {
+  
+  const searchEnterPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Enter') {
-      const query = event.target.value.trim();
+      const query = (event.target as HTMLInputElement).value.trim();
       if (query) {
-        //window.location.href = '/search?query=${encodeURIComponent(query)';
         router.push("/search");
       }
     }
@@ -20,7 +20,7 @@ export default function Searchbar() {
               id="search" 
               type="text" 
               placeholder="Search.."
-              onKeyPress={searchEnterPress}
+              onKeyDown={searchEnterPress}
               />
             <button type="button" className="btn searchButtons">Filter</button>
             <button type="button" className="btn searchButtons">Tags</button>

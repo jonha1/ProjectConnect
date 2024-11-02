@@ -7,11 +7,13 @@ const nextConfig = {
           destination: '/pages/home',
         },
         {
-          source: '/account',
-          destination: '/pages/account',
           source: '/search',
           destination: '/pages/search',
         },
+        {
+          source: '/account',
+          destination: '/pages/account',
+        }
       ];
     },
   };
