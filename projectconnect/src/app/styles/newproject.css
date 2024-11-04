@@ -12,9 +12,19 @@
   margin-left: 5VW;
 }
 
+
+.dropdown-item {
+  padding: 10px 20px; /* Adjust as needed for top/bottom and left/right padding */
+}
+.dropdown-menu {
+  padding: 20px 20px; /* Adjust as needed to control space within the menu */
+}
+
 .btn{
   background-color: #2d2d2d;
   border: #2d2d2d;
+  width: 150PX;
+  height: 30px;
 }
 
 .formInput {

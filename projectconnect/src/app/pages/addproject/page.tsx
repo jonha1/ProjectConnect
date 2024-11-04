@@ -34,8 +34,7 @@ export default function Createpost() {
   const [isActive, setIsActive] = useState(false);
   const handleClick = () => {
     setIsActive(true);
-    // Optionally, reset the active state after a delay
-    setTimeout(() => setIsActive(false), 2000); // Example: reset after 2 seconds
+    setTimeout(() => setIsActive(false), 2000); //2seconds 
   };
   return (
     <>
@@ -61,12 +60,12 @@ export default function Createpost() {
 
       <div className="formContainer">
         <div className='formHeader'>
-          <h3>Public Users</h3>
+          <h3>Everyone</h3>
         </div>
 
         <form className="formInput">
-          <input type="text" id="title" placeholder="Title*" className="inputBox" required />
-          <AutoResizeTextarea placeholder="Project Description"/>
+          <AutoResizeTextarea placeholder="Title*"  />
+          <AutoResizeTextarea placeholder="Project Description*"/>
           <AutoResizeTextarea placeholder="Links" />
           <AutoResizeTextarea placeholder="Contact Information"  />
         </form>
