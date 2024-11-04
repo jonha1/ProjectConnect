@@ -90,16 +90,16 @@
 
 .notificationCountBadge {
   position: absolute;
-  top: -2px;  /* Adjusted to move the badge higher */
-  right: -8px; /* Adjusted to move the badge closer to the right edge */
+  top: -2px;  
+  right: -8px;
   background-color: #ff4d4d;
   color: white;
-  font-size: 8px; /* Smaller font size for a more compact look */
-  padding: 2px 5px; /* Smaller padding for a tighter appearance */
-  border-radius: 50%; /* Makes it a perfect circle */
-  min-width: 8px; /* Ensures it maintains a circular shape even with 2-digit numbers */
+  font-size: 8px;
+  padding: 2px 5px; 
+  border-radius: 50%;
+  min-width: 8px;
   text-align: center;
   line-height: 1;
   pointer-events: none;
-  box-shadow: 0 0 2px rgba(0, 0, 0, 0.2); /* Optional: adds a subtle shadow for depth */
+  box-shadow: 0 0 2px rgba(0, 0, 0, 0.2);
 }
