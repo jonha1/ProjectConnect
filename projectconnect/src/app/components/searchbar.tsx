@@ -1,28 +1,40 @@
 'use client';
 import '../styles/searchbar.modules.css';
 import { useRouter } from "next/navigation";
+import { ChangeEvent, KeyboardEvent, useState, useEffect } from 'react';
 
-export default function Searchbar({ onSearchChange, routeToSearchPage }) {
+interface SearchbarProps {
+  onSearchChange?: (query: string) => void;
+  searchText?: string;
+  routeToSearchPage?: boolean;
+}
+
+export default function Searchbar({ onSearchChange, searchText = "", routeToSearchPage }: SearchbarProps) {
   const router = useRouter();
+  const [inputValue, setInputValue] = useState(searchText);
 
-  const handleSearchChange = (event) => {
-    const query = event.target.value.trim();
-    if (routeToSearchPage) {
-      router.push(`/search?query=${encodeURIComponent(query)}`);
-    } else if (onSearchChange) {
-      onSearchChange(query); // Only update search state if not routing
+  useEffect(() => {
+    // Update inputValue if searchText prop changes
+    setInputValue(searchText);
+  }, [searchText]);
+
+  const handleSearchChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const query = event.target.value;
+    setInputValue(query); // Update local state with current input
+    if (!routeToSearchPage && onSearchChange) {
+      onSearchChange(query);
     }
   };
-  const searchEnterPress = (event) => {
 
+  const searchEnterPress = (event: KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Enter') {
-      const query = (event.target as HTMLInputElement).value.trim();
+      const query = inputValue.trim();
       if (query) {
-
         router.push(`/search?query=${encodeURIComponent(query)}`);
       }
     }
   };
+
   return (
     <div className="parentContainer">
       <div className="searchContainer">
@@ -30,13 +42,13 @@ export default function Searchbar({ onSearchChange, routeToSearchPage }) {
           id="search"
           type="text"
           placeholder="Search..."
-          onChange={handleSearchChange} // Trigger search on each keystroke
-          onKeyPress={searchEnterPress}
+          value={inputValue}
+          onChange={handleSearchChange}
+          onKeyDown={searchEnterPress}
         />
         <button type="button" className="btn searchButtons">Filter</button>
         <button type="button" className="btn searchButtons">Tags</button>
       </div>
-
     </div>
   );
 }

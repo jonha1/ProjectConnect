@@ -41,7 +41,7 @@ export default function Search() {
     post.creatorName.toLowerCase().includes(searchText.toLowerCase())
   );
 
-  const handleSearchChange = (query) => {
+  const handleSearchChange = (query: string) => {
     setSearchText(query);
   };
   
@@ -54,7 +54,7 @@ export default function Search() {
   return (
     <>
       <Navbar />
-      <Searchbar onSearchChange={handleSearchChange} />
+      <Searchbar searchText={searchText} onSearchChange={handleSearchChange} />
       <div className={styles.postContainer}>
         {filteredPosts.map((post, index) => (
           <Postcard
