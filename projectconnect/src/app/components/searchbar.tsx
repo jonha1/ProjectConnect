@@ -44,7 +44,7 @@ export default function Searchbar({ onSearchChange, searchText = "", routeToSear
           placeholder="Search..."
           value={inputValue}
           onChange={handleSearchChange}
-          onKeyPress={searchEnterPress}
+          onKeyDown={searchEnterPress}
         />
         <button type="button" className="btn searchButtons">Filter</button>
         <button type="button" className="btn searchButtons">Tags</button>
