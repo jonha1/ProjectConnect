@@ -2,24 +2,25 @@
 import '../styles/searchbar.modules.css';
 import { useRouter } from "next/navigation";
 
-export default function Searchbar({ onSearchChange }) {
+export default function Searchbar({ onSearchChange, routeToSearchPage }) {
   const router = useRouter();
 
   const handleSearchChange = (event) => {
     const query = event.target.value.trim();
-    if (onSearchChange) {
-      onSearchChange(query); // Update search text in page component
+    if (routeToSearchPage) {
+      router.push(`/search?query=${encodeURIComponent(query)}`);
+    } else if (onSearchChange) {
+      onSearchChange(query); // Only update search state if not routing
     }
-  }
+  };
   const searchEnterPress = (event) => {
     if (event.key === 'Enter') {
       const query = event.target.value.trim();
       if (query) {
-        //window.location.href = '/search?query=${encodeURIComponent(query)';
-        router.push("/search");
+        router.push(`/search?query=${encodeURIComponent(query)}`);
       }
     }
-  }
+  };
   return (
     <div className="parentContainer">
       <div className="searchContainer">

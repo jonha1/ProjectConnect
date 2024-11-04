@@ -1,12 +1,15 @@
 "use client";
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import Navbar from '../../components/navbar';
 import Searchbar from '../../components/searchbar';
 import Postcard from '../../components/post_card';
 import styles from '../../styles/searchpage.module.css';
 
 export default function Search() {
-  const [searchText, setSearchText] = useState("");
+  const searchParams = useSearchParams();
+  const initialQuery = searchParams.get("query") || "";
+  const [searchText, setSearchText] = useState(initialQuery);
 
   const posts = [
     {
@@ -41,6 +44,12 @@ export default function Search() {
   const handleSearchChange = (query) => {
     setSearchText(query);
   };
+  
+  useEffect(() => {
+    if (initialQuery) {
+      setSearchText(initialQuery);
+    }
+  }, [initialQuery]);
 
   return (
     <>
