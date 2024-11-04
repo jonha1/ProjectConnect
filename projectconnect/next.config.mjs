@@ -10,6 +10,10 @@ const nextConfig = {
           source: '/search',
           destination: '/pages/search',
         },
+        {
+          source: '/account',
+          destination: '/pages/account',
+        }
       ];
     },
   };
