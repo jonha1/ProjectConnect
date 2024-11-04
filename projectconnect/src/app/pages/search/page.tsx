@@ -1,9 +1,16 @@
+"use client";
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import Navbar from '../../components/navbar';
 import Searchbar from '../../components/searchbar';
 import Postcard from '../../components/post_card';
-import styles from '../../styles/searchpage.module.css';  // Import the CSS file for styling
+import styles from '../../styles/searchpage.module.css';
 
 export default function Search() {
+  const searchParams = useSearchParams();
+  const initialQuery = searchParams.get("query") || "";
+  const [searchText, setSearchText] = useState(initialQuery);
+
   const posts = [
     {
       postName: "ProjectConnect",
@@ -28,18 +35,34 @@ export default function Search() {
     }
   ];
 
+  const filteredPosts = posts.filter(post =>
+    post.postName.toLowerCase().includes(searchText.toLowerCase()) ||
+    post.postInfo.toLowerCase().includes(searchText.toLowerCase()) ||
+    post.creatorName.toLowerCase().includes(searchText.toLowerCase())
+  );
+
+  const handleSearchChange = (query) => {
+    setSearchText(query);
+  };
+  
+  useEffect(() => {
+    if (initialQuery) {
+      setSearchText(initialQuery);
+    }
+  }, [initialQuery]);
+
   return (
     <>
       <Navbar />
-      <Searchbar />
+      <Searchbar onSearchChange={handleSearchChange} />
       <div className={styles.postContainer}>
-        {posts.map((post, index) => (
+        {filteredPosts.map((post, index) => (
           <Postcard
             key={index}
             postName={post.postName}
             postInfo={post.postInfo}
             creatorName={post.creatorName}
-            className={styles.postCard}  // Apply class to each card
+            className={styles.postCard}
           />
         ))}
       </div>
