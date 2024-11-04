@@ -1,94 +1,73 @@
-.formHeader{
-    color:white;
-    margin-left: 5VW;
-  }
-  
-  .formDropdown {
-    margin-bottom: 10px;  
-    margin-left: 1VW;
-    width: 20%;  /* Space between dropdown and other elements */
-  }
+.formHeader {
+  color: white;
+  margin-left: 5VW;
+}
 
-  .formDropdown select {
-    width: 100%;
-    padding: 10px;
-    border-radius: 30px;
-    font-size: 16px;
-    border: 1px transparent;
-    background-color: #2d2d2d;
-    appearance: none;
-    -webkit-appearance: none;
-    color: #757575;
-    margin-left: 4vw;
-  }
-  
-  .formDropdown select option {
-    padding: 10px;
-    line-height: 1.1;
-  }
-  
-  .formInput {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;    
-    margin-left: 5vw;
-    margin-bottom: 1vw;
-    width: 80%;
-  }
-  
-  #title{
-    width:50%;
-  }
-  #title, #links, #contact, #more-links, #more-contact {
-    height: 4vw;
-    resize: none;
-  }
-  #description, #more-description{
-    height: 7vw;
-    resize: none;
-  }
+#title {
+  width: 50%;
+}
 
-  .inputBox {
-    padding: 10px;
-    border: 1px transparent;
-    border-radius: 30px;
-    font-size: 20px;
-    background-color: #2d2d2d;
-    color:white;
-  }
+.dropdown {
+  margin-bottom: 10px;
+  margin-left: 5VW;
+}
 
-  .formToggle {
-    display: flex;
-    justify-content: left;
-    margin-left: 3vw;
-    margin-bottom: 20px;
-  }
-  
-  .toggleButton {
-    padding: 10px 20px;
-    font-size: 16px;
-    background-color: #2d2d2d;
-    color: #757575;
-    border: none;
-    cursor: pointer;
-    border-radius: 5px;
-    margin: 0 3vw;
-  }
-  
-  .toggleButton.active {
-    background-color: #ffffff;
-    color: #2d2d2d;
-  }
-  
-  .submit-button {
-    padding: 10px 20px;
-    font-size: 16px;
-    margin-top: 10px;
-    margin-left: 5vw;
-    margin-bottom: 20px;
-    background-color: #ffffff;
-    color: black;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-  }
+.dropdown select option {
+  padding: 10px;
+  line-height: 1.1;
+}
+
+#title,
+#links,
+#contact,
+#more-links,
+#more-contact,
+#description,
+#more-description {
+  height: 5vw;
+  resize: none;
+}
+
+.formInput {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin: 0 0 1vw 5vw;
+  width: 80%;
+  padding: 10px 30px;
+}
+
+.inputBox {
+  padding: 20px;
+  border: 1px transparent;
+  border-radius: 30px;
+  font-size: 20px;
+  background-color: #2d2d2d;
+  color: white;
+  overflow: hidden;
+  min-height: 5vw;
+  resize: none;
+  box-sizing: border-box;
+}
+
+.formToggle {
+  display: flex;
+  justify-content: left;
+  margin: 0 0 20px 3vw;
+}
+
+.submit-button {
+  padding: 10px 20px;
+  font-size: 16px;
+  margin: 10px 0 20px 5vw;
+  background-color: #ffffff;
+  color: black;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.submit-button.active {
+  background-color: GREEN;
+  color: #2d2d2d;
+}
