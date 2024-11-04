@@ -13,6 +13,10 @@ const nextConfig = {
         {
           source: '/account',
           destination: '/pages/account',
+        },
+        {
+          source: '/createproject',
+          destination: '/pages/createproject',
         }
       ];
     },
