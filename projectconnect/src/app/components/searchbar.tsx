@@ -14,9 +14,11 @@ export default function Searchbar({ onSearchChange, routeToSearchPage }) {
     }
   };
   const searchEnterPress = (event) => {
+
     if (event.key === 'Enter') {
-      const query = event.target.value.trim();
+      const query = (event.target as HTMLInputElement).value.trim();
       if (query) {
+
         router.push(`/search?query=${encodeURIComponent(query)}`);
       }
     }
@@ -34,6 +36,7 @@ export default function Searchbar({ onSearchChange, routeToSearchPage }) {
         <button type="button" className="btn searchButtons">Filter</button>
         <button type="button" className="btn searchButtons">Tags</button>
       </div>
+
     </div>
   );
 }
