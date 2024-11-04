@@ -6,14 +6,6 @@ const nextConfig = {
           source: '/',
           destination: '/pages/home',
         },
-        {
-          source: '/search',
-          destination: '/pages/search',
-        },
-        {
-          source: '/account',
-          destination: '/pages/account',
-        }
       ];
     },
   };

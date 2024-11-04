@@ -40,7 +40,7 @@ export default function Navbar() {
     <div>
       <nav className="navbar navbar-expand-lg bg-body-tertiary navbarClass">
         <div className="container-fluid">
-          <a className="navbar-brand" href="/">
+          <a className="navbar-brand" href="#">
             <h2 className="navbarTitle">ProjectConnect</h2>
           </a>
           <div className="collapse navbar-collapse" id="navbarNav">
