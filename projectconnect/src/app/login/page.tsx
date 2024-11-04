@@ -5,7 +5,7 @@ export default function Login() {
     <>
       <div className="loginContainer">
         <div id="title">ProjectConnect</div>
-        <div id="description">Login In</div>
+        <div id="description">Login</div>
         <input id="search" type="text" placeholder="Username or Email"></input>
         <input id="search" type="password" placeholder="Password"></input>
         <div className="buttonContainer">
