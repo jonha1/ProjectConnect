@@ -9,6 +9,14 @@ const nextConfig = {
         {
           source: '/addpage',
           destination: '/pages/addpage',
+        },
+        {
+          source: '/search',
+          destination: '/pages/search',
+        },
+        {
+          source: '/account',
+          destination: '/pages/account',
         }
       ];
     },
