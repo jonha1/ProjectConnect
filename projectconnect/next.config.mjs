@@ -7,12 +7,8 @@ const nextConfig = {
           destination: '/pages/home',
         },
         {
-          source: '/search',
-          destination: '/pages/search',
-        },
-        {
-          source: '/account',
-          destination: '/pages/account',
+          source: '/addproject',
+          destination: '/pages/addproject',
         }
       ];
     },
