@@ -1,0 +1,105 @@
+.notificationDropdown {
+  position: absolute;
+  align-items: center;  
+  top: 100%;
+  right: 0;
+  background-color: #2c2f38;
+  border-radius: 8px;
+  padding: 10px;
+  width: 300px;
+  z-index: 1000;
+  color: white;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.notificationTitle {
+  font-size: 25px;
+  text-align: center;
+  padding: 10px;
+  color: white;
+  background-color: #2c2f38;
+  border-bottom: 1px solid #444;
+  border-radius: 8px 8px 0 0;
+}
+
+.notificationItem {
+  display: flex;
+  align-items: center;
+  margin: 8px 0;
+  padding: 10px;
+  background-color: #3b3f4a;
+  border-radius: 8px;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.notificationItem:hover {
+  background-color: #4a4f5c;
+}
+
+.notificationText {
+  flex: 1;
+  font-size: 16px;
+  color: white;
+}
+
+.username {
+  font-size: 15px;
+  color: #ffffff;
+}
+
+.projectName {
+  font-size: 14px;
+  font-style: italic;
+  color: #b0b3b8;
+  display: inline;
+}
+
+.iconContainer {
+  display: flex;
+  gap: 10px;
+}
+
+.iconButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background-color: #6d727f;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.iconButton:hover {
+  background-color: #828693;
+}
+
+.noNotifications {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100px;
+  font-size: 15px;
+  color: #b0b3b8;
+}
+
+.notificationCountBadge {
+  position: absolute;
+  top: -2px;  /* Adjusted to move the badge higher */
+  right: -8px; /* Adjusted to move the badge closer to the right edge */
+  background-color: #ff4d4d;
+  color: white;
+  font-size: 8px; /* Smaller font size for a more compact look */
+  padding: 2px 5px; /* Smaller padding for a tighter appearance */
+  border-radius: 50%; /* Makes it a perfect circle */
+  min-width: 8px; /* Ensures it maintains a circular shape even with 2-digit numbers */
+  text-align: center;
+  line-height: 1;
+  pointer-events: none;
+  box-shadow: 0 0 2px rgba(0, 0, 0, 0.2); /* Optional: adds a subtle shadow for depth */
+}
