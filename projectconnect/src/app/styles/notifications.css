@@ -1,7 +1,7 @@
 .notificationDropdown {
   position: absolute;
   align-items: center;  
-  top: 100%;
+  top: 120%;
   left: 50%; 
   transform: translateX(-50%);
   background-color: #2D2D2D;
@@ -28,7 +28,7 @@
   align-items: center;
   margin: 8px 0;
   padding: 10px;
-  background-color: #3b3f4a;
+  background-color: #3B444F;
   border-radius: 8px;
   color: white;
   cursor: pointer;
