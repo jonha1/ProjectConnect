@@ -12,32 +12,21 @@
   margin-left: 5VW;
 }
 
-.dropdown select option {
-  padding: 10px;
-  line-height: 1.1;
-}
-
-#title,
-#links,
-#contact,
-#more-links,
-#more-contact,
-#description,
-#more-description {
-  height: 5vw;
-  resize: none;
+.btn{
+  background-color: #2d2d2d;
+  border: #2d2d2d;
 }
 
 .formInput {
   display: flex;
   flex-direction: column;
   gap: 15px;
-  margin: 0 0 1vw 5vw;
+  margin: 0 0 1vw 3vw;
   width: 80%;
   padding: 10px 30px;
 }
 
-.inputBox {
+.inputBox{
   padding: 20px;
   border: 1px transparent;
   border-radius: 30px;
@@ -51,23 +40,23 @@
 }
 
 .formToggle {
-  display: flex;
-  justify-content: left;
-  margin: 0 0 20px 3vw;
+display: flex;
+justify-content: left;
+margin: 0 0 20px 3vw;
 }
 
 .submit-button {
-  padding: 10px 20px;
-  font-size: 16px;
-  margin: 10px 0 20px 5vw;
-  background-color: #ffffff;
-  color: black;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
+padding: 10px 20px;
+font-size: 16px;
+margin: 10px 0 20px 5vw;
+background-color: #ffffff;
+color: #2d2d2d;
+border: none;
+border-radius: 5px;
+cursor: pointer;
 }
 
 .submit-button.active {
-  background-color: GREEN;
+  background-color:rgb(1, 123, 107);
   color: #2d2d2d;
 }
