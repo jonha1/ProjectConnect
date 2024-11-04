@@ -1,0 +1,51 @@
+.cardContainer{
+  gap: 20px;
+  padding: 20px;
+  background-color: #2D2D2D;
+  color: white;
+  border-radius: 25px;
+}
+
+.cardContainer:hover{
+  gap: 20px;
+  padding: 20px;
+  background-color: #6d6d6d;
+  color: white;
+  border-radius: 25px;
+  cursor:pointer;
+}
+
+.cardContainer:active{
+  gap: 20px;
+  padding: 20px;
+  background-color: white;
+  color: #2D2D2D;
+  border-radius: 25px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+
+}
+
+.iconLink {
+  margin-left: 8px;
+}
+
+.postName {
+  font-size: 1.5em;
+  margin: 0 0 8px;
+  text-align: left;
+}
+
+.postInfo {
+  font-size: 1em;
+  margin: 8px 0;
+  text-align: left;
+}
+
+.creatorName {
+  font-size: 0.9em;
+  text-align: left;
+}
