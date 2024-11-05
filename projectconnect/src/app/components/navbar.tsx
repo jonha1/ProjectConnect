@@ -12,9 +12,10 @@ import {
 import "../styles/navbar.modules.css";
 import "../styles/notifications.css"; 
 import React, { useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function Navbar() {
-  // Sample notifications array
+  // Sample notifications arrayx
   const [notifications, setNotifications] = useState([
     { id: 1, type: "Project Join Request", username: "SpicyDoritos", project: "Medical AI"},
     { id: 2, type: "Request Denied", username: "TornadoMan", project: "Bench Woodmaking" },
@@ -36,6 +37,11 @@ export default function Navbar() {
     setIsDropdownOpen(!isDropdownOpen);
   };
 
+  const router = useRouter();
+  const handleBookmarkClick = () => {
+      router.push("/account?query=bookmark");
+  };
+
   return (
     <div>
       <nav className="navbar navbar-expand-lg bg-body-tertiary navbarClass">
@@ -51,7 +57,7 @@ export default function Navbar() {
                 </a>
               </li>
               <li className="nav-item" key="bookmark-icon">
-                <a className="nav-link navbarComponent" href="/account">
+                <a className="nav-link navbarComponent" onClick={handleBookmarkClick}>
                   <FontAwesomeIcon icon={faBookmark} />
                 </a>
               </li>

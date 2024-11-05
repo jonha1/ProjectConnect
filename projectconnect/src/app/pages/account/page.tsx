@@ -1,13 +1,16 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Navbar from "../../components/navbar";
 import "../../styles/account.page.css";
 import Searchbar from "../../components/searchbar";
 import Postcard from "../../components/post_card";
 import styles from "../../styles/searchpage.module.css"; // Import the CSS file for styling
+import { useSearchParams } from "next/navigation"; 
 
 export default function Home() {
-  const [activeTab, setActiveTab] = useState("created"); // Tracks active tab
+  const searchParams = useSearchParams();
+  const initialTab = searchParams.get("query") === "bookmark" ? "bookmarks" : "created";
+  const [activeTab, setActiveTab] = useState(initialTab); // Set initial state based on URL
 
   const postsCreated = [
     {
