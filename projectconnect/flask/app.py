@@ -12,13 +12,16 @@ CORS(app)  # Allows cross-origin requests from your frontend
 
 # Connect to PostgreSQL database
 def get_db_connection():
-    conn = psycopg2.connect(os.getenv("DATABASE_URL"), cursor_factory=RealDictCursor)
+    conn = psycopg2.connect(
+        os.getenv("DATABASE_URL"),  # Use os.getenv correctly to retrieve the database URL
+        cursor_factory=RealDictCursor
+    )
     return conn
 
 @app.route('/signup', methods=['POST'])
 def signup():
     data = request.get_json()
-    loginemail = data['email']
+    loginemail = data['loginemail']
     password = data['password']  # Store password as plain text (not secure)
 
     conn = get_db_connection()
@@ -36,20 +39,25 @@ def signup():
         conn.close()
 
 
-@app.route('/signin', methods=['POST'])
+@app.route('/login', methods=['POST'])
 def signin():
     data = request.get_json()
-    email = data['email']
-    password = data['password'] 
+    print("Received data:", data)
+    
+    # Use 'loginemail' here as per your schema
+    loginemail = data['loginemail']
+    password = data['password']
 
     conn = get_db_connection()
     cursor = conn.cursor()
     try:
-        cursor.execute("SELECT * FROM users WHERE email = %s AND password = %s", (email, password))
+        # Use the correct field names 'loginemail' and 'password'
+        cursor.execute("SELECT * FROM users WHERE loginemail = %s AND password = %s", (loginemail, password))
         user = cursor.fetchone()
+        print("Fetched user:", user)
 
         if user:
-            return jsonify({"message": "Logged in successfully", "user_id": user['id']}), 200
+            return jsonify({"message": "Logged in successfully", "user_id": user['username']}), 200
         else:
             return jsonify({"error": "Invalid email or password"}), 401
     finally:
