@@ -12,26 +12,29 @@ CORS(app)  # Allows cross-origin requests from your frontend
 
 # Connect to PostgreSQL database
 def get_db_connection():
-    conn = psycopg2.connect(os.getenv('DATABASE_URL=postgresql://postgres.vkutknnonriybpwvhhkg:ProjectConnect123%21@localhost:6432/postgres'), cursor_factory=RealDictCursor)
+    conn = psycopg2.connect(os.getenv("DATABASE_URL"), cursor_factory=RealDictCursor)
     return conn
 
-# Sign Up Route
 @app.route('/signup', methods=['POST'])
 def signup():
     data = request.get_json()
-    email = data['email']
+    loginemail = data['email']
     password = data['password']  # Store password as plain text (not secure)
 
     conn = get_db_connection()
     cursor = conn.cursor()
     try:
-        cursor.execute("INSERT INTO users (loginemail, password) VALUES (%s, %s) RETURNING id", (email, password))
+        cursor.execute(
+            "INSERT INTO users (loginemail, password) VALUES (%s, %s) RETURNING id", 
+            (loginemail, password)
+        )
         user_id = cursor.fetchone()['id']
         conn.commit()
         return jsonify({"message": "User registered successfully", "user_id": user_id}), 201
     finally:
         cursor.close()
         conn.close()
+
 
 @app.route('/signin', methods=['POST'])
 def signin():

@@ -1,10 +1,12 @@
--- CREATE TABLE "User" (
---     user_id SERIAL PRIMARY KEY, 
---     name TEXT,
---     email TEXT NOT NULL UNIQUE,  
---     password TEXT
--- );
-
+CREATE TABLE users (
+    username PRIMARY KEY,
+    displayname VARCHAR(255),
+    loginemail VARCHAR(255) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    aboutme TEXT,
+    contactinfo TEXT,
+    skills TEXT
+);
 
 CREATE TABLE Project (
     creatorusername TEXT NOT NULL,
