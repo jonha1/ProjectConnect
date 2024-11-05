@@ -1,6 +1,6 @@
-import Navbar from './components/navbar';
-import Searchbar from './components/searchbar';
-import HomepageCards from './components/homepage_cards';
+import Navbar from '../../components/navbar';
+import Searchbar from '../../components/searchbar';
+import HomepageCards from '../../components/homepage_cards';
 
 export default function Home() {
   const tags = ["Arts/Crafts", "Business", "Coding", "Engineering", "Math", "Music", "Science", "Writing", "Other"];
