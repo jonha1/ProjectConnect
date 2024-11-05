@@ -17,7 +17,12 @@ const nextConfig = {
         {
           source: '/createproject',
           destination: '/pages/createproject',
+        },
+        {
+          source: '/login',
+          destination: '/pages/login',
         }
+        
       ];
     },
   };
