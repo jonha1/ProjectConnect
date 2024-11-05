@@ -61,11 +61,6 @@ export default function Navbar() {
                   <FontAwesomeIcon icon={faBookmark} />
                 </a>
               </li>
-              <li className="nav-item" key="user-icon">
-                <a className="nav-link navbarComponent" href="/account">
-                  <FontAwesomeIcon icon={faUser} />
-                </a>
-              </li>
               <li className="nav-item" key="bell-icon" onClick={toggleDropdown} style={{ position: 'relative' }}>
                 <a className="nav-link navbarComponent" href="#">
                   <FontAwesomeIcon icon={faBell} />
@@ -121,6 +116,11 @@ export default function Navbar() {
                     )}
                   </div>
                 )}
+              </li>
+              <li className="nav-item" key="user-icon">
+                <a className="nav-link navbarComponent" href="/account">
+                  <FontAwesomeIcon icon={faUser} />
+                </a>
               </li>
             </ul>
           </div>
