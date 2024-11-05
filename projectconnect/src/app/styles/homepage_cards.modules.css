@@ -14,11 +14,23 @@
     padding-top: 10px;
     height: 22vh;
     width: 25vw;
+    color: white; 
     background-color: #2D2D2D;
     border-radius: 20px;
+    font-size: 3.5em;
 }
 
-.tagText{
+.tagItem:hover{
+    cursor: pointer;
+    background-color: white;
+    color: #2D2D2D;
+}
+
+/* .tagText{
     color: white;
     font-size: 3.5em;
 }
+
+.tagText:hover{
+    color: #2D2D2D;
+} */

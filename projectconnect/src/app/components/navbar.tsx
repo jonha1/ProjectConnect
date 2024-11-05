@@ -45,9 +45,19 @@ export default function Navbar() {
           </a>
           <div className="collapse navbar-collapse" id="navbarNav">
             <ul className="navbar-nav">
-              <li className="nav-item" key="plus-icon">
+            <li className="nav-item" key="plus-icon">
                 <a className="nav-link navbarComponent" aria-current="page" href="/createproject">
                   <FontAwesomeIcon icon={faPlus} />
+                </a>
+              </li>
+              <li className="nav-item" key="bookmark-icon">
+                <a className="nav-link navbarComponent" href="/account">
+                  <FontAwesomeIcon icon={faBookmark} />
+                </a>
+              </li>
+              <li className="nav-item" key="user-icon">
+                <a className="nav-link navbarComponent" href="/account">
+                  <FontAwesomeIcon icon={faUser} />
                 </a>
               </li>
               <li className="nav-item" key="bell-icon" onClick={toggleDropdown} style={{ position: 'relative' }}>
@@ -105,16 +115,6 @@ export default function Navbar() {
                     )}
                   </div>
                 )}
-              </li>
-              <li className="nav-item" key="bookmark-icon">
-                <a className="nav-link navbarComponent" href="#">
-                  <FontAwesomeIcon icon={faBookmark} />
-                </a>
-              </li>
-              <li className="nav-item" key="user-icon">
-                <a className="nav-link navbarComponent" href="/account">
-                  <FontAwesomeIcon icon={faUser} />
-                </a>
               </li>
             </ul>
           </div>
