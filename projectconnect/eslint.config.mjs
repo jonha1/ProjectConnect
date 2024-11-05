@@ -4,6 +4,7 @@ import tsEslint from "@typescript-eslint/eslint-plugin";
 import tsParser from "@typescript-eslint/parser";
 import pluginReact from "eslint-plugin-react";
 
+
 /** @type {import('eslint').Linter.FlatConfig[]} */
 export default [
   {
