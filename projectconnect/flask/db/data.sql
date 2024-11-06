@@ -1,5 +1,5 @@
 -- Insert sample users
-INSERT INTO users (userName, displayName, loginEmail, password, aboutMe, contactInfo, skills)
+INSERT INTO "user" (userName, displayName, loginEmail, password, aboutMe, contactInfo, skills)
 VALUES 
     ('alice', 'Alice Smith', 'alice@example.com', 'securepassword1', 'Alice is a software engineer.', 'alice_contact_info', 'Python, SQL'),
     ('bob', 'Bob Jones', 'bob@example.com', 'securepassword2', 'Bob is a data analyst.', 'bob_contact_info', 'Excel, SQL, Python'),
