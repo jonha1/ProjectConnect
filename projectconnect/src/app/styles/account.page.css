@@ -76,7 +76,6 @@
 }
 
 
-
 .buttonContainer{
     display: flex;
     gap: 10px;
@@ -98,6 +97,7 @@
     display: flex;
     justify-content: space-evenly;
 }
+
 .tabs:hover{
     cursor: pointer;
 }

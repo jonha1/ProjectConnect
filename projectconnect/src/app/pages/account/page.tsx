@@ -127,7 +127,6 @@ export default function Home() {
       creatorName: "EduCoach88",
     },
   ];
-
   return (
     <div className="wrapper">
       <Navbar />

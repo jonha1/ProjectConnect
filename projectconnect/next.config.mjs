@@ -22,7 +22,6 @@ const nextConfig = {
           source: '/login',
           destination: '/pages/login',
         }
-        
       ];
     },
   };

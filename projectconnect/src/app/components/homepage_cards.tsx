@@ -3,7 +3,7 @@ import '../styles/homepage_cards.modules.css';
 import { useRouter } from "next/navigation";
 
 interface Props {
-    tags: string[]; // Update the prop to accept an array of tags
+  tags: string[];
 }
 
 export default function HomepageCards({ tags }: Props) {
