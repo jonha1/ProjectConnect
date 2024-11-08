@@ -59,10 +59,7 @@ export default function Login() {
       [name]: value,
     }));
   }
-  
-import "../../styles/login.page.css";
 
-export default function Login() {
   return (
     <>
       <div className="loginContainer">
@@ -81,4 +78,5 @@ export default function Login() {
       </div>
     </>
   );
+
 }
