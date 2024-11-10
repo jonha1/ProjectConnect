@@ -11,8 +11,6 @@ load_dotenv()
 app = Flask(__name__)
 CORS(app)  # Allows cross-origin requests from your frontend
 
-app = Flask(__name__)
-
 @app.route('/')
 def home():
     return "Hello, Flask!"
@@ -41,6 +39,7 @@ def register_account():
 
     return jsonify(result), 201 if 'error' not in result else 400
 
+#fix
 @app.route('/check_account/<username>/<email>', methods=['GET'])
 def check_account(username, email):
     if Account.account_exists(username, email):
