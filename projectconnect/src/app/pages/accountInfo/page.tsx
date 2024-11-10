@@ -42,8 +42,6 @@ export default function Createpost() {
   };
   return (
     <>
-      <Navbar />
-
     <div className="formContainer">
         <div className='formHeader'>
             <h1> Tell people about yourself</h1>
@@ -55,23 +53,22 @@ export default function Createpost() {
           <AutoResizeTextarea placeholder="Skills" />
           <AutoResizeTextarea placeholder="About Me"  />
         </form>
-        
-        <div className="buttons">        
-        <button 
-          type="submit" 
-          className="submit-button" 
-          onClick={handleClick}
-        >
-            Post
-        </button>
 
-        <button 
+        <div className="buttons">        
+          <button 
           type="submit" 
           className="submit-button" 
           onClick={handleClick}
         >
             Skip
         </button>
+        <button 
+          type="submit" 
+          className="submit-button" 
+          onClick={handleClick}
+        >
+            Next
+        </button>        
         </div>
 
       </div>
