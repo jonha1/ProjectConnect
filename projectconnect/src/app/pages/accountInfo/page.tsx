@@ -55,6 +55,7 @@ export default function Createpost() {
           <AutoResizeTextarea placeholder="Skills" />
           <AutoResizeTextarea placeholder="About Me"  />
         </form>
+        
         <div className="buttons">        
         <button 
           type="submit" 
