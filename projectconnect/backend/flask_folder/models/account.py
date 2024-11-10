@@ -1,4 +1,4 @@
-from app.services.supabase_client import supabase_client
+from flask_folder.services.supabase_client import supabase_client
 
 class Account:
     def __init__(self, username, loginEmail, password):
@@ -20,20 +20,21 @@ class Account:
             return False  # In case of an exception, assume no account exi
 
     @staticmethod
-    def register(username, loginEmail, password):
-        if Account.account_exists(username, loginEmail):
+    def register(username, loginemail, password):
+        if Account.account_exists(username, loginemail):
             return {"error": "Account with this username or email already exists."} 
    
         try:
             response = supabase_client.table('users').insert({
                 "username": username,
-                "loginEmail": loginEmail,
+                "loginemail": loginemail,
                 "password": password 
             }).execute()
             
-            if response.status_code == 201:
-                return response.data  
+            if response.data:
+                return {"message": "Account successfully created", "user": response.data}
             else:
-                return {"error": response.error}  
+                # If there's an error in the response, return the error message
+                return {"error": response.error or "Unknown error occurred"}
         except Exception as e:
-            return {"error": str(e)}  
+            return {"error": str(e)}  # Catch any other exceptions and return them

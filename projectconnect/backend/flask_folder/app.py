@@ -4,7 +4,7 @@ from psycopg2.extras import RealDictCursor
 import os
 from dotenv import load_dotenv
 from flask import Flask, request, jsonify
-from flask.models.account import Account
+from flask_folder.models.account import Account
 
 load_dotenv()
 
@@ -12,12 +12,22 @@ app = Flask(__name__)
 CORS(app)  # Allows cross-origin requests from your frontend
 
 # Connect to PostgreSQL database
+@app.route('/findConnection', methods=['GET'])
 def get_db_connection():
-    conn = psycopg2.connect(
-        os.getenv("DATABASE_URL"),  # Use os.getenv correctly to retrieve the database URL
-        cursor_factory=RealDictCursor
-    )
-    return conn
+    try:
+        # Get the DATABASE_URL from the environment variable
+        database_url = os.getenv("DATABASE_URL")
+        print(f"DATABASE_URL: {database_url}")
+        
+        # Try connecting to the database
+        conn = psycopg2.connect(database_url, cursor_factory=RealDictCursor)
+        
+        # If successful, return a success message
+        return jsonify({"message": "Database connection successful!"}), 200
+    except Exception as e:
+        # In case of an error, return an error message
+        return jsonify({"error": str(e)}), 500
+
 
 @app.route('/api/accounts', methods=['POST'])
 def register_account():
@@ -26,7 +36,7 @@ def register_account():
     # Call the register method with the necessary parameters
     result = Account.register(
         username=data.get('username'),
-        loginEmail=data.get('loginEmail'),
+        loginemail=data.get('loginemail'),
         password=data.get('password')  # Remember to hash the password here
     )
 
