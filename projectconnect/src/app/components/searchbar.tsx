@@ -13,6 +13,9 @@ export default function Searchbar({ onSearchChange, searchText = "", routeToSear
   const router = useRouter();
   const [inputValue, setInputValue] = useState(searchText);
 
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [isTagsOpen, setIsTagsOpen] = useState(false);
+
   useEffect(() => {
     // Update inputValue if searchText prop changes
     setInputValue(searchText);
@@ -46,8 +49,36 @@ export default function Searchbar({ onSearchChange, searchText = "", routeToSear
           onChange={handleSearchChange}
           onKeyDown={searchEnterPress}
         />
-        <button type="button" className="btn searchButtons">Filter</button>
-        <button type="button" className="btn searchButtons">Tags</button>
+         {/* Filter Button */}
+         <button type="button" className="btn searchButtons" onClick={() => setIsFilterOpen(!isFilterOpen)}>
+          Filter
+        </button>
+        {isFilterOpen && (
+          <div className="dropdown filterDropdown">
+            <div className="dropdown-item">Time Posted</div>
+            <div className="dropdown-item">Number of Members</div>
+            <div className="dropdown-item">Title</div>
+            <div className="dropdown-item">Description</div>
+          </div>
+        )}
+
+        {/* Tags Button */}
+        <button type="button" className="btn searchButtons" onClick={() => setIsTagsOpen(!isTagsOpen)}>
+          Tags
+        </button>
+        {isTagsOpen && (
+          <div className="dropdown tagsDropdown">
+            <div className="dropdown-item">Arts</div>
+            <div className="dropdown-item">Business</div>
+            <div className="dropdown-item">Coding</div>
+            <div className="dropdown-item">Engineering</div>
+            <div className="dropdown-item">Math</div>
+            <div className="dropdown-item">Music</div>
+            <div className="dropdown-item">Science</div>
+            <div className="dropdown-item">Writing</div>
+            <div className="dropdown-item">Other</div>
+          </div>
+        )}
       </div>
     </div>
   );
