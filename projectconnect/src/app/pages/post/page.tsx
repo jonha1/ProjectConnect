@@ -59,7 +59,7 @@ export default function ProjectView() {
                 </div>
               ) : (
                 <div className="members-content">
-                  <p>Members list and details will be shown here.</p>
+                  <p>Member details will be shown here.</p>
                 </div>
               )}
             </div>
