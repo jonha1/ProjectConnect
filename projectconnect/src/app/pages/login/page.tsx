@@ -3,6 +3,7 @@ import { useRouter } from "next/navigation";
 import { supabase } from "../../lib/supabase";
 import "../../styles/login.page.css";
 import { useState } from "react";
+import { register } from "module";
 
 export default function Login() {
   const [data, setData] = useState({
@@ -11,6 +12,10 @@ export default function Login() {
   });
 
   const router = useRouter();
+
+  const navigateToRegisterAccount = () => {
+    router.push("/register");
+  };
 
   const signin = async () => {
     try {
@@ -70,7 +75,7 @@ export default function Login() {
           <button type="button" className="btn registerButtons" onClick={signin}>
               Login
           </button>
-          <button type="button" className="btn registerButtons" onClick={signup}>
+          <button type="button" className="btn registerButtons" onClick={navigateToRegisterAccount}>
             Register
           </button>
         </div>
