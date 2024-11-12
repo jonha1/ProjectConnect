@@ -4,15 +4,15 @@ from psycopg2.extras import RealDictCursor
 
 class Project:
     def __init__(self, creatorusername, title, description, links, memberDescription, memberLinks, memberContactInfo, dateposted, isarchived):
-        self.creatorusername
-        self.title
-        self.description
-        self.links
-        self.memberDescription
-        self.memberLinks
-        self.memberContactInfo
-        self.dateposted
-        self.isarchived
+        self.creatorusername = creatorusername
+        self.title = title
+        self.description = description
+        self.links = links
+        self.memberDescription = memberDescription
+        self.memberLinks = memberLinks
+        self.memberContactInfo = memberContactInfo
+        self.dateposted = dateposted
+        self.isarchived = isarchived
 
     @staticmethod
     def get_db_connection():
