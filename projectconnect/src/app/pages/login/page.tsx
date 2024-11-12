@@ -64,15 +64,14 @@ export default function Login() {
     <>
       <div className="loginContainer">
         <div id="title">ProjectConnect</div>
-        <div id="description">Login In</div>
         <input id="email" type="text" name="email" placeholder="Email" value={data?.email} onChange={handleChange}></input>
         <input id="password" type="password" name="password" placeholder="Password" value={data?.password} onChange={handleChange}></input>
         <div className="buttonContainer">
           <button type="button" className="btn registerButtons" onClick={signin}>
-              Sign In
+              Login
           </button>
           <button type="button" className="btn registerButtons" onClick={signup}>
-            Sign Up
+            Register
           </button>
         </div>
       </div>
