@@ -23,8 +23,13 @@ const nextConfig = {
           destination: '/pages/login',
         },
         {
-          source: '/register',
-          destination: '/pages/register',
+          source: '/accountInfo',
+          destination: '/pages/accountInfo'
+        },
+        {
+          source:'/register',
+          destination: '/pages/register'
+
         }
       ];
     },
