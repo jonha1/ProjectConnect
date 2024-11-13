@@ -1,7 +1,9 @@
 'use client';
+import React from 'react';
 import '../styles/searchbar.modules.css';
 import { useRouter } from "next/navigation";
 import { ChangeEvent, KeyboardEvent, useState, useEffect } from 'react';
+
 
 interface SearchbarProps {
   onSearchChange?: (query: string) => void;

@@ -1,10 +1,8 @@
 "use client";
-import React from 'react';
 import { useRouter } from "next/navigation";
 import { supabase } from "../../lib/supabase";
-import "../../styles/login.page.css";
+import "../../styles/register.page.css";
 import { useState } from "react";
-import { register } from "module";
 
 export default function Login() {
   const [data, setData] = useState({
@@ -13,10 +11,6 @@ export default function Login() {
   });
 
   const router = useRouter();
-
-  const navigateToRegisterAccount = () => {
-    router.push("/register");
-  };
 
   const signin = async () => {
     try {
@@ -73,11 +67,8 @@ export default function Login() {
         <input id="email" type="text" name="email" placeholder="Email" value={data?.email} onChange={handleChange}></input>
         <input id="password" type="password" name="password" placeholder="Password" value={data?.password} onChange={handleChange}></input>
         <div className="buttonContainer">
-          <button type="button" className="btn registerButtons" onClick={signin}>
-              Login
-          </button>
-          <button type="button" className="btn registerButtons" onClick={navigateToRegisterAccount}>
-            Register
+          <button type="button" className="btn registerButtons" onClick={signup}>
+            Register Account
           </button>
         </div>
       </div>

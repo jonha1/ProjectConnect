@@ -1,5 +1,6 @@
 "use client";
-import { useState, useEffect } from "react";
+import React from 'react';
+import { useState } from "react";
 import Navbar from "../../components/navbar";
 import "../../styles/account.page.css";
 import Searchbar from "../../components/searchbar";
