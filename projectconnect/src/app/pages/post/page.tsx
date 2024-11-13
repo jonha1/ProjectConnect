@@ -4,25 +4,42 @@ import "../../styles/project_view.css";
 import React, { useState } from 'react';
 import { useRouter } from "next/navigation";
 
+type ProjectViewProps = {
+  userRole: "general" | "member" | "creator";
+};
+
 export default function ProjectView() {
   const [activeTab, setActiveTab] = useState("everyone");
   const router = useRouter();
+
+  const userRole = "creator";
 
   const handleJoinClick = () => {
     alert("You have requested to join the project!");
   };
 
   const handleInvite = () => {
-    // Placeholder function for Invite action
     alert("Invite functionality not yet implemented.");
   };
+
+  const handleArchive = () => {
+    alert("Project archived!");
+  };
+
+  const handleDelete = () => {
+    alert("Project deleted!");
+  };
+
+  const handleEdit = () => {
+    alert("Edit functionality not yet implemented.");
+  };
+
 
   return (
     <>
       <Navbar />
       <div className="project-view-container">
-        <div className="project-header">
-        </div>
+        <div className="project-header"></div>
         <div className="content-bubble">
           <div className="left-column">
             <h3>Creator:</h3>
@@ -38,12 +55,14 @@ export default function ProjectView() {
               >
                 Everyone
               </div>
-              <div
-                className={`tab ${activeTab === "members" ? "active" : ""}`}
-                onClick={() => setActiveTab("members")}
-              >
-                Members
-              </div>
+              {userRole !== "general" && (
+                <div
+                  className={`tab ${activeTab === "members" ? "active" : ""}`}
+                  onClick={() => setActiveTab("members")}
+                >
+                  Members
+                </div>
+              )}
             </div>
             <div className="content-container">
               {activeTab === "everyone" ? (
@@ -61,31 +80,35 @@ export default function ProjectView() {
                     https://discord.com/developers/docs/intro
                   </a>
                   <div className="spacer"></div>
-                  <div className="buttonContainer">
-                    <button className="requestJoinButton" onClick={handleJoinClick}>Request Join</button>
-                  </div>
+                  {userRole === "general" && (
+                    <div className="buttonContainer">
+                      <button className="requestJoinButton" onClick={handleJoinClick}>Request Join</button>
+                    </div>
+                  )}
                 </div>
               ) : (
                 <div className="members-content">
-                  <div className = "members-section">
-                    <h3>More Description</h3>
+                  <div className="members-section">
+                    <h4>More Description</h4>
                     <p>We currently have some code, but in the beginning stage.</p>
-                    <h3>More Links</h3>
+                    <h4>More Links</h4>
                     <a href="http://discord.join/channel=MrBunnyMan47andFriends">Discord Channel</a><br />
                     <a href="http://github.com/join/repo=CatMemeBot">GitHub Repository</a>
-                    <h3>More Contact Info</h3>
+                    <h4>More Contact Info</h4>
                     <p>Email: MrBunnyMan47@gmail.com</p>
-                  </div>
-                  <div className="buttonContainer">
-                    <button className="archiveButton">Archive</button>
-                    <button className="deleteButton">Delete</button>
-                    <button className="editButton">Edit</button>
-                    <button className="inviteButton" onClick={handleInvite}>Invite</button>
                   </div>
                 </div>
               )}
             </div>
           </div>
+          {userRole === "creator" && (
+                    <div className="buttonContainer">
+                      <button className="archiveButton" onClick={handleArchive}>Archive</button>
+                      <button className="deleteButton" onClick={handleDelete}>Delete</button>
+                      <button className="editButton" onClick={handleEdit}>Edit</button>
+                      <button className="inviteButton" onClick={handleInvite}>Invite</button>
+                    </div>
+                  )}
         </div>
       </div>
     </>
