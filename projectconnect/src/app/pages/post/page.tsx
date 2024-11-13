@@ -8,11 +8,9 @@ type ProjectViewProps = {
   userRole: "general" | "member" | "creator";
 };
 
-export default function ProjectView() {
+export default function ProjectView({ userRole }: ProjectViewProps) {
   const [activeTab, setActiveTab] = useState("everyone");
   const router = useRouter();
-
-  const userRole = "creator";
 
   const handleJoinClick = () => {
     alert("You have requested to join the project!");
