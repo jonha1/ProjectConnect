@@ -9,7 +9,12 @@ export default function ProjectView() {
   const router = useRouter();
 
   const handleJoinClick = () => {
-    alert("You have joined the project!");
+    alert("You have requested to join the project!");
+  };
+
+  const handleInvite = () => {
+    // Placeholder function for Invite action
+    alert("Invite functionality not yet implemented.");
   };
 
   return (
@@ -55,11 +60,28 @@ export default function ProjectView() {
                   <a href="https://discord.com/developers/docs/intro" target="_blank" rel="noopener noreferrer">
                     https://discord.com/developers/docs/intro
                   </a>
-                  <button className="join-button" onClick={handleJoinClick}>Join</button>
+                  <div className="spacer"></div>
+                  <div className="buttonContainer">
+                    <button className="requestJoinButton" onClick={handleJoinClick}>Request Join</button>
+                  </div>
                 </div>
               ) : (
                 <div className="members-content">
-                  <p>Member details will be shown here.</p>
+                  <div className = "members-section">
+                    <h3>More Description</h3>
+                    <p>We currently have some code, but in the beginning stage.</p>
+                    <h3>More Links</h3>
+                    <a href="http://discord.join/channel=MrBunnyMan47andFriends">Discord Channel</a><br />
+                    <a href="http://github.com/join/repo=CatMemeBot">GitHub Repository</a>
+                    <h3>More Contact Info</h3>
+                    <p>Email: MrBunnyMan47@gmail.com</p>
+                  </div>
+                  <div className="buttonContainer">
+                    <button className="archiveButton">Archive</button>
+                    <button className="deleteButton">Delete</button>
+                    <button className="editButton">Edit</button>
+                    <button className="inviteButton" onClick={handleInvite}>Invite</button>
+                  </div>
                 </div>
               )}
             </div>
