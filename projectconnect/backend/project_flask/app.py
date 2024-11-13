@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 from flask import Flask, request, jsonify, make_response
 from project_flask.models.account import Account
 from project_flask.models.project import Project
+from project_flask.models.notification import Notification
 
 load_dotenv()
 
@@ -153,6 +154,28 @@ def unarchiveProject():
         return jsonify(result), 201  # 201 for successful creation
 
 
+@app.route('/sendNotification', methods=['POST'])
+def sendNotification():
+    data = request.json
+    creator = data.get('creator')
+    recipient = data.get('recipient')
+    type = data.get('messagetype')
+    title = data.get('title')
+    result = Notification.sendNotification(recipient, creator, type, title)
+    if result["status"] == "error":
+        return jsonify(result), 400  # 400 for bad request (like duplicate entry)
+    else:
+        return jsonify(result), 201  # 201 for successful creation
+
+@app.route('/rejectNotification', methods=['POST'])
+def rejectNotification():
+    data = request.json
+    creator = data.get('notificationid')
+    result = Notification.rejectNotification(5)
+    if result["status"] == "error":
+        return jsonify(result), 400  # 400 for bad request (like duplicate entry)
+    else:
+        return jsonify(result), 201  # 201 for successful creation
 
 
 if __name__ == '__main__':
