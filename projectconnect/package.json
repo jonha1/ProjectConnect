@@ -6,7 +6,7 @@
     "dev": "npm run lint:ts && next dev",
     "build": "next build",
     "start": "next start",
-    "lint:ts": "eslint 'src/**/*.{ts,tsx}'"
+    "lint:ts": "eslint src/**/*.{ts,tsx}"
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^6.6.0",

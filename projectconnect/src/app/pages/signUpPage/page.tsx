@@ -1,37 +1,13 @@
 "use client";
-import { useRouter } from "next/navigation";
 import { supabase } from "../../lib/supabase";
 import "../../styles/signUp.page.css";
-import { useState } from "react";
+import React, { useState } from "react";
 
 export default function Login() {
   const [data, setData] = useState({
     email: '',
     password: '',
   });
-
-  const router = useRouter();
-
-  const signin = async () => {
-    try {
-      const { data: loginData, error } = await supabase.auth.signInWithPassword({
-        email: data.email,
-        password: data.password,
-      });
-
-      if (loginData) {
-        console.log("Logged in:", loginData);
-        router.refresh();
-        router.push("/");
-      }
-
-      if (error) {
-        console.error("Login error:", error);
-      }
-    } catch (error) {
-      console.error("Login error:", error);
-    }
-  };
 
   const signup = async () => {
     try {
@@ -52,9 +28,9 @@ export default function Login() {
     }
   };
 
-  const handleChange = (e: any) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const{name, value} = e.target;
-    setData((prev: any) => ({
+    setData((prev) => ({
       ...prev,
       [name]: value,
     }));

@@ -4,10 +4,9 @@ import { useRouter } from "next/navigation";
 import { supabase } from "../../lib/supabase";
 import "../../styles/login.page.css";
 import { useState } from "react";
-import { register } from "module";
 
 export default function Login() {
-  const [data, setData] = useState({
+  const [data, setData] = useState<{ email: string; password: string }>({
     email: '',
     password: '',
   });
@@ -39,28 +38,9 @@ export default function Login() {
     }
   };
 
-  const signup = async () => {
-    try {
-      const { data: signUpData, error } = await supabase.auth.signUp({
-        email: data.email,
-        password: data.password,
-      });
-
-      if (signUpData) {
-        console.log("Sign up successful:", signUpData);
-      }
-
-      if (error) {
-        console.error("Sign up error:", error);
-      }
-    } catch (error) {
-      console.error("Sign up error:", error);
-    }
-  };
-
-  const handleChange = (e: any) => {
+  const handleChange = (e:React.ChangeEvent<HTMLInputElement>) => {
     const{name, value} = e.target;
-    setData((prev: any) => ({
+    setData((prev) => ({
       ...prev,
       [name]: value,
     }));

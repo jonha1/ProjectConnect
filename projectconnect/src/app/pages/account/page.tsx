@@ -141,13 +141,13 @@ export default function Home() {
             nice and yummy, mapo tofu is so silky and spicy, and baja blast to
             wash it all down. In my free time, I love to make silly faces in the
             mirror and tell myself that everything is going to be okay. I have
-            nothing else to say, so for now I leave you with this "CHICK BUTT
+            nothing else to say, so for now I leave you with this CHICK BUTT
             CHICK BUTT CHICK BUTT CHICK BUTT CHICK BUTT CHICK BUTT CHICK BUTT
             CHICK BUTT CHICK BUTT CHICK BUTT CHICK BUTT CHICK BUTT CHICK BUTT
             CHICK BUTT CHICK BUTT CHICK BUTT CHICK BUTT CHICK BUTT CHICK BUTT
             CHICK BUTT CHICK BUTT CHICK BUTT CHICK BUTT CHICK BUTT CHICK BUTT
             CHICK BUTT CHICK BUTT CHICK BUTT CHICK BUTT CHICK BUTT CHICK BUTT
-            CHICK BUTT "
+            CHICK BUTT 
           </div>
           <div className="profileCard">
             <p>Contact Information: </p>
