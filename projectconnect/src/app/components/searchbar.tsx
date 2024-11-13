@@ -35,6 +35,27 @@ export default function Searchbar({ onSearchChange, searchText = "", routeToSear
     }
   };
 
+  const fetchProjectsCount = async () => {
+    try {
+        const response = await fetch("http://localhost:5001/count_projects", {
+            method: "GET",
+            credentials: "include",
+            headers: {
+                "Content-Type": "application/json",
+            },
+        });
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        console.log("Project Count:", data.count); // Log the count in the console
+    } catch (error) {
+        console.error("Error fetching project count:", error);
+    }
+  };
+
   return (
     <div className="parentContainer">
       <div className="searchContainer">
@@ -46,7 +67,13 @@ export default function Searchbar({ onSearchChange, searchText = "", routeToSear
           onChange={handleSearchChange}
           onKeyDown={searchEnterPress}
         />
-        <button type="button" className="btn searchButtons">Filter</button>
+        <button
+          type="button"
+          className="btn searchButtons"
+          onClick={fetchProjectsCount} // Call fetchProjectsCount on Filter button click
+        >
+          Filter
+        </button>
         <button type="button" className="btn searchButtons">Tags</button>
       </div>
     </div>

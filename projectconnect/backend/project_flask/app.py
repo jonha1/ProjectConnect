@@ -10,12 +10,7 @@ from project_flask.models.project import Project
 load_dotenv()
 
 app = Flask(__name__)
-
-# Configure CORS with detailed options
-cors = CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}},
-            supports_credentials=True,
-            methods=["GET", "POST", "OPTIONS"],
-            allow_headers=["Content-Type", "Authorization"])
+CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}}, supports_credentials=True)
 
 @app.after_request
 def add_cors_headers(response):
@@ -24,6 +19,7 @@ def add_cors_headers(response):
     response.headers['Access-Control-Allow-Methods'] = 'GET, POST, OPTIONS'
     response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization'
     return response
+
 
 @app.route('/')
 def home():
@@ -151,9 +147,26 @@ def unarchiveProject():
         return jsonify(result), 400  # 400 for bad request (like duplicate entry)
     else:
         return jsonify(result), 201  # 201 for successful creation
+    
+@app.route('/count_projects', methods=['GET', 'OPTIONS'])
+def count_projects():
+    if request.method == "OPTIONS":
+        response = make_response()
+        response.headers.add("Access-Control-Allow-Origin", "http://localhost:3000")
+        response.headers.add("Access-Control-Allow-Methods", "GET, OPTIONS")
+        response.headers.add("Access-Control-Allow-Headers", "Content-Type, Authorization")
+        response.headers.add("Access-Control-Allow-Credentials", "true")
+        return response
+    # Original count_projects logic follows
+    try:
+        count = Project.count_projects()
+        if count is not None:
+            return jsonify({"status": "success", "count": count}), 200
+        else:
+            return jsonify({"status": "error", "message": "Could not retrieve project count"}), 500
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
 
 
-
-
-if __name__ == '__main__':
-    app.run(debug=True)
+if __name__ == "__main__":
+    app.run(port=5001, debug=True)
