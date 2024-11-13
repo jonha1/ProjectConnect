@@ -3,6 +3,9 @@ import Navbar from '../../components/navbar';
 import "../../styles/project_view.css";
 import React, { useState } from 'react';
 import { useRouter } from "next/navigation";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faBookmark as filledBookmark } from "@fortawesome/free-solid-svg-icons";
+import { faBookmark as emptyBookmark } from "@fortawesome/free-regular-svg-icons";
 
 type ProjectViewProps = {
   userRole: "general" | "member" | "creator";
@@ -10,6 +13,7 @@ type ProjectViewProps = {
 
 export default function ProjectView({ userRole }: ProjectViewProps) {
   const [activeTab, setActiveTab] = useState("everyone");
+  const [isBookmarked, setIsBookmarked] = useState(false);
   const router = useRouter();
 
   const handleJoinClick = () => {
@@ -32,6 +36,13 @@ export default function ProjectView({ userRole }: ProjectViewProps) {
     alert("Edit functionality not yet implemented.");
   };
 
+  const handleleave = () => {
+    alert("You have left the project.");
+  }
+
+  const handleBookmarkClick = () => {
+    setIsBookmarked((prev) => !prev); 
+  };
 
   return (
     <>
@@ -39,6 +50,9 @@ export default function ProjectView({ userRole }: ProjectViewProps) {
       <div className="project-view-container">
         <div className="project-header"></div>
         <div className="content-bubble">
+        <button className="bookmark-icon" onClick={handleBookmarkClick}>
+          <FontAwesomeIcon icon={isBookmarked ? filledBookmark : emptyBookmark} />
+        </button>
           <div className="left-column">
             <h3>Creator:</h3>
             <p className="creator-name">MrBunnyMan47</p>
@@ -105,6 +119,11 @@ export default function ProjectView({ userRole }: ProjectViewProps) {
                       <button className="deleteButton" onClick={handleDelete}>Delete</button>
                       <button className="editButton" onClick={handleEdit}>Edit</button>
                       <button className="inviteButton" onClick={handleInvite}>Invite</button>
+                    </div>
+                  )}
+          {userRole === "member" && (
+                    <div className="buttonContainer">
+                      <button className="leaveButton" onClick={handleInvite}>Leave</button>
                     </div>
                   )}
         </div>
