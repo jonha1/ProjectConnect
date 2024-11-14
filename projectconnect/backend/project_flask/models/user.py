@@ -1,6 +1,7 @@
 import os
 import psycopg2
 from psycopg2.extras import RealDictCursor
+from member import Member
 
 #@staticmethod should only be used for methods that don’t need access to instance-specific data (i.e., don’t use self)
 class User:
@@ -41,9 +42,42 @@ class User:
     def getDisplayName(self):
         return self.displayName
     
-    def addBookmark(self, creator_username, title):
+    @staticmethod
+    def join_project(username, project_title):
+        # Check if the user is already a member of the project
+        if Member.inProject(username, project_title):
+            return {"error": "User is already a member of this project."}
+        
+        try:
+            with User.get_db_connection() as conn:
+                with conn.cursor() as cursor:
+                    cursor.execute("""
+                        SELECT creator_username FROM projects
+                        WHERE title = %s
+                    """, (project_title,))
+                    creator_result = cursor.fetchone()
+                    
+                    if not creator_result:
+                        return {"error": "Project not found."}
+                    
+                    creatorname = creator_result['creator_username']
 
-    def removeBookmark(self, creator_username, title):
+                    cursor.execute("""
+                        INSERT INTO member (username, creatorname, project_title, timestamp)
+                        VALUES (%s, %s, %s, CURRENT_TIMESTAMP) RETURNING *;
+                    """, (username, creatorname, project_title))
+                    
+                    new_membership = cursor.fetchone()
+                    conn.commit()
+                    return new_membership
+        except Exception as e:
+            print(f"Error joining project: {e}")
+            return {"error": str(e)}
 
-    def joinProject(self, creator_username, title):
+    # def removeBookmark(self, creator_username, title):
+
+    # def addBookmark(self, creator_username, title):
+
+
+    
         
