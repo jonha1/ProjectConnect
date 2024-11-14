@@ -1,7 +1,6 @@
 from flask_cors import CORS
 import psycopg2
 from psycopg2.extras import RealDictCursor
-import os
 from dotenv import load_dotenv
 from flask import Flask, request, jsonify
 from project_flask.models.account import Account
@@ -39,13 +38,29 @@ def register_account():
 
     return jsonify(result), 201 if 'error' not in result else 400
 
-#fix
-@app.route('/check_account/<username>/<email>', methods=['GET'])
-def check_account(username, email):
-    if Account.account_exists(username, email):
-        return {"exists": True}
+@app.route('/api/login', methods=['POST'])
+def login():
+    data = request.json
+    email = data.get("email")
+    password = data.get("password")
+
+    # Retrieve account by email
+    account = Account.get_account_by_email(email)
+
+    # Compare plain-text password directly (not recommended for security)
+    if account and account['password'] == password:
+        return jsonify({"message": "Login successful", "user": account['username']}), 200
     else:
-        return {"exists": False}
+        return jsonify({"error": "Invalid credentials"}), 401
+
+
+#fix
+# @app.route('/check_account/<username>/<email>', methods=['GET'])
+# def check_account(username, email):
+#     if Account.account_exists(username, email):
+#         return {"exists": True}
+#     else:
+#         return {"exists": False}
 
 if __name__ == '__main__':
     app.run(debug=True)

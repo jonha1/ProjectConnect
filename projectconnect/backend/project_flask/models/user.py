@@ -3,7 +3,7 @@ import psycopg2
 from psycopg2.extras import RealDictCursor
 from member import Member
 
-#@staticmethod should only be used for methods that don’t need access to instance-specific data (i.e., don’t use self)
+#@staticmethod should only be used for methods that don’t need access to instance-specific data (don’t use self)
 class User:
     def __init__(self, username, displayName, loginEmail, password, aboutMe, contactInfo, skills):
         self.username = username
