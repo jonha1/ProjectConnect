@@ -30,7 +30,7 @@ class Account:
             print(f"Error checking account existence: {e}")
             return False 
     
-    ## NEEDS TESTING
+    ## returns json
     @staticmethod
     def get_account_by_email(loginEmail):
         try:

@@ -23,7 +23,6 @@ def test_db_connection():
                 result = cursor.fetchone()
                 return jsonify({"status": "success", "result": result}), 200
     except Exception as e:
-        # If there is an error, return it as JSON
         return jsonify({"status": "error", "message": str(e)}), 500
 
 @app.route('/api/accounts', methods=['POST'])
@@ -44,23 +43,12 @@ def login():
     email = data.get("email")
     password = data.get("password")
 
-    # Retrieve account by email
     account = Account.get_account_by_email(email)
 
-    # Compare plain-text password directly (not recommended for security)
     if account and account['password'] == password:
         return jsonify({"message": "Login successful", "user": account['username']}), 200
     else:
         return jsonify({"error": "Invalid credentials"}), 401
-
-
-#fix
-# @app.route('/check_account/<username>/<email>', methods=['GET'])
-# def check_account(username, email):
-#     if Account.account_exists(username, email):
-#         return {"exists": True}
-#     else:
-#         return {"exists": False}
 
 if __name__ == '__main__':
     app.run(debug=True)
