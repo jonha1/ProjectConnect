@@ -4,6 +4,7 @@ from psycopg2.extras import RealDictCursor
 from dotenv import load_dotenv
 from flask import Flask, request, jsonify
 from project_flask.models.account import Account
+from project_flask.models.user import user
 
 load_dotenv()
 
@@ -42,6 +43,7 @@ def login():
     data = request.json
     email = data.get("email")
     password = data.get("password")
+    #creatos account instance
 
     account = Account.get_account_by_email(email)
 
@@ -51,8 +53,35 @@ def login():
         return jsonify({"error": "Invalid credentials"}), 401
 
 @app.route('/editSkills', methods=['POST'])
-def editSkills(self, new_skills):
-    self.skills = new_skills
+def editSkills():
+    # Parse the JSON payload from the request
+    data = request.get_json()
+
+    if not data or 'new_skills' not in data or 'email' not in data:
+        return jsonify({"error": "Invalid input. 'email' and 'new_skills' keys are required."}), 400
+
+    # Extract email and new_skills from the request
+    email = data.get("email")
+    new_skills = data.get("new_skills")
+
+    # Fetch the account by email
+    account = Account.get_account_by_email(email)
+
+    # Check if the account exists
+    if not account:
+        return jsonify({"error": f"Account with email '{email}' does not exist."}), 404
+
+    # if not user:
+    #     return jsonify({"error": "No user associated with this account."}), 404
+
+    # Update the user's skills
+    user.editSkills(new_skills)
+
+    return jsonify({
+        "message": "Skills updated successfully",
+        "new_skills": user.skills
+    })
+
 
 @app.route('/getSkills', methods=['GET'])
 def getSkills(self):
