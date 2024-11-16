@@ -3,7 +3,6 @@ import React from 'react';
 import { useState } from "react";
 import Navbar from "../../components/navbar";
 import "../../styles/account.page.css";
-import Searchbar from "../../components/searchbar";
 import Postcard from "../../components/post_card";
 import styles from "../../styles/searchpage.module.css"; // Import the CSS file for styling
 import { useSearchParams } from "next/navigation"; 
