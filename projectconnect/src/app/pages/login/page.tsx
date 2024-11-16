@@ -55,7 +55,7 @@ export default function Login() {
   return (
     <div className="loginContainer">
       <div id="title">ProjectConnect</div>
-      <div id="description">Login In</div>
+      {/* <div id="description">Login In</div> */}
       <input
         id="email"
         type="text"
