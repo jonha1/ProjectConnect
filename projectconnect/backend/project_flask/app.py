@@ -50,5 +50,33 @@ def login():
     else:
         return jsonify({"error": "Invalid credentials"}), 401
 
+@app.route('/editSkills', methods=['POST'])
+def editSkills(self, new_skills):
+    self.skills = new_skills
+
+@app.route('/getSkills', methods=['GET'])
+def getSkills(self):
+    return self.skills
+
+@app.route('/editAboutMe', methods=['POST'])
+def editAboutMe(self, new_about_me):
+    self.aboutMe = new_about_me
+
+@app.route('/getAboutMe', methods=['GET'])
+def getAboutMe(self):
+    return self.aboutMe
+
+@app.route('/editContactInfo', methods=['POST'])
+def editContactInfo(self, new_contact_info):
+    self.contactInfo = new_contact_info
+
+@app.route('/getContactInfo', methods=['GET'])
+def getContactInfo(self):
+    return self.contactInfo
+
+@app.route('/getDisplayInfo', methods=['GET'])
+def getDisplayName(self):
+    return self.displayName
+
 if __name__ == '__main__':
     app.run(debug=True)
