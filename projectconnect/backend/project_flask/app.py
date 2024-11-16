@@ -7,6 +7,7 @@ from flask import Flask, request, jsonify, make_response
 from project_flask.models.account import Account
 from project_flask.models.project import Project
 from project_flask.models.notification import Notification
+from project_flask.models.bookmark import Bookmark
 
 load_dotenv()
 
@@ -172,6 +173,19 @@ def rejectNotification():
     data = request.json
     creator = data.get('notificationid')
     result = Notification.rejectNotification(5)
+    if result["status"] == "error":
+        return jsonify(result), 400  # 400 for bad request (like duplicate entry)
+    else:
+        return jsonify(result), 201  # 201 for successful creation
+
+@app.route('/addBookmark', methods=['POST'])
+def addBookmark():
+    data = request.json
+    user = data.get('username')
+    post = data.get('title')
+    post_creator = data.get('creatorusername')
+    user_bookmark = Bookmark(user)
+    result = user_bookmark.addBookmark(post, post_creator)
     if result["status"] == "error":
         return jsonify(result), 400  # 400 for bad request (like duplicate entry)
     else:
