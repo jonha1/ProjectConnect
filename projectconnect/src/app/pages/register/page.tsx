@@ -41,7 +41,7 @@ export default function Register() {
 
       if (signUpData) {
         console.log('Sign up successful:', signUpData);
-        router.push('/');
+        router.push('/accountInfo');
       }
 
       if (error) {

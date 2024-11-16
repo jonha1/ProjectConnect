@@ -187,8 +187,6 @@ export default function Home() {
             </div>
           </div>
 
-          <Searchbar />
-
           <div className="projects">
             {activeTab === "created" && (
               <div className="createdProjects">
