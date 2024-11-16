@@ -1,15 +1,20 @@
 "use client";
+import React from 'react';
 import { useRouter } from "next/navigation";
 import "../../styles/login.page.css";
 import { useState } from "react";
 
 export default function Login() {
-  const [data, setData] = useState({
+  const [data, setData] = useState<{ email: string; password: string }>({
     email: '',
     password: '',
   });
 
   const router = useRouter();
+
+  const navigateToRegisterAccount = () => {
+    router.push("/register");
+  };
 
   const signin = async () => {
     try {
