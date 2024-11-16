@@ -4,20 +4,23 @@ import "../../styles/createproject.page.css";
 import React, {useState} from 'react';
 import { useRouter } from "next/navigation";
 
+type AutoResizeTextareaProps = {
+  placeholder: string;
+  value: string;
+  onChange: (value: string) => void;
+};
 
-function AutoResizeTextarea({ placeholder }: { placeholder: string }) {
-  const [text, setText] = useState('');
-
+function AutoResizeTextarea({ placeholder, value, onChange }: AutoResizeTextareaProps) {
   const handleChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
     const textarea = event.target;
     textarea.style.height = 'auto';  // Reset height
     textarea.style.height = `${textarea.scrollHeight}px`;  // Adjust to content height
-    setText(textarea.value);
+    onChange(textarea.value);
   };
 
   return (
     <textarea
-      value={text}
+      value={value}
       onChange={handleChange}
       placeholder={placeholder}
       className="inputBox"
@@ -34,8 +37,37 @@ function AutoResizeTextarea({ placeholder }: { placeholder: string }) {
 
 export default function Createpost() {
   const router = useRouter();
-  const handleClick = () => {
-    router.push("/");
+
+  const[projectData,setProjectData]= useState({
+    title:'',
+    description:'',
+    links:'',
+    contact:'',
+    memberDescription:'',
+    memberLinks:'',
+    memberContact:''
+    })
+
+    const handleInputChange = (field: string, value: string) => {
+      // console.log(`Field updated: ${field}, New Value: ${value}`);
+      setProjectData({ ...projectData, [field]: value });
+    };
+
+    const handleSubmit = () => {
+      const payload = {
+        title: projectData.title,
+        description: projectData.description,
+        links: projectData.links,
+        contact: projectData.contact,
+        members: {
+          description: projectData.memberDescription,
+          links: projectData.memberLinks,
+          contact: projectData.memberContact
+        }
+      };
+      
+      console.log("string to pass to api", payload);
+      router.push("/");
   };
   return (
     <>
@@ -65,26 +97,53 @@ export default function Createpost() {
         </div>
 
         <form className="formInput">
-          <AutoResizeTextarea placeholder="Title*"  />
-          <AutoResizeTextarea placeholder="Project Description*"/>
-          <AutoResizeTextarea placeholder="Links" />
-          <AutoResizeTextarea placeholder="Contact Information"  />
+          <AutoResizeTextarea 
+            placeholder="Title*" 
+            value={projectData.title} 
+            onChange={(value) => handleInputChange('title', value)} 
+          />
+          <AutoResizeTextarea 
+            placeholder="Project Description*" 
+            value={projectData.description} 
+            onChange={(value) => handleInputChange('description', value)} 
+          />
+          <AutoResizeTextarea 
+            placeholder="Links" 
+            value={projectData.links} 
+            onChange={(value) => handleInputChange('links', value)} 
+          />
+          <AutoResizeTextarea 
+            placeholder="Contact Information" 
+            value={projectData.contact  } 
+            onChange={(value) => handleInputChange('contact', value)} 
+          />
         </form>
-
         <div className='formHeader'>
           <h3> Members</h3>
         </div>
 
         <form className='formInput'>
-          <AutoResizeTextarea  placeholder="Member Description" />
-          <AutoResizeTextarea  placeholder="Member Links" />
-          <AutoResizeTextarea  placeholder="Member Contact Information" />
+        <AutoResizeTextarea  
+            placeholder="Member Description" 
+            value={projectData.memberDescription} 
+            onChange={(value) => handleInputChange('memberDescription', value)} 
+          />
+          <AutoResizeTextarea  
+            placeholder="Member Links" 
+            value={projectData.memberLinks} 
+            onChange={(value) => handleInputChange('memberLinks', value)} 
+          />
+          <AutoResizeTextarea  
+            placeholder="Member Contact Information" 
+            value={projectData.memberContact} 
+            onChange={(value) => handleInputChange('memberContact', value)} 
+          />
         </form>
 
         <button 
           type="submit" 
           className="submit-button" 
-          onClick={handleClick}
+          onClick={handleSubmit}
         >
             Post
         </button>
