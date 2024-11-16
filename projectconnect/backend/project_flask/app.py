@@ -166,6 +166,56 @@ def count_projects():
             return jsonify({"status": "error", "message": "Could not retrieve project count"}), 500
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
+    
+# @app.route('/getProjects', methods=['GET', 'OPTIONS'])
+# def getProjects():
+#     if request.method == "OPTIONS":
+#         response = make_response()
+#         response.headers.add("Access-Control-Allow-Origin", "http://localhost:3000")
+#         response.headers.add("Access-Control-Allow-Methods", "GET, OPTIONS")
+#         response.headers.add("Access-Control-Allow-Headers", "Content-Type, Authorization")
+#         response.headers.add("Access-Control-Allow-Credentials", "true")
+#         return response
+    
+#     data = request.json
+#     searchQuery = data.get('searchQuery')
+#     tags = data.get('tags')
+#     filter = data.get('filter')
+
+#     result = Project.getProjects(searchQuery, tags, filter)
+
+#     # Check if the result is an error
+#     if "error" in result:
+#         return jsonify(result), 400  # 400 for bad request (like duplicate entry)
+#     else:
+#         return jsonify(result), 201  # 201 for successful creation
+
+@app.route('/findProjects', methods=['POST', 'OPTIONS'])
+def getProjects():
+    if request.method == "OPTIONS":
+        response = make_response()
+        response.headers.add("Access-Control-Allow-Origin", "http://localhost:3000")
+        response.headers.add("Access-Control-Allow-Methods", "POST, OPTIONS")
+        response.headers.add("Access-Control-Allow-Headers", "Content-Type, Authorization")
+        response.headers.add("Access-Control-Allow-Credentials", "true")
+        return response
+
+    # Parse JSON data from the request body
+    data = request.json
+    searchQuery = data.get('searchQuery', "")
+    tags = data.get('tags', "")
+    filter = data.get('filter', "")
+
+    # Call the Project.getProjects method to fetch projects based on the search query
+    result = Project.getProjects(searchQuery, tags, filter)
+
+    # Check if the result is an error
+    if "error" in result:
+        return jsonify(result), 400  # Bad request if there's an error
+    else:
+        return jsonify(result), 200  # Return the project list with 200 OK
+
+
 
 
 if __name__ == "__main__":

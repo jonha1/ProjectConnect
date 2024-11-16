@@ -222,6 +222,47 @@ class Project:
         except Exception as e:
             print(f"Error unarchiving project for creator '{creatorusername}' and title '{title}': {e}")
             return {"error": f"Failed to unarchive project '{title}' by '{creatorusername}'"}
+        
+    # @staticmethod
+    # def getProjects(searchQuery, tags, filter):
+    #     if(tags == "" and filter == ""): #only searchQuery is used
+    #         try:
+    #             with Project.get_db_connection() as conn:
+    #                 with conn.cursor() as cursor:
+    #                     cursor.execute("""
+    #                         SELECT * FROM projects 
+    #                         WHERE creatorusername like '\%\%s%' OR title = '\%\%s%' OR description like '\%\%s%'
+    #                         ORDER BY dateposted DESC;
+    #                     """, (searchQuery, searchQuery, searchQuery))
+    #                     result = cursor.fetchall()
+    #                     return result
+    #         except Exception as e:
+    #             print(f"Error retrieving projects: {e}")
+    #             return []
+    
+    @staticmethod
+    def getProjects(searchQuery, tags, filter):
+        if tags == "" and filter == "":  # Only searchQuery is used
+            try:
+                with Project.get_db_connection() as conn:
+                    with conn.cursor() as cursor:
+                        # Fetch projects that match search query
+                        # ILIKE = case INsensitive
+                        cursor.execute("""
+                            SELECT * FROM projects 
+                            WHERE creatorusername ILIKE %s OR title ILIKE %s OR description ILIKE %s
+                            ORDER BY dateposted DESC;
+                        """, (f"%{searchQuery}%", f"%{searchQuery}%", f"%{searchQuery}%"))
+
+                        result = cursor.fetchall()
+                        return result if result else []  # Return list of projects or empty list
+            except Exception as e:
+                print(f"Error retrieving projects: {e}")
+                return {"error": str(e)}
+
+
+
+
 
 
 
