@@ -25,7 +25,14 @@ input{
     border-radius: 6px;
     font-size: 4rem;
     padding: 0px 20px 0px 20px;
-    /* margin-bottom: 4vw; */
+}
+
+#description{
+    font-size: 3.5rem;
+    background-color: #2D2D2D;
+    color: white;
+    border-radius: 6px;
+    padding: 0px 20px 0px 20px;
 }
 
 .buttonContainer{

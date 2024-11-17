@@ -24,7 +24,7 @@ export async function middleware(req: NextRequest){
 
     // if there is a session, return response
     return res;
-};
+}
 
 export const config = {
     matcher: [

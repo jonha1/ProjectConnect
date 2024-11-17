@@ -3,10 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "npm run lint:ts && next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint:ts": "eslint src/**/*.{ts,tsx}"
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^6.6.0",
@@ -25,6 +25,8 @@
     "@types/node": "^20",
     "@types/react": "^18.3.11",
     "@types/react-dom": "^18.3.1",
+    "@typescript-eslint/eslint-plugin": "^8.13.0",
+    "@typescript-eslint/parser": "^8.13.0",
     "eslint": "^8",
     "eslint-config-next": "14.2.15",
     "typescript": "^5"

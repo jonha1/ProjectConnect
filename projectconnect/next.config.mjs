@@ -28,7 +28,11 @@ const nextConfig = {
         },
         {
           source: '/post',
-          destination: '/pages/post',
+          destination: '/pages/post'
+        },
+        {
+          source:'/register',
+          destination: '/pages/register'
         }
       ];
     },
