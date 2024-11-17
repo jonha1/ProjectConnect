@@ -1,11 +1,11 @@
 "use client";
-import Navbar from '../../components/navbar';
-import "../../styles/project_view.css";
-import React, { useState } from 'react';
-import { useRouter } from "next/navigation";
+import React, { useState, useEffect } from "react";
+import { usePathname } from "next/navigation";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBookmark as filledBookmark } from "@fortawesome/free-solid-svg-icons";
 import { faBookmark as emptyBookmark } from "@fortawesome/free-regular-svg-icons";
+import Navbar from "../../components/navbar";
+import "../../styles/project_view.css";
 
 type ProjectViewProps = {
   userRole: "general" | "member" | "creator";
@@ -14,35 +14,84 @@ type ProjectViewProps = {
 export default function ProjectView({ userRole }: ProjectViewProps) {
   const [activeTab, setActiveTab] = useState("everyone");
   const [isBookmarked, setIsBookmarked] = useState(false);
-  const router = useRouter();
+  const [isLoading, setIsLoading] = useState(true);
 
-  const handleJoinClick = () => {
-    alert("You have requested to join the project!");
+  // Get the pathname of the current route
+  const pathname = usePathname();
+
+  // State variables for project details
+  const [projectDetails, setProjectDetails] = useState<any>({});
+
+  // Extract creatorUsername and title from pathname
+  useEffect(() => {
+    if (pathname) {
+      const urlParams = new URLSearchParams(window.location.search);
+      const creator = urlParams.get("creator");
+      let projectTitle = urlParams.get("title");
+
+      if (projectTitle) {
+        projectTitle = projectTitle.replace("-", " ");
+      }
+
+      fetchProjectInformation(creator, projectTitle);
+    }
+  }, [pathname]);
+
+  const fetchProjectInformation = async (creator: string | null, projectTitle: string | null) => {
+    if (!creator || !projectTitle) return;
+
+    try {
+      setIsLoading(true);
+      const response = await fetch("http://localhost:5001/getProjectInfo", {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ 
+          creatorusername: creator, 
+          title: projectTitle 
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      setProjectDetails({ ...data }); // Spread the object to ensure a new reference
+    } catch (error) {
+      console.error("Error fetching project information:", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
-
-  const handleInvite = () => {
-    alert("Invite functionality not yet implemented.");
-  };
-
-  const handleArchive = () => {
-    alert("Project archived!");
-  };
-
-  const handleDelete = () => {
-    alert("Project deleted!");
-  };
-
-  const handleEdit = () => {
-    alert("Edit functionality not yet implemented.");
-  };
-
-  const handleleave = () => {
-    alert("You have left the project.");
-  }
 
   const handleBookmarkClick = () => {
-    setIsBookmarked((prev) => !prev); 
+    setIsBookmarked((prev) => !prev);
   };
+  
+  if (isLoading || !projectDetails || Object.keys(projectDetails).length === 0) {
+    return (
+      <div
+        className="d-flex justify-content-center align-items-center"
+        style={{
+          width: "100vw",
+          height: "100vh",
+        }}
+      >
+        <div
+          className="spinner-border"
+          role="status"
+          style={{ width: "5rem", height: "5rem" }}
+        >
+          <span className="sr-only">Loading...</span>
+        </div>
+      </div>
+    );
+  }
+  
+  
 
   return (
     <>
@@ -50,12 +99,12 @@ export default function ProjectView({ userRole }: ProjectViewProps) {
       <div className="project-view-container">
         <div className="project-header"></div>
         <div className="content-bubble">
-        <button className="bookmark-icon" onClick={handleBookmarkClick}>
-          <FontAwesomeIcon icon={isBookmarked ? filledBookmark : emptyBookmark} />
-        </button>
+          <button className="bookmark-icon" onClick={handleBookmarkClick}>
+            <FontAwesomeIcon icon={isBookmarked ? filledBookmark : emptyBookmark} />
+          </button>
           <div className="left-column">
             <h3>Creator:</h3>
-            <p className="creator-name">MrBunnyMan47</p>
+            <p className="creator-name">{projectDetails.project.creatorusername || "Unknown Creator"}</p>
             <button className="view-profile-button">View Creator Profile</button>
             <button className="current-members-button">Current Members</button>
           </div>
@@ -80,52 +129,45 @@ export default function ProjectView({ userRole }: ProjectViewProps) {
               {activeTab === "everyone" ? (
                 <div className="everyone-content">
                   <h2>Title</h2>
-                  <p>Python Discord Bot</p>
+                  <p>{projectDetails.project.title || "Untitled Project"}</p>
                   <h3>Description</h3>
-                  <p>
-                    Creating a Discord bot to send cat memes to be used in my Discord channel when members are bored. Beginner friendly!
-                    <br />
-                    <strong>Tech stack:</strong> Python, Discord API
-                  </p>
+                  <p>{projectDetails.project.description || "No description"}</p>
                   <h3>Links</h3>
-                  <a href="https://discord.com/developers/docs/intro" target="_blank" rel="noopener noreferrer">
-                    https://discord.com/developers/docs/intro
-                  </a>
+                  <p>{projectDetails.project.links || "No links provided"}</p>
                   <div className="spacer"></div>
                   {userRole === "general" && (
                     <div className="buttonContainer">
-                      <button className="requestJoinButton" onClick={handleJoinClick}>Request Join</button>
+                      <button className="requestJoinButton">Request Join</button>
                     </div>
                   )}
                 </div>
               ) : (
                 <div className="members-content">
                   <div className="members-section">
-                    <h4>More Description</h4>
-                    <p>We currently have some code, but in the beginning stage.</p>
-                    <h4>More Links</h4>
-                    <a href="http://discord.join/channel=MrBunnyMan47andFriends">Discord Channel</a><br />
-                    <a href="http://github.com/join/repo=CatMemeBot">GitHub Repository</a>
-                    <h4>More Contact Info</h4>
-                    <p>Email: MrBunnyMan47@gmail.com</p>
+                    <h4>Member Description</h4>
+                    <p>{projectDetails.project.memberdescription || "No member description available"}</p>
+                    <h4>Member Links</h4>
+                    <p>{projectDetails.project.memberlinks || "No member links available"}</p>
+                    <h4>Member Contact Info</h4>
+                    <p>{projectDetails.project.membercontactinfo || "No contact info available"}</p>
                   </div>
                 </div>
               )}
             </div>
           </div>
           {userRole === "creator" && (
-                    <div className="buttonContainer">
-                      <button className="archiveButton" onClick={handleArchive}>Archive</button>
-                      <button className="deleteButton" onClick={handleDelete}>Delete</button>
-                      <button className="editButton" onClick={handleEdit}>Edit</button>
-                      <button className="inviteButton" onClick={handleInvite}>Invite</button>
-                    </div>
-                  )}
+            <div className="buttonContainer">
+              <button className="archiveButton">Archive</button>
+              <button className="deleteButton">Delete</button>
+              <button className="editButton">Edit</button>
+              <button className="inviteButton">Invite</button>
+            </div>
+          )}
           {userRole === "member" && (
-                    <div className="buttonContainer">
-                      <button className="leaveButton" onClick={handleInvite}>Leave</button>
-                    </div>
-                  )}
+            <div className="buttonContainer">
+              <button className="leaveButton">Leave</button>
+            </div>
+          )}
         </div>
       </div>
     </>
