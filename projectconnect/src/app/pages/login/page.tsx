@@ -3,6 +3,7 @@ import React from 'react';
 import { useRouter } from "next/navigation";
 import "../../styles/login.page.css";
 import { useState } from "react";
+import Cookies from 'js-cookie';
 
 export default function Login() {
   const [data, setData] = useState<{ email: string; password: string }>({
@@ -30,6 +31,8 @@ export default function Login() {
 
       if (response.ok) {
         console.log("Logged in:", result);
+        // Expires in 7 days
+        Cookies.set('username', result.user, { expires: 7 }); 
         router.refresh();
         router.push("/");
       } else {

@@ -4,6 +4,7 @@ from psycopg2.extras import RealDictCursor
 from dotenv import load_dotenv
 from flask import Flask, request, jsonify
 from project_flask.models.account import Account
+from project_flask.models.user import User
 
 load_dotenv()
 
@@ -49,6 +50,10 @@ def login():
         return jsonify({"message": "Login successful", "user": account['username']}), 200
     else:
         return jsonify({"error": "Invalid credentials"}), 401
+    
+@app.route('/api/editSkills', methods=['POST'])
+def editSkils():
+    data = request.json
 
 if __name__ == '__main__':
     app.run(debug=True)
