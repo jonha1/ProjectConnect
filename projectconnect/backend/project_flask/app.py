@@ -92,7 +92,7 @@ def buildProject():
     else:
         return jsonify(result), 201  # 201 for successful creation
     
-@app.route('/getProjectInfo', methods=['GET'])
+@app.route('/getProjectInfo', methods=['POST'])
 def getProjectInfo():
     data = request.json
     creatorusername = data.get('creatorusername')
