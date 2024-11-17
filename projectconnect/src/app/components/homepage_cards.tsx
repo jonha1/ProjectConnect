@@ -1,5 +1,6 @@
 "use client";
 import '../styles/homepage_cards.modules.css';
+import React from 'react';
 import { useRouter } from "next/navigation";
 
 interface Props {

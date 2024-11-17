@@ -1,6 +1,5 @@
 "use client";
-import { supabase } from "../../lib/supabase";
-
+import React from 'react';
 import Navbar from "../../components/navbar";
 import Searchbar from "../../components/searchbar";
 import HomepageCards from "../../components/homepage_cards";

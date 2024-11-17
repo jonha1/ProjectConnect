@@ -1,6 +1,8 @@
 import 'bootstrap/dist/css/bootstrap.min.css'; // Import Bootstrap CSS globally
 import './styles/globals.css';
 import '@fortawesome/fontawesome-svg-core/styles.css';
+import React from 'react';
+
 
 export const metadata = {
   title: 'ProjectConnect',
