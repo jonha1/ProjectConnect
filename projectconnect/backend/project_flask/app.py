@@ -120,20 +120,25 @@ def get_skills():
 def edit_about_me():
     data = request.json
     username = data.get("username")
+    loginEmail = data.get("loginEmail")
     new_about_me = data.get("newAboutMe")
 
     if not username or not new_about_me:
         return jsonify({"status": "error", "message": "Both username and newAboutMe are required"}), 400
 
+    account = Account.account_exists(username,loginEmail)
+
+    if not account:
+        return jsonify({"error": "Invalid credentials"}), 401
     try:
         with Account.get_db_connection() as conn:
             with conn.cursor() as cursor:
                 cursor.execute(
                     """
                     UPDATE users 
-                    SET aboutMe = %s 
+                    SET aboutme = %s 
                     WHERE username = %s
-                    RETURNING aboutMe;
+                    RETURNING aboutme;
                     """,
                     (new_about_me, username)
                 )
@@ -141,7 +146,7 @@ def edit_about_me():
                 conn.commit()
 
         if updated_record:
-            return jsonify({"status": "success", "aboutMe": updated_record["aboutMe"]}), 200
+            return jsonify({"status": "success", "aboutme": updated_record["aboutme"]}), 200
         else:
             return jsonify({"status": "error", "message": "User not found"}), 404
 
@@ -150,32 +155,35 @@ def edit_about_me():
         return jsonify({"status": "error", "message": str(e)}), 500
 
 @app.route('/api/getAboutMe', methods=['GET'])
-def get_About_me():
+def get_about_me():
     data = request.json
-    aboutme = data.get("aboutme")
+    username = data.get("username")
+    loginEmail = data.get("loginEmail")
 
-    if not aboutme:
-        return jsonify({"status": "error", "message": "Username is required"}), 400
+    if not username or not loginEmail:
+        return jsonify({"status": "error", "message": "Username and loginEmail are required"}), 400
 
-    print(f"Received username: {aboutme}")
+    account_exists = Account.account_exists(username, loginEmail)
+    if not account_exists:
+        return jsonify({"error": "Invalid credentials"}), 401
 
     try:
         with Account.get_db_connection() as conn:
             with conn.cursor() as cursor:
                 cursor.execute(
                     """
-                    SELECT aboutme FROM users WHERE username = %s
+                    SELECT aboutme FROM users WHERE username = %s AND loginEmail = %s
                     """,
-                    (aboutme,)
+                    (username, loginEmail)
                 )
                 result = cursor.fetchone()
 
-        if result:
-            return jsonify({"status": "success", "aboutme": result['aboutme']}), 200
+        if result and "aboutme" in result:
+            return jsonify({"status": "success", "aboutme": result["aboutme"]}), 200
         else:
-            return jsonify({"status": "error", "message": "User not found"}), 404
+            return jsonify({"status": "error", "message": "No aboutme found for the user"}), 404
     except Exception as e:
-        print(f"Error fetching skills: {e}")
+        print(f"Error fetching aboutMe: {e}")
         return jsonify({"status": "error", "message": str(e)}), 500
 
 if __name__ == '__main__':
