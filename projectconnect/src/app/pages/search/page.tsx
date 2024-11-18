@@ -14,7 +14,8 @@ interface Post {
 }
 
 export default function Search() {
-  const { searchText, setSearchText } = useSearchContext();
+  // const { searchText, setSearchText } = useSearchContext();
+  const { searchText, tag, setSearchText } = useSearchContext();
   const [posts, setPosts] = useState<Post[]>([]);
 
   const fetchProjects = async () => {
@@ -27,7 +28,7 @@ export default function Search() {
         },
         body: JSON.stringify({
           searchQuery: searchText.trim(),
-          tags: "",
+          tag: tag.trim(),
           filter: "",
         }),
       });

@@ -10,7 +10,8 @@ from project_flask.models.project import Project
 load_dotenv()
 
 app = Flask(__name__)
-CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}}, supports_credentials=True)
+CORS(app)
+# CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}}, supports_credentials=True)
 
 @app.after_request
 def add_cors_headers(response):
@@ -92,8 +93,15 @@ def buildProject():
     else:
         return jsonify(result), 201  # 201 for successful creation
     
-@app.route('/getProjectInfo', methods=['POST'])
+@app.route('/getProjectInfo', methods=['POST', 'OPTIONS'])
 def getProjectInfo():
+    if request.method == "OPTIONS":
+        response = make_response()
+        response.headers.add("Access-Control-Allow-Origin", "http://localhost:3000")
+        response.headers.add("Access-Control-Allow-Methods", "POST, OPTIONS")
+        response.headers.add("Access-Control-Allow-Headers", "Content-Type, Authorization")
+        response.headers.add("Access-Control-Allow-Credentials", "true")
+        return response
     data = request.json
     creatorusername = data.get('creatorusername')
     title = data.get('title')
@@ -147,51 +155,9 @@ def unarchiveProject():
         return jsonify(result), 400  # 400 for bad request (like duplicate entry)
     else:
         return jsonify(result), 201  # 201 for successful creation
-    
-@app.route('/count_projects', methods=['GET', 'OPTIONS'])
-def count_projects():
-    if request.method == "OPTIONS":
-        response = make_response()
-        response.headers.add("Access-Control-Allow-Origin", "http://localhost:3000")
-        response.headers.add("Access-Control-Allow-Methods", "GET, OPTIONS")
-        response.headers.add("Access-Control-Allow-Headers", "Content-Type, Authorization")
-        response.headers.add("Access-Control-Allow-Credentials", "true")
-        return response
-    # Original count_projects logic follows
-    try:
-        count = Project.count_projects()
-        if count is not None:
-            return jsonify({"status": "success", "count": count}), 200
-        else:
-            return jsonify({"status": "error", "message": "Could not retrieve project count"}), 500
-    except Exception as e:
-        return jsonify({"status": "error", "message": str(e)}), 500
-    
-# @app.route('/getProjects', methods=['GET', 'OPTIONS'])
-# def getProjects():
-#     if request.method == "OPTIONS":
-#         response = make_response()
-#         response.headers.add("Access-Control-Allow-Origin", "http://localhost:3000")
-#         response.headers.add("Access-Control-Allow-Methods", "GET, OPTIONS")
-#         response.headers.add("Access-Control-Allow-Headers", "Content-Type, Authorization")
-#         response.headers.add("Access-Control-Allow-Credentials", "true")
-#         return response
-    
-#     data = request.json
-#     searchQuery = data.get('searchQuery')
-#     tags = data.get('tags')
-#     filter = data.get('filter')
-
-#     result = Project.getProjects(searchQuery, tags, filter)
-
-#     # Check if the result is an error
-#     if "error" in result:
-#         return jsonify(result), 400  # 400 for bad request (like duplicate entry)
-#     else:
-#         return jsonify(result), 201  # 201 for successful creation
 
 @app.route('/findProjects', methods=['POST', 'OPTIONS'])
-def getProjects():
+def findProjects():
     if request.method == "OPTIONS":
         response = make_response()
         response.headers.add("Access-Control-Allow-Origin", "http://localhost:3000")
@@ -199,15 +165,14 @@ def getProjects():
         response.headers.add("Access-Control-Allow-Headers", "Content-Type, Authorization")
         response.headers.add("Access-Control-Allow-Credentials", "true")
         return response
-
     # Parse JSON data from the request body
     data = request.json
     searchQuery = data.get('searchQuery', "")
-    tags = data.get('tags', "")
+    tag = data.get('tag', "")
     filter = data.get('filter', "")
 
     # Call the Project.getProjects method to fetch projects based on the search query
-    result = Project.getProjects(searchQuery, tags, filter)
+    result = Project.findProjects(searchQuery, tag, filter)
 
     # Check if the result is an error
     if "error" in result:

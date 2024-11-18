@@ -241,8 +241,8 @@ class Project:
     #             return []
     
     @staticmethod
-    def getProjects(searchQuery, tags, filter):
-        if tags == "" and filter == "":  # Only searchQuery is used
+    def findProjects(searchQuery, tag, filter):
+        if tag == "" and filter == "":  # Only searchQuery is used
             try:
                 with Project.get_db_connection() as conn:
                     with conn.cursor() as cursor:
@@ -253,6 +253,22 @@ class Project:
                             WHERE creatorusername ILIKE %s OR title ILIKE %s OR description ILIKE %s
                             ORDER BY dateposted DESC;
                         """, (f"%{searchQuery}%", f"%{searchQuery}%", f"%{searchQuery}%"))
+
+                        result = cursor.fetchall()
+                        return result if result else []  # Return list of projects or empty list
+            except Exception as e:
+                print(f"Error retrieving projects: {e}")
+                return {"error": str(e)}
+        if searchQuery == "" and filter == "":  # Only tag is used
+            try:
+                with Project.get_db_connection() as conn:
+                    with conn.cursor() as cursor:
+                        # Ensure tag is passed as a tuple
+                        cursor.execute("""
+                            SELECT * FROM projects 
+                            WHERE tag = %s
+                            ORDER BY dateposted DESC;
+                        """, (tag.lower(),)) 
 
                         result = cursor.fetchall()
                         return result if result else []  # Return list of projects or empty list
