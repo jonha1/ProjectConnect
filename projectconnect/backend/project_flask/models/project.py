@@ -266,7 +266,7 @@ class Project:
                         # Ensure tag is passed as a tuple
                         cursor.execute("""
                             SELECT * FROM projects 
-                            WHERE tag = %s
+                            WHERE LOWER(tag) = %s
                             ORDER BY dateposted DESC;
                         """, (tag.lower(),)) 
 
