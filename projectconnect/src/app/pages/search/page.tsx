@@ -1,6 +1,6 @@
 "use client";
-import React from 'react';
-import { useState, useEffect } from 'react';
+import React from "react";
+import { useState, useEffect } from "react";
 import Navbar from "../../components/navbar";
 import Searchbar from "../../components/searchbar";
 import Postcard from "../../components/post_card";
@@ -14,8 +14,7 @@ interface Post {
 }
 
 export default function Search() {
-  // const { searchText, setSearchText } = useSearchContext();
-  const { searchText, tag, setSearchText } = useSearchContext();
+  const { searchText, tag, setSearchText, setTag } = useSearchContext(); // Include setTag
   const [posts, setPosts] = useState<Post[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -29,7 +28,7 @@ export default function Search() {
         },
         body: JSON.stringify({
           searchQuery: searchText.trim(),
-          tag: tag.trim(),
+          tag: tag.trim(), // Include the tag
           filter: "",
         }),
       });
@@ -40,25 +39,26 @@ export default function Search() {
 
       const data = await response.json();
       if (Array.isArray(data)) {
-        setPosts(data.map(item => ({
-          postName: item.title || "Untitled",
-          postInfo: item.description || "No description available",
-          creatorName: item.creatorusername || "Anonymous",
-        })));
+        setPosts(
+          data.map((item) => ({
+            postName: item.title || "Untitled",
+            postInfo: item.description || "No description available",
+            creatorName: item.creatorusername || "Anonymous",
+          }))
+        );
       } else {
         setPosts([]);
       }
     } catch (error) {
       console.error("Error fetching projects:", error);
-    }
-    finally {
+    } finally {
       setIsLoading(false);
     }
   };
 
   useEffect(() => {
     fetchProjects();
-  }, [searchText]);
+  }, [searchText, tag]); // Add tag as a dependency
 
   if (isLoading) {
     return (
@@ -101,3 +101,4 @@ export default function Search() {
     </>
   );
 }
+

@@ -4,7 +4,8 @@ import '../styles/searchbar.modules.css';
 import { ChangeEvent, KeyboardEvent } from 'react';
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
-
+import 'bootstrap/dist/js/bootstrap.bundle.min.js';
+import { useSearchContext } from "../context/SearchContext";
 
 interface SearchbarProps {
   onSearchChange?: (query: string) => void;
@@ -14,10 +15,8 @@ interface SearchbarProps {
 
 export default function Searchbar({ onSearchChange, searchText = "", onKeyDown }: SearchbarProps) {
   const router = useRouter();
+  const { tag, setTag } = useSearchContext(); // Access `tag` and `setTag` from SearchContext
   const [inputValue, setInputValue] = useState(searchText);
-
-  const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const [isTagsOpen, setIsTagsOpen] = useState(false);
 
   useEffect(() => {
     // Update inputValue if searchText prop changes
@@ -27,8 +26,16 @@ export default function Searchbar({ onSearchChange, searchText = "", onKeyDown }
   const handleSearchChange = (event: ChangeEvent<HTMLInputElement>) => {
     const query = event.target.value;
     if (onSearchChange) {
-      onSearchChange(query);  // Update the parent with the search query
+      onSearchChange(query); // Update the parent with the search query
     }
+  };
+
+  const handleTagSelect = (tag: string) => {
+    setTag(tag); // Update the tag in SearchContext
+  };
+
+  const handleClearTag = () => {
+    setTag(""); // Reset the tag in SearchContext
   };
 
   return (
@@ -42,36 +49,29 @@ export default function Searchbar({ onSearchChange, searchText = "", onKeyDown }
           onChange={handleSearchChange}
           onKeyDown={onKeyDown} // Pass the onKeyDown prop directly to the input field
         />
-         {/* Filter Button */}
-         <button type="button" className="btn searchButtons" onClick={() => setIsFilterOpen(!isFilterOpen)}>
-          Filter
-        </button>
-        {isFilterOpen && (
-          <div className="dropdown filterDropdown">
-            <div className="dropdown-item">Time Posted</div>
-            <div className="dropdown-item">Number of Members</div>
-            <div className="dropdown-item">Title</div>
-            <div className="dropdown-item">Description</div>
-          </div>
-        )}
 
-        {/* Tags Button */}
-        <button type="button" className="btn searchButtons" onClick={() => setIsTagsOpen(!isTagsOpen)}>
-          Tags
-        </button>
-        {isTagsOpen && (
-          <div className="dropdown tagsDropdown">
-            <div className="dropdown-item">Arts</div>
-            <div className="dropdown-item">Business</div>
-            <div className="dropdown-item">Coding</div>
-            <div className="dropdown-item">Engineering</div>
-            <div className="dropdown-item">Math</div>
-            <div className="dropdown-item">Music</div>
-            <div className="dropdown-item">Science</div>
-            <div className="dropdown-item">Writing</div>
-            <div className="dropdown-item">Other</div>
-          </div>
-        )}
+        <div className="dropdown" id="tags">
+          <button
+            className="btn btn-secondary dropdown-toggle"
+            type="button"
+            data-bs-toggle="dropdown"
+            aria-expanded="false"
+          >
+            {tag || "Tags"} {/* Show the current tag or default text */}
+          </button>
+          <ul className="dropdown-menu">
+            <li><a className="dropdown-item" onClick={() => handleTagSelect("Arts/Crafts")}>Arts/Crafts</a></li>
+            <li><a className="dropdown-item" onClick={() => handleTagSelect("Business")}>Business</a></li>
+            <li><a className="dropdown-item" onClick={() => handleTagSelect("Coding")}>Coding</a></li>
+            <li><a className="dropdown-item" onClick={() => handleTagSelect("Engineering")}>Engineering</a></li>
+            <li><a className="dropdown-item" onClick={() => handleTagSelect("Math")}>Math</a></li>
+            <li><a className="dropdown-item" onClick={() => handleTagSelect("Music")}>Music</a></li>
+            <li><a className="dropdown-item" onClick={() => handleTagSelect("Science")}>Science</a></li>
+            <li><a className="dropdown-item" onClick={() => handleTagSelect("Writing")}>Writing</a></li>
+            <li><a className="dropdown-item" onClick={() => handleTagSelect("Other")}>Other</a></li>
+            <li><a className="dropdown-item text-danger" onClick={handleClearTag}>Clear</a></li> {/* Clear option */}
+          </ul>
+        </div>
       </div>
     </div>
   );
