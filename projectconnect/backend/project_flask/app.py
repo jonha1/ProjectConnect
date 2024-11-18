@@ -168,6 +168,7 @@ def sendNotification():
     else:
         return jsonify(result), 201  # 201 for successful creation
 
+
 @app.route('/rejectNotification', methods=['POST'])
 def rejectNotification():
     data = request.json
@@ -178,6 +179,24 @@ def rejectNotification():
     else:
         return jsonify(result), 201  # 201 for successful creation
 
+@app.route('/retrieveNotifications', methods=['GET'])
+def retrieveNotifications():
+    data = request.json
+    user = data.get('username')
+    result = Notification.retrieveNotifications(user)
+    if len(result)== 0:
+        return result,   # 400 for bad request (like duplicate entry)
+    else:
+        return result, 400  # 201 for successful creation        
+
+'''
+    Bookmark()
+
+    Flask routes relating to the Bookmarks python class. Currently the data is coming
+    in from postman and should be altered to recieve the information from the fronend.
+    Currently only have add bookmark, retrieve bookmark, and view all bookmarks.
+'''
+
 @app.route('/addBookmark', methods=['POST'])
 def addBookmark():
     data = request.json
@@ -186,6 +205,33 @@ def addBookmark():
     post_creator = data.get('creatorusername')
     user_bookmark = Bookmark(user)
     result = user_bookmark.addBookmark(post, post_creator)
+    if result["status"] == "error":
+        return jsonify(result), 400  # 400 for bad request (like duplicate entry)
+    else:
+        return jsonify(result), 201  # 201 for successful creation
+
+@app.route('/retrieveBookmarks', methods=['GET'])
+def retrieveBookmarks():
+    data = request.json
+    user = data.get('username')
+    user_bookmark = Bookmark(user)
+    print(user_bookmark.username, " Bookmarks: ")
+    result = user_bookmark.retrieveBookmarks()
+
+    print(result)
+    if len(result) == 0 :
+        return jsonify(result), 400  # 400 for bad request (like duplicate entry)
+    else:
+        return result, 200  # 201 for successful creation
+
+@app.route('/deleteBookmark', methods=['POST'])
+def deleteBookmark():
+    data = request.json
+    user = data.get('username')
+    post = data.get('title')
+    post_creator = data.get('creatorusername')
+    user_bookmark = Bookmark(user)
+    result = user_bookmark.deleteBookmark(post, post_creator)
     if result["status"] == "error":
         return jsonify(result), 400  # 400 for bad request (like duplicate entry)
     else:

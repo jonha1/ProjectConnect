@@ -41,6 +41,20 @@ class Notification:
             print(f"Error sending notification: {e}")
             return {"error": str(e)}
 
+    def retrieveNotifications(username):
+        try:
+            with Notification.get_db_connection() as conn:
+                with conn.cursor() as cursor:
+                    cursor.execute("""
+                        SELECT * FROM notifications 
+                        WHERE touserid = %s
+                    """, (username,))
+                    result = cursor.fetchall()
+                    return result #list of tuples, each tuple is a row ex. [("Will", timestamp, "Green Energy", "alice")]
+        except Exception as e:
+            print(f"Error checking bookmarks existence: {e}")
+            return []
+
     @staticmethod
     def verifyNotification(notificationID):
         try:
