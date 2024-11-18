@@ -185,6 +185,76 @@ def get_about_me():
     except Exception as e:
         print(f"Error fetching aboutMe: {e}")
         return jsonify({"status": "error", "message": str(e)}), 500
+    
+@app.route('/api/editContactInfo', methods=['POST'])
+def edit_Contact_Info():
+    data = request.json
+    username = data.get("username")
+    loginEmail = data.get("loginEmail")
+    newContactInfo = data.get("contactInfo")
+
+    if not username or not newContactInfo:
+        return jsonify({"status": "error", "message": "Both username and contactInfo are required"}), 400
+
+    account = Account.account_exists(username,loginEmail)
+
+    if not account:
+        return jsonify({"error": "Invalid credentials"}), 401
+    try:
+        with Account.get_db_connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(
+                    """
+                    UPDATE users 
+                    SET contactinfo = %s 
+                    WHERE username = %s
+                    RETURNING contactinfo;
+                    """,
+                    (newContactInfo, username)
+                )
+                updated_record = cursor.fetchone()
+                conn.commit()
+
+        if updated_record:
+            return jsonify({"status": "success", "contactinfo": updated_record["contactinfo"]}), 200
+        else:
+            return jsonify({"status": "error", "message": "User not found"}), 404
+
+    except Exception as e:
+        print(f"Error updating contactinfo: {e}")
+        return jsonify({"status": "error", "message": str(e)}), 500
+    
+@app.route('/api/getContactInfo', methods=['GET'])
+def get_Contact_Info():
+    data = request.json
+    username = data.get("username")
+    loginEmail = data.get("loginEmail")
+
+    if not username or not loginEmail:
+        return jsonify({"status": "error", "message": "Username and loginEmail are required"}), 400
+
+    account_exists = Account.account_exists(username, loginEmail)
+    if not account_exists:
+        return jsonify({"error": "Invalid credentials"}), 401
+
+    try:
+        with Account.get_db_connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(
+                    """
+                    SELECT contactinfo FROM users WHERE username = %s AND loginEmail = %s
+                    """,
+                    (username, loginEmail)
+                )
+                result = cursor.fetchone()
+
+        if result and "contactinfo" in result:
+            return jsonify({"status": "success", "contactinfo": result["contactinfo"]}), 200
+        else:
+            return jsonify({"status": "error", "message": "No contactinfo found for the user"}), 404
+    except Exception as e:
+        print(f"Error fetching aboutMe: {e}")
+        return jsonify({"status": "error", "message": str(e)}), 500
 
 if __name__ == '__main__':
     app.run(debug=True)
