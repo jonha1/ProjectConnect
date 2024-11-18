@@ -17,6 +17,7 @@ export default function Search() {
   // const { searchText, setSearchText } = useSearchContext();
   const { searchText, tag, setSearchText } = useSearchContext();
   const [posts, setPosts] = useState<Post[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   const fetchProjects = async () => {
     try {
@@ -50,11 +51,34 @@ export default function Search() {
     } catch (error) {
       console.error("Error fetching projects:", error);
     }
+    finally {
+      setIsLoading(false);
+    }
   };
 
   useEffect(() => {
     fetchProjects();
   }, [searchText]);
+
+  if (isLoading) {
+    return (
+      <div
+        className="d-flex justify-content-center align-items-center"
+        style={{
+          width: "100vw",
+          height: "100vh",
+        }}
+      >
+        <div
+          className="spinner-border"
+          role="status"
+          style={{ width: "5rem", height: "5rem" }}
+        >
+          <span className="sr-only">Loading...</span>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <>

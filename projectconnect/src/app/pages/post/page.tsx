@@ -71,7 +71,7 @@ export default function ProjectView({ userRole }: ProjectViewProps) {
     setIsBookmarked((prev) => !prev);
   };
   
-  if (isLoading || !projectDetails || Object.keys(projectDetails).length === 0) {
+  if (isLoading) {
     return (
       <div
         className="d-flex justify-content-center align-items-center"
