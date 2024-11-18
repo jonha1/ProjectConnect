@@ -1,18 +1,53 @@
 "use client";
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useState } from "react";
 import Navbar from "../../components/navbar";
 import "../../styles/account.page.css";
-import Searchbar from "../../components/searchbar";
 import Postcard from "../../components/post_card";
 import styles from "../../styles/searchpage.module.css"; // Import the CSS file for styling
 import { useSearchParams } from "next/navigation"; 
+import { getUsernameFromCookie } from "../../lib/cookieUtils"; // Adjust the path based on your project structure
+
 
 export default function Home() {
   const searchParams = useSearchParams();
   const initialTab = searchParams.get("query") === "bookmark" ? "bookmarks" : "created";
-  const [activeTab, setActiveTab] = useState(initialTab); // Set initial state based on URL
+  const [activeTab, setActiveTab] = useState(initialTab);
+  const [username, setUsername] = useState("");
+  const [aboutMe, setAboutMe] = useState("Loading..."); 
 
+  useEffect(() => {
+    const cookieUsername = getUsernameFromCookie();
+    if (cookieUsername) {
+      setUsername(cookieUsername);
+
+      const fetchAboutMe = async () => {
+        try {
+          const response = await fetch("http://127.0.0.1:5001/api/getAboutMe", {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ username: cookieUsername }),
+          });
+
+          const result = await response.json();
+          if (response.ok && result.aboutme) {
+            setAboutMe(result.aboutme);
+          } else {
+            setAboutMe("No About Me information found.");
+          }
+        } catch (error) {
+          console.error("Error fetching About Me:", error);
+          setAboutMe("Error fetching About Me.");
+        }
+      };
+
+      fetchAboutMe();
+    } else {
+      console.error("Username not found in cookies.");
+    }
+  }, []);
   const postsCreated = [
     {
       postName: "ProjectConnect",
@@ -135,19 +170,9 @@ export default function Home() {
       <div className="contentContainer">
         <div className="sidePanel">
           <div className="displayName">William Li</div>
-          <div className="userName">SuaveSailor</div>
+          <div className="userName">{username || "Loading..."}</div>
           <div className="profileCard">
-            About Me: A little about me... I love mangos they make me feel so
-            nice and yummy, mapo tofu is so silky and spicy, and baja blast to
-            wash it all down. In my free time, I love to make silly faces in the
-            mirror and tell myself that everything is going to be okay. I have
-            nothing else to say, so for now I leave you with this CHICK BUTT
-            CHICK BUTT CHICK BUTT CHICK BUTT CHICK BUTT CHICK BUTT CHICK BUTT
-            CHICK BUTT CHICK BUTT CHICK BUTT CHICK BUTT CHICK BUTT CHICK BUTT
-            CHICK BUTT CHICK BUTT CHICK BUTT CHICK BUTT CHICK BUTT CHICK BUTT
-            CHICK BUTT CHICK BUTT CHICK BUTT CHICK BUTT CHICK BUTT CHICK BUTT
-            CHICK BUTT CHICK BUTT CHICK BUTT CHICK BUTT CHICK BUTT CHICK BUTT
-            CHICK BUTT 
+            About Me: {aboutMe}
           </div>
           <div className="profileCard">
             <p>Contact Information: </p>
