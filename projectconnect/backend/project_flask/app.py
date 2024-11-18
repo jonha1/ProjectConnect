@@ -61,7 +61,6 @@ def editSkils():
     if not username or not newSkills or not newSkills:
         return jsonify({"error": "Username and skills are required"}), 400
 
-
     account = Account.account_exists(username,loginEmail)
 
     if not account:
@@ -88,8 +87,8 @@ def editSkils():
     except Exception as e:
         print(f"Error updating skills: {e}")
         return jsonify({"status": "error", "message": str(e)}), 500
-    
-@app.route('/api/getSkills', methods=['POST'])
+
+@app.route('/api/getSkills', methods=['GET'])
 def get_skills():
     data = request.json
     username = data.get("username")
@@ -116,7 +115,68 @@ def get_skills():
     except Exception as e:
         print(f"Error fetching skills: {e}")
         return jsonify({"status": "error", "message": str(e)}), 500
+       
+@app.route('/api/editAboutMe', methods=['POST'])
+def edit_about_me():
+    data = request.json
+    username = data.get("username")
+    new_about_me = data.get("newAboutMe")
 
+    if not username or not new_about_me:
+        return jsonify({"status": "error", "message": "Both username and newAboutMe are required"}), 400
+
+    try:
+        with Account.get_db_connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(
+                    """
+                    UPDATE users 
+                    SET aboutMe = %s 
+                    WHERE username = %s
+                    RETURNING aboutMe;
+                    """,
+                    (new_about_me, username)
+                )
+                updated_record = cursor.fetchone()
+                conn.commit()
+
+        if updated_record:
+            return jsonify({"status": "success", "aboutMe": updated_record["aboutMe"]}), 200
+        else:
+            return jsonify({"status": "error", "message": "User not found"}), 404
+
+    except Exception as e:
+        print(f"Error updating aboutMe: {e}")
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+@app.route('/api/getAboutMe', methods=['GET'])
+def get_About_me():
+    data = request.json
+    aboutme = data.get("aboutme")
+
+    if not aboutme:
+        return jsonify({"status": "error", "message": "Username is required"}), 400
+
+    print(f"Received username: {aboutme}")
+
+    try:
+        with Account.get_db_connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(
+                    """
+                    SELECT aboutme FROM users WHERE username = %s
+                    """,
+                    (aboutme,)
+                )
+                result = cursor.fetchone()
+
+        if result:
+            return jsonify({"status": "success", "aboutme": result['aboutme']}), 200
+        else:
+            return jsonify({"status": "error", "message": "User not found"}), 404
+    except Exception as e:
+        print(f"Error fetching skills: {e}")
+        return jsonify({"status": "error", "message": str(e)}), 500
 
 if __name__ == '__main__':
     app.run(debug=True)
