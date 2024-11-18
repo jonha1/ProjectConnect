@@ -169,10 +169,9 @@ def findProjects():
     data = request.json
     searchQuery = data.get('searchQuery', "")
     tag = data.get('tag', "")
-    filter = data.get('filter', "")
-
+    
     # Call the Project.getProjects method to fetch projects based on the search query
-    result = Project.findProjects(searchQuery, tag, filter)
+    result = Project.findProjects(searchQuery, tag)
 
     # Check if the result is an error
     if "error" in result:

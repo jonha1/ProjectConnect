@@ -5,6 +5,7 @@ import Searchbar from "../../components/searchbar";
 import HomepageCards from "../../components/homepage_cards";
 import { useRouter } from "next/navigation";
 import { useSearchContext } from "../../context/SearchContext";
+import '../../styles/home.page.css';
 
 export default function Home() {
   const { searchText, setSearchText, tag, setTag } = useSearchContext();
@@ -47,6 +48,11 @@ export default function Home() {
         onSearchChange={handleSearchChange}
         onKeyDown={handleSearchKeyDown}
       />
+      <div id="prompt">
+        <h2>
+          Don't know what to look for? View projects by category tag below!
+        </h2>
+      </div>
       <HomepageCards tags={tags} onTagClick={handleTagClick} />
     </>
   );

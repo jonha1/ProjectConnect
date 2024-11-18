@@ -38,6 +38,12 @@ export default function Searchbar({ onSearchChange, searchText = "", onKeyDown }
     setTag(""); // Reset the tag in SearchContext
   };
 
+  const handleAllProjects = () =>{
+    setTag("");
+    setInputValue("");
+    router.push("/search");
+  }
+
   return (
     <div className="parentContainer">
       <div className="searchContainer">
@@ -50,14 +56,14 @@ export default function Searchbar({ onSearchChange, searchText = "", onKeyDown }
           onKeyDown={onKeyDown} // Pass the onKeyDown prop directly to the input field
         />
 
-        <div className="dropdown" id="tags">
+        <div className="dropdown">
           <button
             className="btn btn-secondary dropdown-toggle"
             type="button"
             data-bs-toggle="dropdown"
             aria-expanded="false"
           >
-            {tag || "Tags"} {/* Show the current tag or default text */}
+            {tag || "Tags"}
           </button>
           <ul className="dropdown-menu">
             <li><a className="dropdown-item" onClick={() => handleTagSelect("Arts/Crafts")}>Arts/Crafts</a></li>
@@ -72,6 +78,8 @@ export default function Searchbar({ onSearchChange, searchText = "", onKeyDown }
             <li><a className="dropdown-item text-danger" onClick={handleClearTag}>Clear</a></li> {/* Clear option */}
           </ul>
         </div>
+
+        <button type="button" className="btn searchButtons" onClick={handleAllProjects}>All projects</button>
       </div>
     </div>
   );

@@ -224,8 +224,22 @@ class Project:
             return {"error": f"Failed to unarchive project '{title}' by '{creatorusername}'"}
     
     @staticmethod
-    def findProjects(searchQuery, tag, filter):
-        if tag == "" and filter == "":  # Only searchQuery is used
+    def findProjects(searchQuery, tag):
+        if searchQuery == "" and tag == "": # all projects
+            try:
+                with Project.get_db_connection() as conn:
+                    with conn.cursor() as cursor:
+                        cursor.execute("""
+                            SELECT * FROM projects 
+                            ORDER BY dateposted DESC;
+                        """, ())
+
+                        result = cursor.fetchall()
+                        return result if result else []  # Return list of projects or empty list
+            except Exception as e:
+                print(f"Error retrieving projects: {e}")
+                return {"error": str(e)}
+        elif tag == "":  # Only searchQuery is used
             try:
                 with Project.get_db_connection() as conn:
                     with conn.cursor() as cursor:
@@ -242,7 +256,7 @@ class Project:
             except Exception as e:
                 print(f"Error retrieving projects: {e}")
                 return {"error": str(e)}
-        elif searchQuery == "" and filter == "":  # only tag, aka homepagecards
+        elif searchQuery == "":  # only tag, aka homepagecards
             try:
                 with Project.get_db_connection() as conn:
                     with conn.cursor() as cursor:
@@ -258,7 +272,7 @@ class Project:
             except Exception as e:
                 print(f"Error retrieving projects: {e}")
                 return {"error": str(e)}
-        elif filter == "":  # search query and tag
+        else:  # search query and tag
             try:
                 with Project.get_db_connection() as conn:
                     with conn.cursor() as cursor:
