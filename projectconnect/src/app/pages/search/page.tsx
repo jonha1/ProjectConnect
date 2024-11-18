@@ -28,8 +28,7 @@ export default function Search() {
         },
         body: JSON.stringify({
           searchQuery: searchText.trim(),
-          tag: tag.trim(), // Include the tag
-          filter: "",
+          tag: tag.trim(), 
         }),
       });
 
