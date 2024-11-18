@@ -30,6 +30,20 @@ class Account:
             print(f"Error checking account existence: {e}")
             return False 
     
+    @staticmethod
+    def get_email_by_username(username):
+        try:
+            with Account.get_db_connection() as conn:
+                with conn.cursor() as cursor:
+                    cursor.execute("""
+                        SELECT loginemail FROM users 
+                        WHERE loginEmail = %s
+                    """, (username,))
+                    return cursor.fetchone()  
+        except Exception as e:
+            print(f"Error retrieving account: {e}")
+            return None
+
     ## returns json
     @staticmethod
     def get_account_by_email(loginEmail):

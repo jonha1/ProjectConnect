@@ -26,6 +26,8 @@ def test_db_connection():
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
 
+## ACCOUNT ##
+
 @app.route('/api/accounts', methods=['POST'])
 def register_account():
     data = request.json 
@@ -51,6 +53,7 @@ def login():
     else:
         return jsonify({"error": "Invalid credentials"}), 401
     
+## USER ##
 @app.route('/api/editSkills', methods=['POST'])
 def editSkils():
     data = request.json
