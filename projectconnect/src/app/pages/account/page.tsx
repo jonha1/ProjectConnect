@@ -14,6 +14,7 @@ export default function Home() {
   const initialTab = searchParams.get("query") === "bookmark" ? "bookmarks" : "created";
   const [activeTab, setActiveTab] = useState(initialTab);
   const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [aboutMe, setAboutMe] = useState("Loading..."); 
 
   useEffect(() => {

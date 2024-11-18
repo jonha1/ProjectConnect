@@ -53,6 +53,28 @@ def login():
     else:
         return jsonify({"error": "Invalid credentials"}), 401
     
+@app.route('/getEmailByUser', methods=['GET'])
+def getEmailbyUser():
+    data = request.json
+    username = data.get("username")
+
+    try:
+        with Account.get_db_connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(
+                    """
+                    SELECT loginemail FROM users WHERE username = %s
+                    """,
+                    (username,)
+                )
+                result = cursor.fetchone()
+
+        if result:
+            return jsonify({"status": "success"}), 200
+    except Exception as e:
+        print(f"Error fetching aboutMe: {e}")
+        return jsonify({"status": "error", "message": str(e)}), 500
+    
 ## USER ##
 @app.route('/api/editSkills', methods=['POST'])
 def editSkils():
