@@ -54,6 +54,69 @@ def login():
 @app.route('/api/editSkills', methods=['POST'])
 def editSkils():
     data = request.json
+    username = data.get("username")
+    loginEmail = data.get("loginEmail")
+    newSkills = data.get("skills")
+
+    if not username or not newSkills or not newSkills:
+        return jsonify({"error": "Username and skills are required"}), 400
+
+
+    account = Account.account_exists(username,loginEmail)
+
+    if not account:
+        return jsonify({"error": "Invalid credentials"}), 401
+    
+    skills_list = [skill.strip() for skill in newSkills.split(",") if skill.strip()]
+    all_skills = ", ".join(skills_list)  
+
+    try:
+        with Account.get_db_connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(
+                    """
+                    UPDATE users 
+                    SET skills = %s
+                    WHERE username = %s
+                    """,
+                    (all_skills, username)
+                )
+                conn.commit()
+
+        return jsonify({"status": "success", "updatedSkills": all_skills}), 200
+
+    except Exception as e:
+        print(f"Error updating skills: {e}")
+        return jsonify({"status": "error", "message": str(e)}), 500
+    
+@app.route('/api/getSkills', methods=['POST'])
+def get_skills():
+    data = request.json
+    username = data.get("username")
+
+    if not username:
+        return jsonify({"status": "error", "message": "Username is required"}), 400
+
+    try:
+        with Account.get_db_connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(
+                    """
+                    SELECT skills FROM users WHERE username = %s
+                    """,
+                    (username,)
+                )
+                result = cursor.fetchone()
+
+        if result:
+            return jsonify({"status": "success", "skills": result["skills"]}), 200
+        else:
+            return jsonify({"status": "error", "message": "User not found"}), 404
+
+    except Exception as e:
+        print(f"Error fetching skills: {e}")
+        return jsonify({"status": "error", "message": str(e)}), 500
+
 
 if __name__ == '__main__':
     app.run(debug=True)
