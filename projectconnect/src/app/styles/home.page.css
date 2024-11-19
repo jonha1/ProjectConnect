@@ -1,0 +1,10 @@
+h2{
+    color: white;
+}
+
+#prompt{
+    margin-top: 4vh;
+    display: flex; /* Use Flexbox to center content */
+    justify-content: center; /* Center horizontally */
+    align-items: center; /* Center vertically */
+}
