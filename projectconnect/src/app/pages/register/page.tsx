@@ -1,5 +1,4 @@
 'use client';
-import { supabase } from '../../lib/supabase';
 import '../../styles/register.page.css';
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -32,26 +31,7 @@ export default function Register() {
       return;
     }
     setError('');
-
-    try {
-      const { data: signUpData, error } = await supabase.auth.signUp({
-        email: formData.email,
-        password: formData.password,
-      });
-
-      if (signUpData) {
-        console.log('Sign up successful:', signUpData);
-        router.push('/accountInfo');
-      }
-
-      if (error) {
-        console.error('Sign up error:', error);
-        setError(error.message);
-      }
-    } catch (error) {
-      console.error('Sign up error:', error);
-      setError('An unexpected error occurred. Please try again.');
-    }
+    router.push('/accountInfo');
   };
 
   return (
