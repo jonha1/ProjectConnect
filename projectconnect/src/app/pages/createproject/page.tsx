@@ -4,20 +4,23 @@ import "../../styles/createproject.page.css";
 import React, {useState} from 'react';
 import { useRouter } from "next/navigation";
 
+type AutoResizeTextareaProps = {
+  placeholder: string;
+  value: string;
+  onChange: (value: string) => void;
+};
 
-function AutoResizeTextarea({ placeholder }: { placeholder: string }) {
-  const [text, setText] = useState('');
-
+function AutoResizeTextarea({ placeholder, value, onChange }: AutoResizeTextareaProps) {
   const handleChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
     const textarea = event.target;
     textarea.style.height = 'auto';  // Reset height
     textarea.style.height = `${textarea.scrollHeight}px`;  // Adjust to content height
-    setText(textarea.value);
+    onChange(textarea.value);
   };
 
   return (
     <textarea
-      value={text}
+      value={value}
       onChange={handleChange}
       placeholder={placeholder}
       className="inputBox"
@@ -34,6 +37,7 @@ function AutoResizeTextarea({ placeholder }: { placeholder: string }) {
 
 export default function Createpost() {
   const router = useRouter();
+
   const[projectData,setProjectData]= useState({
     tag:'',
     title:'',
@@ -61,11 +65,16 @@ export default function Createpost() {
       setError('');
     };
 
+    
+
+
     const handleTagSelect = (tag: string) => {
       setSelectedTag(tag);
       setProjectData({ ...projectData, tag }); 
       setError('');
     };
+
+    
 
     const handleSubmit = () => {
       if (
@@ -91,7 +100,7 @@ export default function Createpost() {
         tag: selectedTag,
       };
       
-      console.log("String to pass to api", payload);
+      console.log("string to pass to api", payload);
       router.push("/");
   };
   return (
@@ -100,19 +109,27 @@ export default function Createpost() {
 
       <h1 className="formHeader">Create Project</h1>
       <div className="dropdown">
-        <a className="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-          Project Tags
-        </a>
-        <div className="dropdown-menu" aria-labelledby="dropdownMenuLink">
-          <a className="dropdown-item" href="#">Arts/Crafts</a>
-          <a className="dropdown-item" href="#">Business</a>
-          <a className="dropdown-item" href="#">Coding</a>
-          <a className="dropdown-item" href="#">Engineering</a>
-          <a className="dropdown-item" href="#">Math</a>
-          <a className="dropdown-item" href="#">Music</a>
-          <a className="dropdown-item" href="#">Science</a>
-          <a className="dropdown-item" href="#">Writing</a>
-          <a className="dropdown-item" href="#">Other</a>
+        <button
+          className="btn btn-secondary dropdown-toggle"
+          type="button"
+          id="dropdownMenuButton"
+          data-toggle="dropdown"
+          aria-haspopup="true"
+          aria-expanded="false"
+        >
+          {selectedTag}
+        </button>
+        <div className="dropdown-menu" aria-labelledby="dropdownMenuButton">
+          {["Arts/Crafts", "Business", "Coding", "Engineering", "Math", "Music", "Science", "Writing", "Other"].map((tag) => (
+            <a
+              className="dropdown-item"
+              href="#"
+              key={tag}
+              onClick={() => handleTagSelect(tag)}
+            >
+              {tag}
+            </a>
+          ))}
         </div>
       </div>
 
@@ -122,26 +139,54 @@ export default function Createpost() {
         </div>
 
         <form className="formInput">
-          <AutoResizeTextarea placeholder="Title*"  />
-          <AutoResizeTextarea placeholder="Project Description*"/>
-          <AutoResizeTextarea placeholder="Links" />
-          <AutoResizeTextarea placeholder="Contact Information"  />
+          <AutoResizeTextarea 
+            placeholder="Title*" 
+            value={projectData.title} 
+            onChange={(value) => handleInputChange('title', value)} 
+          />
+          <AutoResizeTextarea 
+            placeholder="Project Description*" 
+            value={projectData.description} 
+            onChange={(value) => handleInputChange('description', value)} 
+          />
+          <AutoResizeTextarea 
+            placeholder="Links" 
+            value={projectData.links} 
+            onChange={(value) => handleInputChange('links', value)} 
+          />
+          <AutoResizeTextarea 
+            placeholder="Contact Information" 
+            value={projectData.contact  } 
+            onChange={(value) => handleInputChange('contact', value)} 
+          />
         </form>
-
         <div className='formHeader'>
           <h3> Members</h3>
         </div>
 
         <form className='formInput'>
-          <AutoResizeTextarea  placeholder="Member Description" />
-          <AutoResizeTextarea  placeholder="Member Links" />
-          <AutoResizeTextarea  placeholder="Member Contact Information" />
+        <AutoResizeTextarea  
+            placeholder="Member Description" 
+            value={projectData.memberDescription} 
+            onChange={(value) => handleInputChange('memberDescription', value)} 
+          />
+          <AutoResizeTextarea  
+            placeholder="Member Links" 
+            value={projectData.memberLinks} 
+            onChange={(value) => handleInputChange('memberLinks', value)} 
+          />
+          <AutoResizeTextarea  
+            placeholder="Member Contact Information" 
+            value={projectData.memberContact} 
+            onChange={(value) => handleInputChange('memberContact', value)} 
+          />
         </form>
+      {error && <div className="error">{error}</div>}
 
         <button 
           type="submit" 
           className="submit-button" 
-          onClick={handleClick}
+          onClick={handleSubmit}
         >
             Post
         </button>
