@@ -54,14 +54,14 @@ class Project:
 
 
     @staticmethod
-    def buildProject(creatorusername, title, description, **optional_fields):
+    def buildProject(creatorusername, title, description, tag, **optional_fields):
         # Check if a project with the same creatorusername and title already exists
         if Project.project_exists(creatorusername, title):
             return {"error": "A project with this creatorusername and title already exists."}
 
         # Define required fields
-        fields = ["creatorusername", "title", "description"]
-        values = [creatorusername, title, description]
+        fields = ["creatorusername", "title", "description", "tag"]
+        values = [creatorusername, title, description, tag]
 
         # Add optional fields if they are provided
         optional_columns = {
@@ -230,7 +230,8 @@ class Project:
                 with Project.get_db_connection() as conn:
                     with conn.cursor() as cursor:
                         cursor.execute("""
-                            SELECT * FROM projects 
+                            SELECT * FROM projects
+                            WHERE isarchived = false
                             ORDER BY dateposted DESC;
                         """, ())
 
@@ -247,7 +248,8 @@ class Project:
                         # ILIKE = case INsensitive
                         cursor.execute("""
                             SELECT * FROM projects 
-                            WHERE creatorusername ILIKE %s OR title ILIKE %s OR description ILIKE %s
+                            WHERE (creatorusername ILIKE %s OR title ILIKE %s OR description ILIKE %s)
+                            AND isarchived = false
                             ORDER BY dateposted DESC;
                         """, (f"%{searchQuery}%", f"%{searchQuery}%", f"%{searchQuery}%"))
 
@@ -263,7 +265,7 @@ class Project:
                         # Ensure tag is passed as a tuple
                         cursor.execute("""
                             SELECT * FROM projects 
-                            WHERE LOWER(tag) = %s
+                            WHERE LOWER(tag) = %s and isarchived = false
                             ORDER BY dateposted DESC;
                         """, (tag.lower(),)) 
 
@@ -281,7 +283,7 @@ class Project:
                         cursor.execute("""
                             SELECT * FROM projects 
                             WHERE (creatorusername ILIKE %s OR title ILIKE %s OR description ILIKE %s)
-                            AND LOWER(tag) = %s
+                            AND (LOWER(tag) = %s) AND isarchived = false
                             ORDER BY dateposted DESC;
                         """, (f"%{searchQuery}%", f"%{searchQuery}%", f"%{searchQuery}%", tag.lower()))
 

@@ -75,6 +75,10 @@ def buildProject():
     creatorusername = data.get('creatorusername')
     title = data.get('title')
     description = data.get('description')
+    tag = data.get('tag')
+    
+    if not all([creatorusername, title, description, tag]):
+        return jsonify({"error": "Missing required fields: 'creatorusername', 'title', 'description', or 'tag'"}), 400
 
     # Extract optional fields, using None if they are not provided
     optional_fields = {
@@ -85,7 +89,7 @@ def buildProject():
     }
 
     # Call the buildProject method, passing required and optional parameters
-    result = Project.buildProject(creatorusername, title, description, **optional_fields)
+    result = Project.buildProject(creatorusername, title, description, tag, **optional_fields)
 
     # Check if the result is an error
     if "error" in result:
