@@ -54,14 +54,14 @@ class Project:
 
 
     @staticmethod
-    def buildProject(creatorusername, title, description, **optional_fields):
+    def buildProject(creatorusername, title, description, tag, **optional_fields):
         # Check if a project with the same creatorusername and title already exists
         if Project.project_exists(creatorusername, title):
             return {"error": "A project with this creatorusername and title already exists."}
 
         # Define required fields
-        fields = ["creatorusername", "title", "description"]
-        values = [creatorusername, title, description]
+        fields = ["creatorusername", "title", "description", "tag"]
+        values = [creatorusername, title, description, tag]
 
         # Add optional fields if they are provided
         optional_columns = {
