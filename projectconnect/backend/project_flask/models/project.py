@@ -230,7 +230,8 @@ class Project:
                 with Project.get_db_connection() as conn:
                     with conn.cursor() as cursor:
                         cursor.execute("""
-                            SELECT * FROM projects 
+                            SELECT * FROM projects
+                            WHERE isarchived = false
                             ORDER BY dateposted DESC;
                         """, ())
 
@@ -247,7 +248,8 @@ class Project:
                         # ILIKE = case INsensitive
                         cursor.execute("""
                             SELECT * FROM projects 
-                            WHERE creatorusername ILIKE %s OR title ILIKE %s OR description ILIKE %s
+                            WHERE (creatorusername ILIKE %s OR title ILIKE %s OR description ILIKE %s)
+                            AND isarchived = false
                             ORDER BY dateposted DESC;
                         """, (f"%{searchQuery}%", f"%{searchQuery}%", f"%{searchQuery}%"))
 
@@ -263,7 +265,7 @@ class Project:
                         # Ensure tag is passed as a tuple
                         cursor.execute("""
                             SELECT * FROM projects 
-                            WHERE LOWER(tag) = %s
+                            WHERE LOWER(tag) = %s and isarchived = false
                             ORDER BY dateposted DESC;
                         """, (tag.lower(),)) 
 
@@ -281,7 +283,7 @@ class Project:
                         cursor.execute("""
                             SELECT * FROM projects 
                             WHERE (creatorusername ILIKE %s OR title ILIKE %s OR description ILIKE %s)
-                            AND LOWER(tag) = %s
+                            AND (LOWER(tag) = %s) AND isarchived = false
                             ORDER BY dateposted DESC;
                         """, (f"%{searchQuery}%", f"%{searchQuery}%", f"%{searchQuery}%", tag.lower()))
 
