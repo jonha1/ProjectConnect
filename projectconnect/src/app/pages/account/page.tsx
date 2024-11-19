@@ -94,9 +94,9 @@ export default function Home() {
             const contactInfoResult = await contactInfoResposne.json();
             // console.log("Contact Info Response Body:", contactInfoResult);
 
-            if (contactInfoResult.contact) {
-              setContactInfo(contactInfoResult.aboutme);
-              console.log("Contact fetched successfully:", aboutMeResult.aboutme);
+            if (contactInfoResult.contactinfo) {
+              setContactInfo(contactInfoResult.contactinfo);
+              console.log("Contact fetched successfully:", contactInfoResult.contactinfo);
             } else {
               console.error("Contact Info not found in response:", contactInfoResult);
               setContactInfo("No Contact information found.");
