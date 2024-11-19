@@ -457,6 +457,27 @@ def findProjects():
         return jsonify(result), 400  # Bad request if there's an error
     else:
         return jsonify(result), 200  # Return the project list with 200 OK
+    
+@app.route('/projects/by_creator', methods=['POST'])
+def get_projects_by_creator():
+    try:
+        data = request.json
+        creatorusername = data.get("creatorusername")
+        
+        if not creatorusername:
+            return jsonify({"status": "error", "message": "Creator username is required"}), 400
+
+        response = Project.get_projects_by_creator(creatorusername)
+
+        if response["status"] == "success":
+            return jsonify({"status": "success", "projects": response["projects"]}), 200
+        else:
+            return jsonify({"status": "error", "message": response.get("message", "No projects found")}), 404
+
+    except Exception as e:
+        print(f"Error in /projects/by_creator: {e}")
+        return jsonify({"status": "error", "message": "Internal server error"}), 500
+
 
 if __name__ == "__main__":
     app.run(port=5001, debug=True)
