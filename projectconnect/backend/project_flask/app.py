@@ -38,8 +38,8 @@ def test_db_connection():
         return jsonify({"status": "error", "message": str(e)}), 500
 
 ## ACCOUNT ##
-
-@app.route('/api/accounts', methods=['POST'])
+## make sure to find out if account exists 
+@app.route('/register', methods=['POST'])
 def register_account():
     data = request.json 
 
