@@ -292,6 +292,29 @@ class Project:
             except Exception as e:
                 print(f"Error retrieving projects: {e}")
                 return {"error": str(e)}
+            
+    @staticmethod
+    def get_projects_by_creator(creatorusername):
+        try:
+            with Project.get_db_connection() as conn:
+                with conn.cursor() as cursor:
+                    cursor.execute("""
+                        SELECT * FROM projects
+                        WHERE creatorusername = %s
+                        ORDER BY dateposted DESC;
+                    """, (creatorusername,))
+                    
+                    projects = cursor.fetchall()  
+                    
+                    if projects:
+                        return {"status": "success", "projects": projects}
+                    else:
+                        return {"status": "error", "message": "No projects found for the specified username"}
+        except Exception as e:
+            print(f"Error fetching projects for creator '{creatorusername}': {e}")
+            return {"error": f"Failed to fetch projects for creator '{creatorusername}': {str(e)}"}
+
+
 
 
 

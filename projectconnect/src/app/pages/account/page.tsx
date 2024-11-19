@@ -1,56 +1,132 @@
 "use client";
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useState } from "react";
 import Navbar from "../../components/navbar";
 import "../../styles/account.page.css";
-import Searchbar from "../../components/searchbar";
 import Postcard from "../../components/post_card";
-import styles from "../../styles/searchpage.module.css"; // Import the CSS file for styling
+import styles from "../../styles/searchpage.module.css"; 
 import { useSearchParams } from "next/navigation"; 
+import { getUsernameFromCookie } from "../../lib/cookieUtils"; 
+
+interface Project {
+  creatorusername: string;
+  title: string;
+  description: string;
+  links: string;
+  memberDescription: string;
+  memberLinks: string;
+  memberContactInfo: string;
+  dateposted: string; 
+  isarchived: boolean;
+}
 
 export default function Home() {
   const searchParams = useSearchParams();
   const initialTab = searchParams.get("query") === "bookmark" ? "bookmarks" : "created";
-  const [activeTab, setActiveTab] = useState(initialTab); // Set initial state based on URL
+  const [activeTab, setActiveTab] = useState(initialTab);
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("Loading...");
+  const [displayName, setDisplayName] = useState("Loading...");
+  const [aboutMe, setAboutMe] = useState("Loading...");
+  const [contactInfo, setContactInfo] = useState("Loading...");
+  const [postsCreated, setPostsCreated] = useState<Project[]>([]); 
+  const [skills, setSkills] = useState("Loading...");
 
-  const postsCreated = [
-    {
-      postName: "ProjectConnect",
-      postInfo:
-        "Here would be the descriptions of project that shouldn't be too long. The next few are unfortunately AI-generated.",
-      creatorName: "SuaveSailor",
-    },
-    {
-      postName: "ConnectHub",
-      postInfo:
-        "ConnectHub is a project management tool that helps remote teams stay organized and connected. With task management, team chat, and file sharing capabilities, ConnectHub streamlines collaboration for distributed teams. Built using React for the frontend and Firebase for real-time updates, ConnectHub keeps remote teams aligned and productive.",
-      creatorName: "SuaveSailor",
-    },
-    {
-      postName: "MarketPlacePro",
-      postInfo:
-        "MarketPlacePro is a customizable e-commerce platform designed for small business owners looking to take control of their online sales. Featuring product management, a payment gateway, and analytics, this platform enables users to create their own online stores. MarketPlacePro was developed with a Vue.js frontend, Django backend, and integrates Stripe for secure payments.",
-      creatorName: "SuaveSailor",
-    },
-    {
-      postName: "StudySphere",
-      postInfo:
-        "StudySphere is an online platform for student study groups, allowing users to form groups, schedule study sessions, and access resources for shared learning. Built using Angular and Firebase, StudySphere enables real-time collaboration and resource sharing, making study sessions accessible to students anytime, anywhere.",
-      creatorName: "SuaveSailor",
-    },
-    {
-      postName: "Eventory",
-      postInfo:
-        "Eventory is a mobile-first app that lets users discover local events and activities tailored to their interests. With a focus on location-based services, Eventory uses React Native for the frontend, Node.js for backend operations, and MongoDB to store event data. The app provides an interactive map feature for finding events close to the user’s current location.",
-      creatorName: "SuaveSailor",
-    },
-    {
-      postName: "GreenSpace",
-      postInfo:
-        "GreenSpace is an environmental app aimed at promoting eco-friendly practices within communities. Users can log sustainable actions, track personal impact, and connect with others in green initiatives. Developed with Svelte for the user interface, Node.js for the backend, and PostgreSQL for data storage, GreenSpace encourages community-led environmental change.",
-      creatorName: "SuaveSailor",
-    },
-  ];
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const cookieUsername = getUsernameFromCookie(); 
+    if (cookieUsername) {
+      setUsername(cookieUsername); 
+
+      const fetchUserData = async () => {
+        try {
+          setIsLoading(true);
+
+          // Fetch user details
+          const userResponse = await fetch("http://127.0.0.1:5001/api/getUserDetails", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ username: cookieUsername }),
+          });
+
+          const userResult = await userResponse.json();
+
+          if (userResponse.ok) {
+            setEmail(userResult.loginemail || "No email found.");
+            setDisplayName(userResult.displayname || "No displayName found");
+            setAboutMe(userResult.aboutme || "No About Me information found.");
+            setContactInfo(userResult.contactinfo || "No Contact information found.");
+            setSkills(userResult.skills || "No skills found.");
+          } else {
+            console.error("Error fetching user details:", userResult.message);
+          }
+
+          // Fetch user's created posts
+          const postsResponse = await fetch("http://127.0.0.1:5001/projects/by_creator", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ creatorusername: cookieUsername }),
+          });
+          
+          const postsResult = await postsResponse.json();
+          
+          if (postsResponse.ok) {
+            setPostsCreated(postsResult.projects || []); 
+          } else {
+            console.error("Error fetching projects:", postsResult.message);
+          }
+        } catch (error) {
+          console.error("Error fetching data:", error);
+        } finally {
+          setIsLoading(false);
+        }
+      };
+
+      fetchUserData();
+    } else {
+      console.error("Username not found in cookies.");
+      setEmail("Username not found.");
+      setAboutMe("Username not found.");
+      setDisplayName("DisplayName not found");
+      setContactInfo("Username not found.");
+      setSkills("Username not found.");
+    }
+  }, []);
+  
+  if (isLoading) {
+    return (
+      <div
+        className="d-flex justify-content-center align-items-center"
+        style={{
+          width: "100vw",
+          height: "100vh",
+        }}
+      >
+        <div
+          className="spinner-border"
+          role="status"
+          style={{ width: "5rem", height: "5rem" , color: "#2D2D2D" }}
+        >
+          <span className="sr-only">Loading...</span>
+        </div>
+      </div>
+    );
+  }
+
+  {postsCreated.map((post, index) => (
+    <Postcard
+      key={index}
+      postName={post.title || "Untitled"} 
+      postInfo={post.description || "No description available"}
+      creatorName={post.creatorusername || "Unknown creator"}
+      className={styles.postCard}
+    />
+  ))}
 
   const postsJoined = [
     {
@@ -128,33 +204,23 @@ export default function Home() {
       creatorName: "EduCoach88",
     },
   ];
+
   return (
     <div className="wrapper">
       <Navbar />
 
       <div className="contentContainer">
         <div className="sidePanel">
-          <div className="displayName">William Li</div>
-          <div className="userName">SuaveSailor</div>
+          <div className="displayName">{displayName}</div>
+          <div className="userName">{username}</div>
           <div className="profileCard">
-            About Me: A little about me... I love mangos they make me feel so
-            nice and yummy, mapo tofu is so silky and spicy, and baja blast to
-            wash it all down. In my free time, I love to make silly faces in the
-            mirror and tell myself that everything is going to be okay. I have
-            nothing else to say, so for now I leave you with this CHICK BUTT
-            CHICK BUTT CHICK BUTT CHICK BUTT CHICK BUTT CHICK BUTT CHICK BUTT
-            CHICK BUTT CHICK BUTT CHICK BUTT CHICK BUTT CHICK BUTT CHICK BUTT
-            CHICK BUTT CHICK BUTT CHICK BUTT CHICK BUTT CHICK BUTT CHICK BUTT
-            CHICK BUTT CHICK BUTT CHICK BUTT CHICK BUTT CHICK BUTT CHICK BUTT
-            CHICK BUTT CHICK BUTT CHICK BUTT CHICK BUTT CHICK BUTT CHICK BUTT
-            CHICK BUTT 
+            About Me: {aboutMe}
           </div>
           <div className="profileCard">
             <p>Contact Information: </p>
-            <p>Email: temporaryEmail@gmail.com</p>
-            <p>LinkedIn: linkedin/temp</p>
+            <p>Email: {contactInfo}</p>
           </div>
-          <div className="profileCard">Skills: C++, C, Python, Java, React</div>
+          <div className="profileCard">Skills: {skills}</div>
           <div className="buttonContainer">
             <button type="button" className="btn profileActionButtons">
               Edit Profile
@@ -191,15 +257,19 @@ export default function Home() {
             {activeTab === "created" && (
               <div className="createdProjects">
                 <div className={styles.postContainer}>
-                  {postsCreated.map((post, index) => (
-                    <Postcard
-                      key={index}
-                      postName={post.postName}
-                      postInfo={post.postInfo}
-                      creatorName={post.creatorName}
-                      className={styles.postCard} // Apply class to each card
-                    />
-                  ))}
+                  {postsCreated.length > 0 ? (
+                    postsCreated.map((post, index) => (
+                      <Postcard
+                        key={index}
+                        postName={post.title}
+                        postInfo={post.description}
+                        creatorName={post.creatorusername}
+                        className={styles.postCard}
+                      />
+                    ))
+                  ) : (
+                    <p>No created projects found.</p>
+                  )}
                 </div>
               </div>
             )}

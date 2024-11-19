@@ -1,9 +1,9 @@
 "use client";
 import React from 'react';
 import { useRouter } from "next/navigation";
-import { supabase } from "../../lib/supabase";
 import "../../styles/login.page.css";
 import { useState } from "react";
+import Cookies from 'js-cookie';
 
 export default function Login() {
   const [data, setData] = useState<{ email: string; password: string }>({
@@ -19,49 +19,70 @@ export default function Login() {
 
   const signin = async () => {
     try {
-      const { data: loginData, error } = await supabase.auth.signInWithPassword({
-        email: data.email,
-        password: data.password,
+      const response = await fetch('http://127.0.0.1:5001/api/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
       });
 
-      if (loginData) {
-        console.log("Logged in:", loginData);
+      const result = await response.json();
+
+      if (response.ok) {
+        console.log("Logged in:", result);
+        // Expires in 7 days
+        Cookies.set('username', result.user, { expires: 7, path: '/' });
         router.refresh();
         router.push("/");
-      }
-
-      if (error) {
-        console.error("Login error:", error);
+      } else {
+        console.error("Login error:", result.error);
       }
     } catch (error) {
       console.error("Login error:", error);
     }
   };
 
-  const handleChange = (e:React.ChangeEvent<HTMLInputElement>) => {
-    const{name, value} = e.target;
+  const signup = () => {
+    router.push("/signup");  
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
     setData((prev) => ({
       ...prev,
       [name]: value,
     }));
-  }
+  };
 
   return (
-    <>
-      <div className="loginContainer">
-        <div id="title">ProjectConnect</div>
-        <input id="email" type="text" name="email" placeholder="Email" value={data?.email} onChange={handleChange}></input>
-        <input id="password" type="password" name="password" placeholder="Password" value={data?.password} onChange={handleChange}></input>
-        <div className="buttonContainer">
-          <button type="button" className="btn registerButtons" onClick={signin}>
-              Login
-          </button>
-          <button type="button" className="btn registerButtons" onClick={navigateToRegisterAccount}>
-            Register
-          </button>
-        </div>
+    <div className="loginContainer">
+      <div id="title">ProjectConnect</div>
+      {/* <div id="description">Login In</div> */}
+      <input
+        id="email"
+        type="text"
+        name="email"
+        placeholder="Email"
+        value={data.email}
+        onChange={handleChange}
+      />
+      <input
+        id="password"
+        type="password"
+        name="password"
+        placeholder="Password"
+        value={data.password}
+        onChange={handleChange}
+      />
+      <div className="buttonContainer">
+        <button type="button" className="btn registerButtons" onClick={signin}>
+          Sign In
+        </button>
+        <button type="button" className="btn registerButtons" onClick={signup}>
+          Sign Up
+        </button>
       </div>
-    </>
+    </div>
   );
-
 }
