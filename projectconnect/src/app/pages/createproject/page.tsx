@@ -39,6 +39,7 @@ export default function Createpost() {
   const router = useRouter();
 
   const[projectData,setProjectData]= useState({
+    tag:'',
     title:'',
     description:'',
     links:'',
@@ -48,22 +49,42 @@ export default function Createpost() {
     memberContact:''
     })
 
+    const [selectedTag, setSelectedTag] = useState("Project Tags");
+    const [error, setError] = useState('');
+
     const handleInputChange = (field: string, value: string) => {
-      // console.log(`Field updated: ${field}, New Value: ${value}`);
       setProjectData({ ...projectData, [field]: value });
+      setError('');
+    };
+
+    const handleTagSelect = (tag: string) => {
+      setSelectedTag(tag);
+      setProjectData({ ...projectData, tag }); 
+      setError('');
     };
 
     const handleSubmit = () => {
+      if (
+        !projectData.tag ||
+        selectedTag === "Project Tags" ||
+        !projectData.title.trim() ||
+        !projectData.description.trim()
+      ) {
+        setError('Required fields are missing.');
+        return;
+      }
+  
       const payload = {
-        title: projectData.title,
-        description: projectData.description,
-        links: projectData.links,
-        contact: projectData.contact,
-        members: {
+          title: projectData.title,
+          description: projectData.description,
+          links: projectData.links,
+          contact: projectData.contact,
+          members: {
           description: projectData.memberDescription,
           links: projectData.memberLinks,
           contact: projectData.memberContact
-        }
+        },
+        tag: selectedTag,
       };
       
       console.log("string to pass to api", payload);
@@ -75,19 +96,27 @@ export default function Createpost() {
 
       <h1 className="formHeader">Create Project</h1>
       <div className="dropdown">
-        <a className="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-          Project Tags
-        </a>
-        <div className="dropdown-menu" aria-labelledby="dropdownMenuLink">
-          <a className="dropdown-item" href="#">Arts/Crafts</a>
-          <a className="dropdown-item" href="#">Business</a>
-          <a className="dropdown-item" href="#">Coding</a>
-          <a className="dropdown-item" href="#">Engineering</a>
-          <a className="dropdown-item" href="#">Math</a>
-          <a className="dropdown-item" href="#">Music</a>
-          <a className="dropdown-item" href="#">Science</a>
-          <a className="dropdown-item" href="#">Writing</a>
-          <a className="dropdown-item" href="#">Other</a>
+        <button
+          className="btn btn-secondary dropdown-toggle"
+          type="button"
+          id="dropdownMenuButton"
+          data-toggle="dropdown"
+          aria-haspopup="true"
+          aria-expanded="false"
+        >
+          {selectedTag}
+        </button>
+        <div className="dropdown-menu" aria-labelledby="dropdownMenuButton">
+          {["Arts/Crafts", "Business", "Coding", "Engineering", "Math", "Music", "Science", "Writing", "Other"].map((tag) => (
+            <a
+              className="dropdown-item"
+              href="#"
+              key={tag}
+              onClick={() => handleTagSelect(tag)}
+            >
+              {tag}
+            </a>
+          ))}
         </div>
       </div>
 
@@ -139,6 +168,7 @@ export default function Createpost() {
             onChange={(value) => handleInputChange('memberContact', value)} 
           />
         </form>
+      {error && <div className="error">{error}</div>}
 
         <button 
           type="submit" 
