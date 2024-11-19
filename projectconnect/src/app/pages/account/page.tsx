@@ -15,6 +15,7 @@ export default function Home() {
   const [activeTab, setActiveTab] = useState(initialTab);
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("Loading...");
+  const [displayName, setDisplayName] = useState("Loading...");
   const [aboutMe, setAboutMe] = useState("Loading...");
   const [contactInfo, setContactInfo] = useState("Loading...");
   const [skills, setSkills] = useState("Loading...");
@@ -46,6 +47,7 @@ export default function Home() {
           if (response.ok) {
             // Update the state with the retrieved details
             setEmail(result.loginemail || "No email found.");
+            setDisplayName(result.displayname || "No displayName found");
             setAboutMe(result.aboutme || "No About Me information found.");
             setContactInfo(result.contactinfo || "No Contact information found.");
             setSkills(result.skills || "No skills found.");
@@ -53,6 +55,7 @@ export default function Home() {
             // Handle errors from the backend
             console.error("Error fetching user details:", result.message);
             setEmail("Error fetching email.");
+            setDisplayName("Error fetching displayName");
             setAboutMe("Error fetching About Me.");
             setContactInfo("Error fetching contact info.");
             setSkills("Error fetching skills.");
@@ -61,6 +64,7 @@ export default function Home() {
           // Handle unexpected errors
           console.error("Error fetching user data:", error);
           setEmail("Error fetching email.");
+          setDisplayName("Error fetching displayName");
           setAboutMe("Error fetching About Me.");
           setContactInfo("Error fetching contact info.");
           setSkills("Error fetching skills.");
@@ -75,6 +79,7 @@ export default function Home() {
       console.error("Username not found in cookies.");
       setEmail("Username not found.");
       setAboutMe("Username not found.");
+      setDisplayName("DisplayName not found");
       setContactInfo("Username not found.");
       setSkills("Username not found.");
     }
@@ -221,8 +226,8 @@ export default function Home() {
 
       <div className="contentContainer">
         <div className="sidePanel">
-          <div className="displayName">William Li</div>
-          <div className="userName">{username || "Loading..."}</div>
+          <div className="displayName">{displayName}</div>
+          <div className="userName">{username}</div>
           <div className="profileCard">
             About Me: {aboutMe}
           </div>

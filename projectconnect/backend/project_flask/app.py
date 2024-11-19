@@ -290,6 +290,7 @@ def get_Contact_Info():
         print(f"Error fetching aboutMe: {e}")
         return jsonify({"status": "error", "message": str(e)}), 500
 
+## important ##
 @app.route('/api/getUserDetails', methods=['POST'])
 def get_user_details():
     try:
@@ -302,9 +303,8 @@ def get_user_details():
 
         with Account.get_db_connection() as conn:
             with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cursor:
-                print(f"Executing SQL query for username: {username}")
                 cursor.execute("""
-                    SELECT loginemail, aboutme, contactinfo, skills
+                    SELECT displayname, loginemail, aboutme, contactinfo, skills
                     FROM users
                     WHERE username = %s
                 """, (username,))
@@ -319,9 +319,6 @@ def get_user_details():
                     }), 200
                 else:
                     return jsonify({"status": "error", "message": "User not found"}), 404
-    except Exception as e:
-        print(f"Database error occurred: {e}")
-        return jsonify({"status": "error", "message": str(e)}), 500
 
     except Exception as e:
         print(f"Error fetching user details: {e}")
