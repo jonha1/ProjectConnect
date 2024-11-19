@@ -28,7 +28,7 @@ export default function Login() {
       if (response.ok) {
         console.log("Logged in:", result);
         // Expires in 7 days
-        Cookies.set('username', result.user, { expires: 7, path: '/' });
+        Cookies.set('username', result.user, { expires: 30, path: '/' });
         router.refresh();
         router.push("/");
       } else {

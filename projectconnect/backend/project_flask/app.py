@@ -39,12 +39,13 @@ def test_db_connection():
 
 ## ACCOUNT ##
 
-@app.route('/api/accounts', methods=['POST'])
+@app.route('/register', methods=['POST'])
 def register_account():
     data = request.json 
 
     result = Account.register(
         username=data.get('username'),
+        displayname=data.get('displayname'),
         loginEmail=data.get('loginEmail'),
         password=data.get('password')  
     )

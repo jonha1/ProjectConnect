@@ -60,7 +60,7 @@ class Account:
             return None
 
     @staticmethod
-    def register(username, loginEmail, password):
+    def register(username, displayname, loginEmail, password):
         if Account.account_exists(username, loginEmail):
             return {"error": "Account with this username or email already exists."}
         
@@ -68,9 +68,9 @@ class Account:
             with Account.get_db_connection() as conn:
                 with conn.cursor() as cursor:
                     cursor.execute("""
-                        INSERT INTO users (username, loginEmail, password)
-                        VALUES (%s, %s, %s) RETURNING *;
-                    """, (username, loginEmail, password))
+                        INSERT INTO users (username, displayname, loginEmail, password)
+                        VALUES (%s, %s, %s, %s) RETURNING *;
+                    """, (username, displayname, loginEmail, password))
                     new_account = cursor.fetchone()
                     conn.commit()  
                     return new_account  
