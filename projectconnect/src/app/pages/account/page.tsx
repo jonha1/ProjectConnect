@@ -86,9 +86,7 @@ export default function Home() {
     }
 
     const fetchBookmarks = async () => {
-      console.log("second fetch");
       try {
-        console.log("in the try");
         const response = await fetch("http://localhost:5001/retrieveBookmarks", {
           method: "POST",
           credentials: "include",
@@ -97,13 +95,10 @@ export default function Home() {
           },
           body: JSON.stringify({ username: cookieUsername }),
         });
-        console.log("wait for response");
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
-        console.log("wait for data");
         const data = await response.json();
-        console.log("Got data");
         console.log(data);
         // Transform the response data to match Postcard prop structure
         const transformedData = data.map((item) => ({
