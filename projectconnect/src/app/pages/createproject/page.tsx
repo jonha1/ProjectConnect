@@ -53,15 +53,28 @@ export default function Createpost() {
     const [error, setError] = useState('');
 
     const handleInputChange = (field: string, value: string) => {
+      if (field === 'title' && value.length > 100) {
+        setError('Title cannot exceed 100 characters.');
+        return;
+      }
+      if (field === 'description' && value.length > 800) {
+        setError('Description cannot exceed 800 characters.');
+        return;
+      }
       setProjectData({ ...projectData, [field]: value });
       setError('');
     };
+
+    
+
 
     const handleTagSelect = (tag: string) => {
       setSelectedTag(tag);
       setProjectData({ ...projectData, tag }); 
       setError('');
     };
+
+    
 
     const handleSubmit = () => {
       if (
