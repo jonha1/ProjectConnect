@@ -18,6 +18,8 @@ export default function Home() {
   const [aboutMe, setAboutMe] = useState("Loading...");
   const [contactInfo, setContactInfo] = useState("Loading...");
 
+  const [isLoading, setIsLoading] = useState(true);
+
   useEffect(() => {
     const cookieUsername = getUsernameFromCookie();
     if (cookieUsername) {
@@ -26,6 +28,7 @@ export default function Home() {
   
       const fetchUserData = async () => {
         try {
+          setIsLoading(true);
           console.log("Fetching email for username:", cookieUsername);
           
           // Fetch email by username
@@ -111,6 +114,9 @@ export default function Home() {
           console.error("Error fetching user data:", error);
           setAboutMe("Error fetching About Me.");
           setEmail("Error fetching email.");
+        }
+        finally {
+          setIsLoading(false);
         }
       };
       
@@ -239,6 +245,27 @@ export default function Home() {
       creatorName: "EduCoach88",
     },
   ];
+
+  if (isLoading) {
+    return (
+      <div
+        className="d-flex justify-content-center align-items-center"
+        style={{
+          width: "100vw",
+          height: "100vh",
+        }}
+      >
+        <div
+          className="spinner-border"
+          role="status"
+          style={{ width: "5rem", height: "5rem" , color: "#2D2D2D" }}
+        >
+          <span className="sr-only">Loading...</span>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="wrapper">
       <Navbar />
