@@ -13,8 +13,8 @@ type AutoResizeTextareaProps = {
 function AutoResizeTextarea({ placeholder, value, onChange }: AutoResizeTextareaProps) {
   const handleChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
     const textarea = event.target;
-    textarea.style.height = 'auto';  // Reset height
-    textarea.style.height = `${textarea.scrollHeight}px`;  // Adjust to content height
+    textarea.style.height = 'auto';  
+    textarea.style.height = `${textarea.scrollHeight}px`;  
     onChange(textarea.value);
   };
 
@@ -49,7 +49,7 @@ export default function Createpost() {
     memberContact:''
     })
 
-    const [selectedTag, setSelectedTag] = useState("Project Tags");
+    const [selectedTag, setSelectedTag] = useState("Project Tags*");
     const [error, setError] = useState('');
 
     const handleInputChange = (field: string, value: string) => {
@@ -65,21 +65,16 @@ export default function Createpost() {
       setError('');
     };
 
-    
-
-
     const handleTagSelect = (tag: string) => {
       setSelectedTag(tag);
       setProjectData({ ...projectData, tag }); 
       setError('');
     };
 
-    
-
     const handleSubmit = () => {
       if (
         !projectData.tag ||
-        selectedTag === "Project Tags" ||
+        selectedTag === "Project Tags*" ||
         !projectData.title.trim() ||
         !projectData.description.trim()
       ) {
