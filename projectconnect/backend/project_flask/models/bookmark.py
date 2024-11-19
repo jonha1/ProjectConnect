@@ -43,7 +43,26 @@ class Bookmark:
                         WHERE username = %s
                     """, (self.username,))
                     result = cursor.fetchall()
-                    return result #list of tuples, each tuple is a row ex. [("Will", timestamp, "Green Energy", "alice")]
+                    print(result)
+                    all_bookmarks = []
+                    for row in result:
+                        print("row: ", row)
+                        creator = row['creatorusername']
+                        title = row['title']
+                        print(creator, title)
+                        cursor.execute("""
+                        SELECT * FROM projects 
+                        WHERE creatorusername = %s
+                        and title = %s
+                         """, (creator, title))
+                        print("-----------------------------")
+                        project_row = cursor.fetchone()
+                        print(project_row)
+                        description = project_row['description']
+                        print(description)
+                        bookmark_dict = {"title": title, "description": description, "creatorusername": creator}
+                        all_bookmarks.append(bookmark_dict)
+                    return all_bookmarks #list of tuples, each tuple is a row ex.[ ["alice","Green Energy","testing"], ]
         except Exception as e:
             print(f"Error checking bookmarks existence: {e}")
             return []

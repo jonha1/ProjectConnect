@@ -21,6 +21,7 @@ export default function Home() {
   const [skills, setSkills] = useState("Loading...");
 
   const [isLoading, setIsLoading] = useState(true);
+  const [bookmarks, setBookmarks] = useState([]);
 
   useEffect(() => {
     const cookieUsername = getUsernameFromCookie(); // Retrieve the username from the cookie
@@ -83,6 +84,43 @@ export default function Home() {
       setContactInfo("Username not found.");
       setSkills("Username not found.");
     }
+
+    const fetchBookmarks = async () => {
+      console.log("second fetch");
+      try {
+        console.log("in the try");
+        const response = await fetch("http://localhost:5001/retrieveBookmarks", {
+          method: "POST",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ username: cookieUsername }),
+        });
+        console.log("wait for response");
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        console.log("wait for data");
+        const data = await response.json();
+        console.log("Got data");
+        console.log(data);
+        // Transform the response data to match Postcard prop structure
+        const transformedData = data.map((item) => ({
+          postName: item.title, // Use `title` for postName
+          postInfo: item.description, // Use `description` for postInfo
+          creatorName: item.creatorusername, // Use `creatorusername` for creatorName
+        }));
+
+        setBookmarks(transformedData); // Update the state with transformed data    
+      } catch (error) {
+        console.error("Error fetching bookmarks:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchBookmarks();
+
   }, []);  
   const postsCreated = [
     {
@@ -302,7 +340,7 @@ export default function Home() {
             {activeTab === "bookmarks" && (
               <div className="bookmarks">
                 <div className={styles.postContainer}>
-                  {postsBookmarked.map((post, index) => (
+                  {bookmarks.map((post, index) => (
                     <Postcard
                       key={index}
                       postName={post.postName}
