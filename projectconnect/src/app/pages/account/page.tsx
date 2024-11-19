@@ -28,18 +28,12 @@ export default function Home() {
   
       const fetchUserData = async () => {
         try {
-<<<<<<< Updated upstream
           setIsLoading(true);
-          console.log("Fetching email for username:", cookieUsername);
-          
-          // Fetch email by username
-          const emailResponse = await fetch("http://127.0.0.1:5001/getEmailByUser", {
-=======
           console.log("Fetching data for username:", cookieUsername);
-  
+          
+
           // Call your API to fetch user details
           const response = await fetch("http://127.0.0.1:5001/api/getUserDetails", {
->>>>>>> Stashed changes
             method: "POST",
             headers: {
               "Content-Type": "application/json",
