@@ -14,7 +14,11 @@ import "../styles/notifications.css";
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 
-export default function Navbar() {
+interface NavbarProps {
+  setActiveTab: (tab: string) => void;  // Accept setActiveTab as a prop
+}
+
+export default function Navbar({ setActiveTab }: NavbarProps) {
   // Sample notifications arrayx
   const [notifications, setNotifications] = useState([
     { id: 1, type: "Project Join Request", username: "SpicyDoritos", project: "Medical AI"},
@@ -38,8 +42,15 @@ export default function Navbar() {
   };
 
   const router = useRouter();
-  const handleBookmarkClick = () => {
+  const handleBookmarkClick = (tab: string) => {
+    const currentPath = router.pathname;
+    console.log(currentPath);
+    if (currentPath === "/account"){
+      setActiveTab(tab);
+    }
+    else{
       router.push("/account?query=bookmark");
+    }
   };
 
   return (
@@ -57,7 +68,13 @@ export default function Navbar() {
                 </a>
               </li>
               <li className="nav-item" key="bookmark-icon">
-                <a className="nav-link navbarComponent" onClick={handleBookmarkClick}>
+                <a
+                  className="nav-link navbarComponent"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleBookmarkClick("bookmarks");  // Handle bookmark click and update active tab
+                  }}
+                >
                   <FontAwesomeIcon icon={faBookmark} />
                 </a>
               </li>

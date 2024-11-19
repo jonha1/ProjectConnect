@@ -130,7 +130,7 @@ export default function Home() {
   ];
   return (
     <div className="wrapper">
-      <Navbar />
+      <Navbar setActiveTab={setActiveTab} />
 
       <div className="contentContainer">
         <div className="sidePanel">
