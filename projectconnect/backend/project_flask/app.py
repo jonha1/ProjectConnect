@@ -258,7 +258,7 @@ def edit_Contact_Info():
         print(f"Error updating contactinfo: {e}")
         return jsonify({"status": "error", "message": str(e)}), 500
     
-@app.route('/api/getContactInfo', methods=['GET'])
+@app.route('/api/getContactInfo', methods=['POST'])
 def get_Contact_Info():
     data = request.json
     username = data.get("username")
