@@ -4,7 +4,7 @@ from psycopg2.extras import RealDictCursor
 from dotenv import load_dotenv
 from flask import Flask, request, jsonify, make_response
 from project_flask.models.account import Account
-from project_flask.models.user import User
+# from project_flask.models.user import User
 from project_flask.models.project import Project
 
 load_dotenv()
