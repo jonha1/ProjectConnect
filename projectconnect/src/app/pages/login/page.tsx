@@ -44,7 +44,7 @@ export default function Login() {
   };
 
   const signup = () => {
-    router.push("/signup");  
+    router.push("/register");  
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
