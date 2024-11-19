@@ -194,44 +194,6 @@ export default function Home() {
     },
   ];
 
-  const postsBookmarked = [
-    {
-      postName: "SkillSync",
-      postInfo:
-        "SkillSync is a platform built for individuals seeking to enhance their skills through real-world projects. Users can create or join projects aligned with their interests, gain hands-on experience, and receive feedback from mentors. The app uses Vue.js for a responsive interface, a Django backend, and integrates with GitHub for project tracking. SkillSync fosters continuous learning and practical application of skills in an immersive, collaborative environment.",
-      creatorName: "DevGuru45",
-    },
-    {
-      postName: "EcoHub",
-      postInfo:
-        "EcoHub is a community-driven app designed for individuals passionate about sustainable living. The app connects users with local events, green initiatives, and eco-friendly businesses. EcoHub was built using Angular for the front end, Node.js for server-side processing, and MongoDB to store user-generated content and event data. With EcoHub, users can find eco-conscious events, share green tips, and contribute to a growing community of environmental advocates.",
-      creatorName: "EcoWarrior99",
-    },
-    {
-      postName: "EventLink",
-      postInfo:
-        "EventLink is an event planning and networking platform where hosts and attendees can connect based on their interests. From concerts to workshops, EventLink offers an intuitive event discovery and RSVP system. Using Svelte for the UI and Firebase for authentication and real-time data sync, EventLink streamlines the event experience by helping people discover and join events they are passionate about.",
-      creatorName: "EventMaster00",
-    },
-    {
-      postName: "CodeQuest",
-      postInfo:
-        "CodeQuest is a coding challenge and skill-building platform designed for developers of all levels. With daily challenges and skill-based leaderboards, users can hone their skills and track progress. CodeQuest utilizes Next.js for fast-loading pages, a Python Flask API, and Redis for caching challenges and leaderboard data. By offering gamified challenges, CodeQuest keeps coding fun and engaging.",
-      creatorName: "HackGuru2023",
-    },
-    {
-      postName: "PhotoFusion",
-      postInfo:
-        "PhotoFusion is a social media platform dedicated to photography enthusiasts. Users can create profiles, share photos, participate in photo challenges, and receive feedback. Built with a React frontend, Ruby on Rails backend, and AWS S3 for image storage, PhotoFusion supports high-quality image sharing and engagement. This community-centric app is perfect for aspiring photographers looking to connect and learn from others.",
-      creatorName: "ShutterBug101",
-    },
-    {
-      postName: "TutorSphere",
-      postInfo:
-        "TutorSphere is an online tutoring marketplace that connects students with qualified tutors across a variety of subjects. Tutors can create profiles, list subjects, and set hourly rates, while students can book sessions and leave reviews. Built with a Vue.js frontend, Node.js backend, and PostgreSQL database, TutorSphere aims to make quality tutoring accessible and customizable to individual learning needs.",
-      creatorName: "EduCoach88",
-    },
-  ];
 
   if (isLoading) {
     return (
