@@ -13,9 +13,9 @@ export default function Login() {
 
   const router = useRouter();
 
-  const navigateToRegisterAccount = () => {
-    router.push("/register");
-  };
+  // const navigateToRegisterAccount = () => {
+  //   router.push("/register");
+  // };
 
   const signin = async () => {
     try {
