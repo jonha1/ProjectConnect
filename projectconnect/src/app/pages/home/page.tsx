@@ -50,7 +50,7 @@ export default function Home() {
       />
       <div id="prompt">
         <h2>
-          Don&apos;t know what to search for? View projects by category tags below!
+          Don&#39;t know what to search for? View projects by category tags below!
         </h2>
       </div>
       <HomepageCards tags={tags} onTagClick={handleTagClick} />
