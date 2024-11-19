@@ -4,9 +4,9 @@ import { useState } from "react";
 import Navbar from "../../components/navbar";
 import "../../styles/account.page.css";
 import Postcard from "../../components/post_card";
-import styles from "../../styles/searchpage.module.css"; // Import the CSS file for styling
+import styles from "../../styles/searchpage.module.css"; 
 import { useSearchParams } from "next/navigation"; 
-import { getUsernameFromCookie } from "../../lib/cookieUtils"; // Adjust the path based on your project structure
+import { getUsernameFromCookie } from "../../lib/cookieUtils"; 
 
 
 export default function Home() {
@@ -16,6 +16,7 @@ export default function Home() {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("Loading...");
   const [aboutMe, setAboutMe] = useState("Loading...");
+  const [contactInfo, setContactInfo] = useState("Loading...");
 
   useEffect(() => {
     const cookieUsername = getUsernameFromCookie();
@@ -26,7 +27,7 @@ export default function Home() {
       const fetchUserData = async () => {
         try {
           console.log("Fetching email for username:", cookieUsername);
-      
+
           // Fetch email by username
           const emailResponse = await fetch("http://127.0.0.1:5001/getEmailByUser", {
             method: "POST",
@@ -36,14 +37,36 @@ export default function Home() {
             body: JSON.stringify({ username: cookieUsername }),
           });
       
-          const emailResult = await emailResponse.json(); // Parse the response
-          console.log("Email Response Body:", emailResult); // Log the full response body
+          const emailResult = await emailResponse.json(); 
+          console.log("Email Response Body:", emailResult); 
       
           if (emailResponse.ok && emailResult.email) {
             const userEmail = emailResult.email;
-            console.log("Fetched Email:", userEmail); // Log the email
+            console.log("Fetched Email:", userEmail); 
             setEmail(userEmail);
       
+            const contactInfoResponse = await fetch("http://127.0.0.1:5001/api/getContactInfo", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                username: cookieUsername,
+                loginEmail: userEmail,
+              }),
+            });
+
+            const contactInfoResult = await contactInfoResponse.json();
+            console.log("Contact Info Response Body:", contactInfoResult);
+
+            if (contactInfoResponse.ok && contactInfoResult.contactinfo) {
+              setContactInfo(contactInfoResult.contactinfo);
+              console.log("Contact Info fetched successfully:", contactInfoResult.contactinfo);
+            } else {
+              console.error("Contact Info not found in response:", contactInfoResult);
+              setContactInfo("No contact info found.");
+            }
+
             // Fetch About Me using username and email
             const aboutMeResponse = await fetch("http://127.0.0.1:5001/api/getAboutMe", {
               method: "POST",
@@ -89,6 +112,7 @@ export default function Home() {
       console.error("Username not found in cookies.");
       setAboutMe("Username not found.");
       setEmail("Username not found.");
+      setContactInfo("Username not found.");
     }
   }, []);
   
@@ -221,8 +245,7 @@ export default function Home() {
           </div>
           <div className="profileCard">
             <p>Contact Information: </p>
-            <p>Email: temporaryEmail@gmail.com</p>
-            <p>LinkedIn: linkedin/temp</p>
+            <p>Email: {contactInfo}</p>
           </div>
           <div className="profileCard">Skills: C++, C, Python, Java, React</div>
           <div className="buttonContainer">
