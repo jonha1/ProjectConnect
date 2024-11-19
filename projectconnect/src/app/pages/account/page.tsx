@@ -1,17 +1,89 @@
 "use client";
-import { useState, useEffect } from "react";
+import React, { useEffect } from 'react';
+import { useState } from "react";
 import Navbar from "../../components/navbar";
 import "../../styles/account.page.css";
-import Searchbar from "../../components/searchbar";
 import Postcard from "../../components/post_card";
 import styles from "../../styles/searchpage.module.css"; // Import the CSS file for styling
 import { useSearchParams } from "next/navigation"; 
+import { getUsernameFromCookie } from "../../lib/cookieUtils"; // Adjust the path based on your project structure
+
 
 export default function Home() {
   const searchParams = useSearchParams();
   const initialTab = searchParams.get("query") === "bookmark" ? "bookmarks" : "created";
-  const [activeTab, setActiveTab] = useState(initialTab); // Set initial state based on URL
+  const [activeTab, setActiveTab] = useState(initialTab);
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("Loading...");
+  const [displayName, setDisplayName] = useState("Loading...");
+  const [aboutMe, setAboutMe] = useState("Loading...");
+  const [contactInfo, setContactInfo] = useState("Loading...");
+  const [skills, setSkills] = useState("Loading...");
 
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const cookieUsername = getUsernameFromCookie(); // Retrieve the username from the cookie
+    if (cookieUsername) {
+      setUsername(cookieUsername); // Set the username in state
+  
+      const fetchUserData = async () => {
+        try {
+          setIsLoading(true);
+          console.log("Fetching data for username:", cookieUsername);
+          
+
+          // Call your API to fetch user details
+          const response = await fetch("http://127.0.0.1:5001/api/getUserDetails", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ username: cookieUsername }),
+          });
+  
+          const result = await response.json();
+  
+          if (response.ok) {
+            // Update the state with the retrieved details
+            setEmail(result.loginemail || "No email found.");
+            setDisplayName(result.displayname || "No displayName found");
+            setAboutMe(result.aboutme || "No About Me information found.");
+            setContactInfo(result.contactinfo || "No Contact information found.");
+            setSkills(result.skills || "No skills found.");
+          } else {
+            // Handle errors from the backend
+            console.error("Error fetching user details:", result.message);
+            setEmail("Error fetching email.");
+            setDisplayName("Error fetching displayName");
+            setAboutMe("Error fetching About Me.");
+            setContactInfo("Error fetching contact info.");
+            setSkills("Error fetching skills.");
+          }
+        } catch (error) {
+          // Handle unexpected errors
+          console.error("Error fetching user data:", error);
+          setEmail("Error fetching email.");
+          setDisplayName("Error fetching displayName");
+          setAboutMe("Error fetching About Me.");
+          setContactInfo("Error fetching contact info.");
+          setSkills("Error fetching skills.");
+        }
+        finally {
+          setIsLoading(false);
+        }
+      };
+  
+      fetchUserData(); // Call the fetchUserData function
+    } else {
+      console.error("Username not found in cookies.");
+      setEmail("Username not found.");
+      setAboutMe("Username not found.");
+      setDisplayName("DisplayName not found");
+      setContactInfo("Username not found.");
+      setSkills("Username not found.");
+    }
+  }, []);  
   const postsCreated = [
     {
       postName: "ProjectConnect",
@@ -127,33 +199,43 @@ export default function Home() {
       creatorName: "EduCoach88",
     },
   ];
+
+  if (isLoading) {
+    return (
+      <div
+        className="d-flex justify-content-center align-items-center"
+        style={{
+          width: "100vw",
+          height: "100vh",
+        }}
+      >
+        <div
+          className="spinner-border"
+          role="status"
+          style={{ width: "5rem", height: "5rem" , color: "#2D2D2D" }}
+        >
+          <span className="sr-only">Loading...</span>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="wrapper">
       <Navbar />
 
       <div className="contentContainer">
         <div className="sidePanel">
-          <div className="displayName">William Li</div>
-          <div className="userName">SuaveSailor</div>
+          <div className="displayName">{displayName}</div>
+          <div className="userName">{username}</div>
           <div className="profileCard">
-            About Me: A little about me... I love mangos they make me feel so
-            nice and yummy, mapo tofu is so silky and spicy, and baja blast to
-            wash it all down. In my free time, I love to make silly faces in the
-            mirror and tell myself that everything is going to be okay. I have
-            nothing else to say, so for now I leave you with this "CHICK BUTT
-            CHICK BUTT CHICK BUTT CHICK BUTT CHICK BUTT CHICK BUTT CHICK BUTT
-            CHICK BUTT CHICK BUTT CHICK BUTT CHICK BUTT CHICK BUTT CHICK BUTT
-            CHICK BUTT CHICK BUTT CHICK BUTT CHICK BUTT CHICK BUTT CHICK BUTT
-            CHICK BUTT CHICK BUTT CHICK BUTT CHICK BUTT CHICK BUTT CHICK BUTT
-            CHICK BUTT CHICK BUTT CHICK BUTT CHICK BUTT CHICK BUTT CHICK BUTT
-            CHICK BUTT "
+            About Me: {aboutMe}
           </div>
           <div className="profileCard">
             <p>Contact Information: </p>
-            <p>Email: temporaryEmail@gmail.com</p>
-            <p>LinkedIn: linkedin/temp</p>
+            <p>Email: {contactInfo}</p>
           </div>
-          <div className="profileCard">Skills: C++, C, Python, Java, React</div>
+          <div className="profileCard">Skills: {skills}</div>
           <div className="buttonContainer">
             <button type="button" className="btn profileActionButtons">
               Edit Profile
@@ -185,8 +267,6 @@ export default function Home() {
               Bookmarks
             </div>
           </div>
-
-          <Searchbar />
 
           <div className="projects">
             {activeTab === "created" && (

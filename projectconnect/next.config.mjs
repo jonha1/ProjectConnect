@@ -21,9 +21,18 @@ const nextConfig = {
         {
           source: '/login',
           destination: '/pages/login',
-        },{
+        },
+        {
           source: '/accountInfo',
           destination: '/pages/accountInfo'
+        },
+        {
+          source: '/post',
+          destination: '/pages/post'
+        },
+        {
+          source:'/register',
+          destination: '/pages/register'
         }
       ];
     },

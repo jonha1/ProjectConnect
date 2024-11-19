@@ -1,10 +1,10 @@
-"use client"
+"use client";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useRouter } from "next/navigation";
 import { faArrowUpRightFromSquare } from "@fortawesome/free-solid-svg-icons";
 import styles from '../styles/post_card.module.css';
+import React from 'react';
 
-// Define the props interface
 interface PostCardProps {
   postName: string;
   postInfo: string;
@@ -14,9 +14,12 @@ interface PostCardProps {
 
 export default function PostCard({ postName, postInfo, creatorName, className }: PostCardProps) {
   const router = useRouter();
-  
+
   const handleClickPost = () => {
-    router.push("/");
+    // Format post name for the URL (replace spaces with hyphens and convert to lowercase)
+    const formattedPostName = postName.replace(/\s+/g, "-");
+    const destination = "?creator=" + creatorName + "&title=" + formattedPostName;
+    router.push(`/post${destination}`);
   };
 
   return (

@@ -1,5 +1,4 @@
 "use client";
-import Navbar from '../../components/navbar';
 import "../../styles/accountInfo.page.css";
 import React, {useState} from 'react';
 import { useRouter } from "next/navigation";
@@ -33,11 +32,11 @@ function AutoResizeTextarea({ placeholder }: { placeholder: string }) {
 }
 
 export default function Createpost() {
-  const [isActive, setIsActive] = useState(false);
+  // const [isActive, setIsActive] = useState(false);
   const router = useRouter();
   const handleClick = () => {
-    setIsActive(true);
-    setTimeout(() => setIsActive(false), 2000); //2seconds 
+  //   setIsActive(true);
+  //   setTimeout(() => setIsActive(false), 2000); //2seconds 
     router.push("/");
   };
   return (
