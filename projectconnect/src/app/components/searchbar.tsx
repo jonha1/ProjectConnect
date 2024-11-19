@@ -1,10 +1,9 @@
-'use client';
+"use client";
 import React from 'react';
 import '../styles/searchbar.modules.css';
 import { ChangeEvent, KeyboardEvent } from 'react';
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
-import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import { useSearchContext } from "../context/SearchContext";
 
 interface SearchbarProps {
