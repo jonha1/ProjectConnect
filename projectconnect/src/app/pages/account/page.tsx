@@ -17,119 +17,74 @@ export default function Home() {
   const [email, setEmail] = useState("Loading...");
   const [aboutMe, setAboutMe] = useState("Loading...");
   const [contactInfo, setContactInfo] = useState("Loading...");
+  const [skills, setSkills] = useState("Loading...");
 
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const cookieUsername = getUsernameFromCookie();
+    const cookieUsername = getUsernameFromCookie(); // Retrieve the username from the cookie
     if (cookieUsername) {
-      console.log(cookieUsername);
-      setUsername(cookieUsername);
+      setUsername(cookieUsername); // Set the username in state
   
       const fetchUserData = async () => {
         try {
+<<<<<<< Updated upstream
           setIsLoading(true);
           console.log("Fetching email for username:", cookieUsername);
           
           // Fetch email by username
           const emailResponse = await fetch("http://127.0.0.1:5001/getEmailByUser", {
+=======
+          console.log("Fetching data for username:", cookieUsername);
+  
+          // Call your API to fetch user details
+          const response = await fetch("http://127.0.0.1:5001/api/getUserDetails", {
+>>>>>>> Stashed changes
             method: "POST",
             headers: {
               "Content-Type": "application/json",
             },
             body: JSON.stringify({ username: cookieUsername }),
           });
-      
-          const emailResult = await emailResponse.json(); // Parse the response
-          // console.log("Email Response Body:", emailResult); // Log the full response body
-      
-          if (emailResponse.ok && emailResult.email) {
-            const userEmail = emailResult.email;
-            // console.log("Fetched Email:", userEmail); // Log the email
-            setEmail(userEmail);
-
-            // Fetch About Me using username and email
-            const aboutMeResponse = await fetch("http://127.0.0.1:5001/api/getAboutMe", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({
-                username: cookieUsername,
-                loginEmail: userEmail,
-              }),
-            });
-
-            if (!aboutMeResponse.ok) {
-              console.error("Failed to fetch About Me:", aboutMeResponse.statusText);
-              setAboutMe("No About Me information found.");
-              return;
-            }
-      
-            const aboutMeResult = await aboutMeResponse.json();
-            // console.log("About Me Response Body:", aboutMeResult);
-      
-            if (aboutMeResult.aboutme) {
-              setAboutMe(aboutMeResult.aboutme);
-              // console.log("About Me fetched successfully:", aboutMeResult.aboutme);
-            } else {
-              // console.error("About Me not found in response:", aboutMeResult);
-              setAboutMe("No About Me information found.");
-            }
-
-            const contactInfoResposne = await fetch("http://127.0.0.1:5001/api/getContactInfo", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({
-                username: cookieUsername,
-                loginEmail: userEmail,
-              }),
-            });
-
-            if (!contactInfoResposne.ok) {
-              // console.error("Failed to fetch contact Info:", contactInfoResposne.statusText);
-              setContactInfo("No contact info information found.");
-              return;
-            }
-
-            const contactInfoResult = await contactInfoResposne.json();
-            // console.log("Contact Info Response Body:", contactInfoResult);
-
-            if (contactInfoResult.contactinfo) {
-              setContactInfo(contactInfoResult.contactinfo);
-              console.log("Contact fetched successfully:", contactInfoResult.contactinfo);
-            } else {
-              console.error("Contact Info not found in response:", contactInfoResult);
-              setContactInfo("No Contact information found.");
-            }
-      
+  
+          const result = await response.json();
+  
+          if (response.ok) {
+            // Update the state with the retrieved details
+            setEmail(result.loginemail || "No email found.");
+            setAboutMe(result.aboutme || "No About Me information found.");
+            setContactInfo(result.contactinfo || "No Contact information found.");
+            setSkills(result.skills || "No skills found.");
           } else {
-            console.error("Email not found in API response:", emailResult);
-            setEmail("No email information found.");
-            setAboutMe("Unable to fetch About Me due to missing email.");
+            // Handle errors from the backend
+            console.error("Error fetching user details:", result.message);
+            setEmail("Error fetching email.");
+            setAboutMe("Error fetching About Me.");
+            setContactInfo("Error fetching contact info.");
+            setSkills("Error fetching skills.");
           }
         } catch (error) {
+          // Handle unexpected errors
           console.error("Error fetching user data:", error);
-          setAboutMe("Error fetching About Me.");
           setEmail("Error fetching email.");
+          setAboutMe("Error fetching About Me.");
+          setContactInfo("Error fetching contact info.");
+          setSkills("Error fetching skills.");
         }
         finally {
           setIsLoading(false);
         }
       };
-      
-      fetchUserData();
+  
+      fetchUserData(); // Call the fetchUserData function
     } else {
       console.error("Username not found in cookies.");
-      setAboutMe("Username not found.");
       setEmail("Username not found.");
+      setAboutMe("Username not found.");
       setContactInfo("Username not found.");
+      setSkills("Username not found.");
     }
-  }, []);
-  
-  
+  }, []);  
   const postsCreated = [
     {
       postName: "ProjectConnect",
@@ -281,7 +236,7 @@ export default function Home() {
             <p>Contact Information: </p>
             <p>Email: {contactInfo}</p>
           </div>
-          <div className="profileCard">Skills: C++, C, Python, Java, React</div>
+          <div className="profileCard">Skills: {skills}</div>
           <div className="buttonContainer">
             <button type="button" className="btn profileActionButtons">
               Edit Profile

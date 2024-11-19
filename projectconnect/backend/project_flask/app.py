@@ -122,7 +122,7 @@ def editSkils():
         print(f"Error updating skills: {e}")
         return jsonify({"status": "error", "message": str(e)}), 500
 
-@app.route('/api/getSkills', methods=['GET'])
+@app.route('/api/getSkills', methods=['POST'])
 def get_skills():
     data = request.json
     username = data.get("username")
@@ -290,5 +290,42 @@ def get_Contact_Info():
         print(f"Error fetching aboutMe: {e}")
         return jsonify({"status": "error", "message": str(e)}), 500
 
+@app.route('/api/getUserDetails', methods=['POST'])
+def get_user_details():
+    try:
+        data = request.json
+        username = data.get("username")
+        print(f"Received request for username: {username}")
+
+        if not username:
+            return jsonify({"status": "error", "message": "Username is required"}), 400
+
+        with Account.get_db_connection() as conn:
+            with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cursor:
+                print(f"Executing SQL query for username: {username}")
+                cursor.execute("""
+                    SELECT loginemail, aboutme, contactinfo, skills
+                    FROM users
+                    WHERE username = %s
+                """, (username,))
+                result = cursor.fetchone()
+                print("SQL query result:", result)
+
+                if result:
+                    # Directly jsonify the RealDictRow
+                    return jsonify({
+                        "status": "success",
+                        **result
+                    }), 200
+                else:
+                    return jsonify({"status": "error", "message": "User not found"}), 404
+    except Exception as e:
+        print(f"Database error occurred: {e}")
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+    except Exception as e:
+        print(f"Error fetching user details: {e}")
+        return jsonify({"status": "error", "message": str(e)}), 500
+    
 if __name__ == '__main__':
     app.run(port=5001, debug=True)
