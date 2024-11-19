@@ -83,7 +83,7 @@ export default function ProjectView({ userRole }: ProjectViewProps) {
         <div
           className="spinner-border"
           role="status"
-          style={{ width: "5rem", height: "5rem" }}
+          style={{ width: "5rem", height: "5rem", color: "#2D2D2D" }}
         >
           <span className="sr-only">Loading...</span>
         </div>
