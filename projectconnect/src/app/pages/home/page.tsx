@@ -8,7 +8,7 @@ import { useSearchContext } from "../../context/SearchContext";
 import '../../styles/home.page.css';
 
 export default function Home() {
-  const { searchText, setSearchText, tag, setTag } = useSearchContext();
+  const { searchText, setSearchText, setTag } = useSearchContext();
   const router = useRouter();
 
   const tags = [
@@ -50,7 +50,7 @@ export default function Home() {
       />
       <div id="prompt">
         <h2>
-          Don't know what to search for? View projects by category tags below!
+          Don&apos;t know what to search for? View projects by category tags below!
         </h2>
       </div>
       <HomepageCards tags={tags} onTagClick={handleTagClick} />

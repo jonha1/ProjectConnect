@@ -2,10 +2,12 @@
 import '../../styles/register.page.css';
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
+// import { getUsernameFromCookie } from "../../lib/cookieUtils"; 
 
 export default function Register() {
   const [formData, setFormData] = useState({
     email: '',
+    displayname: '',
     username: '',
     password: '',
     confirmPassword: '',
@@ -51,6 +53,14 @@ export default function Register() {
         name="username"
         placeholder="Username"
         value={formData.username}
+        onChange={handleChange}
+      />
+      <input
+        id="displayname"
+        type="text"
+        name="username"
+        placeholder="Displayname"
+        value={formData.displayname}
         onChange={handleChange}
       />
       <input

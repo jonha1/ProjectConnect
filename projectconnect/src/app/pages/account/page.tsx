@@ -56,6 +56,7 @@ export default function Home() {
 
           if (userResponse.ok) {
             setEmail(userResult.loginemail || "No email found.");
+            console.log("Email state updated:", email);
             setDisplayName(userResult.displayname || "No displayName found");
             setAboutMe(userResult.aboutme || "No About Me information found.");
             setContactInfo(userResult.contactinfo || "No Contact information found.");
