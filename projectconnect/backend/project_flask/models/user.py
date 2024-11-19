@@ -1,7 +1,7 @@
 import os
 import psycopg2
 from psycopg2.extras import RealDictCursor
-from member import Member
+#from member import Member
 
 #@staticmethod should only be used for methods that don’t need access to instance-specific data (don’t use self)
 class User:
@@ -44,6 +44,7 @@ class User:
     
     @staticmethod
     def join_project(username, project_title):
+        from project_flask.models.member import Member
         # Check if the user is already a member of the project
         if Member.inProject(username, project_title):
             return {"error": "User is already a member of this project."}
@@ -52,7 +53,7 @@ class User:
             with User.get_db_connection() as conn:
                 with conn.cursor() as cursor:
                     cursor.execute("""
-                        SELECT creator_username FROM projects
+                        SELECT creatorusername FROM projects
                         WHERE title = %s
                     """, (project_title,))
                     creator_result = cursor.fetchone()
@@ -60,10 +61,10 @@ class User:
                     if not creator_result:
                         return {"error": "Project not found."}
                     
-                    creatorname = creator_result['creator_username']
+                    creatorname = creator_result['creatorusername']
 
                     cursor.execute("""
-                        INSERT INTO member (username, creatorname, project_title, timestamp)
+                        INSERT INTO joinedprojects (membersusername, creatorusername, projecttitle, datejoined)
                         VALUES (%s, %s, %s, CURRENT_TIMESTAMP) RETURNING *;
                     """, (username, creatorname, project_title))
                     
