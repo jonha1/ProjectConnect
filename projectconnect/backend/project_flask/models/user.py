@@ -3,7 +3,6 @@ import psycopg2
 from psycopg2.extras import RealDictCursor
 #from member import Member
 
-#@staticmethod should only be used for methods that don’t need access to instance-specific data (don’t use self)
 class User:
     def __init__(self, username, displayName, loginEmail, password, aboutMe, contactInfo, skills):
         self.username = username
@@ -58,8 +57,8 @@ class User:
                     """, (project_title,))
                     creator_result = cursor.fetchone()
                     
-                    if not creator_result:
-                        return {"error": "Project not found."}
+    #                 if not creator_result:
+    #                     return {"error": "Project not found."}
                     
                     creatorname = creator_result['creatorusername']
 
@@ -68,12 +67,12 @@ class User:
                         VALUES (%s, %s, %s, CURRENT_TIMESTAMP) RETURNING *;
                     """, (username, creatorname, project_title))
                     
-                    new_membership = cursor.fetchone()
-                    conn.commit()
-                    return new_membership
-        except Exception as e:
-            print(f"Error joining project: {e}")
-            return {"error": str(e)}
+    #                 new_membership = cursor.fetchone()
+    #                 conn.commit()
+    #                 return new_membership
+    #     except Exception as e:
+    #         print(f"Error joining project: {e}")
+    #         return {"error": str(e)}
 
     # def removeBookmark(self, creator_username, title):
 

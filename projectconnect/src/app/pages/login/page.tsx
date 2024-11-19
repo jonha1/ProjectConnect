@@ -3,6 +3,7 @@ import React from 'react';
 import { useRouter } from "next/navigation";
 import "../../styles/login.page.css";
 import { useState } from "react";
+import Cookies from 'js-cookie';
 
 export default function Login() {
   const [data, setData] = useState<{ email: string; password: string }>({
@@ -12,13 +13,13 @@ export default function Login() {
 
   const router = useRouter();
 
-  const navigateToRegisterAccount = () => {
-    router.push("/register");
-  };
+  // const navigateToRegisterAccount = () => {
+  //   router.push("/register");
+  // };
 
   const signin = async () => {
     try {
-      const response = await fetch('http://127.0.0.1:5000/api/login', {
+      const response = await fetch('http://127.0.0.1:5001/api/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -30,6 +31,8 @@ export default function Login() {
 
       if (response.ok) {
         console.log("Logged in:", result);
+        // Expires in 7 days
+        Cookies.set('username', result.user, { expires: 7, path: '/' });
         router.refresh();
         router.push("/");
       } else {
@@ -41,7 +44,7 @@ export default function Login() {
   };
 
   const signup = () => {
-    router.push("/signup");  
+    router.push("/register");  
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
