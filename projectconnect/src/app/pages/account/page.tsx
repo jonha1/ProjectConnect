@@ -14,41 +14,85 @@ export default function Home() {
   const initialTab = searchParams.get("query") === "bookmark" ? "bookmarks" : "created";
   const [activeTab, setActiveTab] = useState(initialTab);
   const [username, setUsername] = useState("");
-  const [email, setEmail] = useState("");
-  const [aboutMe, setAboutMe] = useState("Loading..."); 
+  const [email, setEmail] = useState("Loading...");
+  const [aboutMe, setAboutMe] = useState("Loading...");
 
   useEffect(() => {
     const cookieUsername = getUsernameFromCookie();
     if (cookieUsername) {
+      console.log(cookieUsername);
       setUsername(cookieUsername);
-
-      const fetchAboutMe = async () => {
+  
+      const fetchUserData = async () => {
         try {
-          const response = await fetch("http://127.0.0.1:5001/api/getAboutMe", {
-            method: "GET",
+          console.log("Fetching email for username:", cookieUsername);
+      
+          // Fetch email by username
+          const emailResponse = await fetch("http://127.0.0.1:5001/getEmailByUser", {
+            method: "POST",
             headers: {
               "Content-Type": "application/json",
             },
             body: JSON.stringify({ username: cookieUsername }),
           });
-
-          const result = await response.json();
-          if (response.ok && result.aboutme) {
-            setAboutMe(result.aboutme);
+      
+          const emailResult = await emailResponse.json(); // Parse the response
+          console.log("Email Response Body:", emailResult); // Log the full response body
+      
+          if (emailResponse.ok && emailResult.email) {
+            const userEmail = emailResult.email;
+            console.log("Fetched Email:", userEmail); // Log the email
+            setEmail(userEmail);
+      
+            // Fetch About Me using username and email
+            const aboutMeResponse = await fetch("http://127.0.0.1:5001/api/getAboutMe", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                username: cookieUsername,
+                loginEmail: userEmail,
+              }),
+            });
+      
+            if (!aboutMeResponse.ok) {
+              console.error("Failed to fetch About Me:", aboutMeResponse.statusText);
+              setAboutMe("No About Me information found.");
+              return;
+            }
+      
+            const aboutMeResult = await aboutMeResponse.json();
+            console.log("About Me Response Body:", aboutMeResult);
+      
+            if (aboutMeResult.aboutme) {
+              setAboutMe(aboutMeResult.aboutme);
+              console.log("About Me fetched successfully:", aboutMeResult.aboutme);
+            } else {
+              console.error("About Me not found in response:", aboutMeResult);
+              setAboutMe("No About Me information found.");
+            }
           } else {
-            setAboutMe("No About Me information found.");
+            console.error("Email not found in API response:", emailResult);
+            setEmail("No email information found.");
+            setAboutMe("Unable to fetch About Me due to missing email.");
           }
         } catch (error) {
-          console.error("Error fetching About Me:", error);
+          console.error("Error fetching user data:", error);
           setAboutMe("Error fetching About Me.");
+          setEmail("Error fetching email.");
         }
       };
-
-      fetchAboutMe();
+      
+      fetchUserData();
     } else {
       console.error("Username not found in cookies.");
+      setAboutMe("Username not found.");
+      setEmail("Username not found.");
     }
   }, []);
+  
+  
   const postsCreated = [
     {
       postName: "ProjectConnect",

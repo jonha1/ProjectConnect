@@ -53,12 +53,17 @@ def login():
     else:
         return jsonify({"error": "Invalid credentials"}), 401
     
-@app.route('/getEmailByUser', methods=['GET'])
-def getEmailbyUser():
+@app.route('/getEmailByUser', methods=['POST'])
+def getEmailByUser():
     data = request.json
     username = data.get("username")
 
+    # Validate input
+    if not username:
+        return jsonify({"status": "error", "message": "Username is required"}), 400
+
     try:
+        print(f"Attempting to fetch email for username: {username}")
         with Account.get_db_connection() as conn:
             with conn.cursor() as cursor:
                 cursor.execute(
@@ -70,10 +75,14 @@ def getEmailbyUser():
                 result = cursor.fetchone()
 
         if result:
-            return jsonify({"status": "success"}), 200
+             # Extract email directly
+            email = result['loginemail'] 
+            return jsonify({"email": email}), 200 
+        else:
+            print(result)
+            return jsonify({"status": "error", "message": "User not found"}), 404
     except Exception as e:
-        print(f"Error fetching aboutMe: {e}")
-        return jsonify({"status": "error", "message": str(e)}), 500
+        return jsonify({"status": "error", "message": "Internal server error"}), 500
     
 ## USER ##
 @app.route('/api/editSkills', methods=['POST'])
@@ -179,7 +188,7 @@ def edit_about_me():
         print(f"Error updating aboutMe: {e}")
         return jsonify({"status": "error", "message": str(e)}), 500
 
-@app.route('/api/getAboutMe', methods=['GET'])
+@app.route('/api/getAboutMe', methods=['POST'])
 def get_about_me():
     data = request.json
     username = data.get("username")
