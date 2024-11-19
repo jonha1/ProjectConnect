@@ -1,63 +1,93 @@
 "use client";
-import React from 'react';
-import { useState, useEffect } from 'react';
-import { useSearchParams } from 'next/navigation';
-import Navbar from '../../components/navbar';
-import Searchbar from '../../components/searchbar';
-import Postcard from '../../components/post_card';
-import styles from '../../styles/searchpage.module.css';
+import React from "react";
+import { useState, useEffect } from "react";
+import Navbar from "../../components/navbar";
+import Searchbar from "../../components/searchbar";
+import Postcard from "../../components/post_card";
+import { useSearchContext } from "../../context/SearchContext";
+import styles from "../../styles/searchpage.module.css";
+
+interface Post {
+  postName: string;
+  postInfo: string;
+  creatorName: string;
+}
 
 export default function Search() {
-  const searchParams = useSearchParams();
-  const initialQuery = searchParams.get("query") || "";
-  const [searchText, setSearchText] = useState(initialQuery);
+  const { searchText, tag, setSearchText, setTag } = useSearchContext(); // Include setTag
+  const [posts, setPosts] = useState<Post[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const posts = [
-    {
-      postName: "ProjectConnect",
-      postInfo: "Here would be the descriptions of project that shouldn't be too long. The next few are unfortuantely ai generated.",
-      creatorName: "Swagalicious995"
+  const fetchProjects = async () => {
+    try {
+      const response = await fetch("http://localhost:5001/findProjects", {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          searchQuery: searchText.trim(),
+          tag: tag.trim(), 
+        }),
+      });
 
-    },
-    {
-      postName: "Nexxus Connect",
-      postInfo: "Nexxus Connect is a networking platform designed to foster collaboration among freelance professionals. With features like a personalized portfolio builder, advanced project matching, and secure messaging, users can seamlessly connect with potential clients and other freelancers in their field. Built with a React frontend, Node.js backend, and PostgreSQL for data management, Nexxus Connect helps bridge the gap between opportunity and skill, creating an ecosystem that thrives on collaboration.",
-      creatorName: "ChatGPT 4o"
-    },
-    {
-      postName: "Insightify",
-      postInfo: "Insightify is a data visualization tool built for small business owners and analysts who need intuitive, real-time insights into their operations. This project processes data from various sources, such as sales, customer feedback, and inventory, and visualizes key trends using dynamic graphs and charts. With a sleek React UI, Express for API handling, and D3.js for interactive charts, Insightify offers actionable insights at a glance, simplifying decision-making for business growth.",
-      creatorName: "ChatGPT 4o"
-    },
-    {
-      postName: "PathFinder",
-      postInfo: "PathFinder is a career planning and mentorship platform designed to connect students and recent graduates with mentors in their desired fields. Users can create profiles, browse career paths, access mentorship resources, and engage in direct messaging with mentors. The project combines React for user interfaces, Node.js for backend services, and PostgreSQL to store user profiles and career data. PathFinder aims to make career guidance accessible and tailored to individual aspirations.",
-      creatorName: "ChatGPT 4o"
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      if (Array.isArray(data)) {
+        setPosts(
+          data.map((item) => ({
+            postName: item.title || "Untitled",
+            postInfo: item.description || "No description available",
+            creatorName: item.creatorusername || "Anonymous",
+          }))
+        );
+      } else {
+        setPosts([]);
+      }
+    } catch (error) {
+      console.error("Error fetching projects:", error);
+    } finally {
+      setIsLoading(false);
     }
-  ];
-
-  const filteredPosts = posts.filter(post =>
-    post.postName.toLowerCase().includes(searchText.toLowerCase()) ||
-    post.postInfo.toLowerCase().includes(searchText.toLowerCase()) ||
-    post.creatorName.toLowerCase().includes(searchText.toLowerCase())
-  );
-
-  const handleSearchChange = (query: string) => {
-    setSearchText(query);
   };
-  
+
   useEffect(() => {
-    if (initialQuery) {
-      setSearchText(initialQuery);
-    }
-  }, [initialQuery]);
+    fetchProjects();
+  }, [searchText, tag]); // Add tag as a dependency
+
+  if (isLoading) {
+    return (
+      <div
+        className="d-flex justify-content-center align-items-center"
+        style={{
+          width: "100vw",
+          height: "100vh",
+        }}
+      >
+        <div
+          className="spinner-border"
+          role="status"
+          style={{ width: "5rem", height: "5rem" }}
+        >
+          <span className="sr-only">Loading...</span>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <>
       <Navbar />
-      <Searchbar searchText={searchText} onSearchChange={handleSearchChange} />
+      <Searchbar
+        searchText={searchText}
+        onSearchChange={setSearchText}
+      />
       <div className={styles.postContainer}>
-        {filteredPosts.map((post, index) => (
+        {posts.map((post, index) => (
           <Postcard
             key={index}
             postName={post.postName}
@@ -70,3 +100,4 @@ export default function Search() {
     </>
   );
 }
+

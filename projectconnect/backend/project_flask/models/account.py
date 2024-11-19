@@ -77,3 +77,4 @@ class Account:
         except Exception as e:
             print(f"Error registering account: {e}")
             return {"error": str(e)}  
+
