@@ -6,6 +6,7 @@ from flask import Flask, request, jsonify
 from project_flask.models.account import Account
 from project_flask.models.user import User
 from project_flask.models.member import Member
+from project_flask.models.creator import Creator
 
 load_dotenv()
 app = Flask(__name__)
@@ -79,5 +80,26 @@ def join_project():
     else:
         return jsonify(result), 201
 
+@app.route('/api/delete-project', methods=['DELETE'])
+def delete_project():
+    data = request.json
+    creatorusername = data.get("creatorusername")
+    title = data.get("title")
+
+    if not creatorusername or not title:
+        return jsonify({"error": "Missing creatorusername or title"}), 400
+
+    # Instantiate the Creator object
+    creator = Creator(username=creatorusername, displayName=None, loginEmail=None, password=None, aboutMe=None, contactInfo=None, skills=None)
+    
+    # Call the deleteProject method
+    result = creator.deleteProject(creatorusername, title)
+
+    # Return the appropriate response
+    if "error" in result:
+        return jsonify(result), 400
+    else:
+        return jsonify(result), 200
+    
 if __name__ == '__main__':
     app.run(debug=True)
