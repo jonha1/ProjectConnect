@@ -10,6 +10,7 @@ export default function Login() {
     email: '',
     password: '',
   });
+  const [error, setError] = useState<string | null>(null); 
 
   const router = useRouter();
 
@@ -36,9 +37,11 @@ export default function Login() {
         router.refresh();
         router.push("/");
       } else {
-        console.error("Login error:", result.error);
+        setError(result.error);
+        setError(result.error || "Unexpected error occurred"); // Fallback if `result.error` is undefined
       }
     } catch (error) {
+      setError("Something went wrong. Please try again.");
       console.error("Login error:", error);
     }
   };
@@ -59,6 +62,7 @@ export default function Login() {
     <div className="loginContainer">
       <div id="title">ProjectConnect</div>
       {/* <div id="description">Login In</div> */}
+
       <input
         id="email"
         type="text"
@@ -75,6 +79,8 @@ export default function Login() {
         value={data.password}
         onChange={handleChange}
       />
+      {/* Error Notification */}
+      {error && <div className="errorNotification">{error}</div>}
       <div className="buttonContainer">
         <button type="button" className="btn registerButtons" onClick={signin}>
           Sign In
