@@ -32,8 +32,9 @@ class Bookmark:
             return False
 
     def addBookmark(self, title, creatorUsername):
-        # if(self.verifyBookmark(title,creatorUsername)):
-        #     return {"status": "error", "error": "bookmark already exists"}
+        if(self.verifyBookmark(title,creatorUsername)):
+            print("bookmark already exists")
+            return self.deleteBookmark(title,creatorUsername) 
         try:
             with Bookmark.get_db_connection() as conn:
                 with conn.cursor() as cursor:
@@ -86,6 +87,7 @@ class Bookmark:
             return []
 
     def deleteBookmark(self, title, creatorUsername):
+        print("deleting the bookmark now")
         try:
             with Bookmark.get_db_connection() as conn:
                 with conn.cursor() as cursor:

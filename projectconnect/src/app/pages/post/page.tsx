@@ -14,9 +14,11 @@ type ProjectViewProps = {
 
 export default function ProjectView({ userRole }: ProjectViewProps) {
   const [activeTab, setActiveTab] = useState("everyone");
-  const [isBookmarked, setIsBookmarked] = useState(false);
+  const [isBookmarked, setIsBookmarked] = useState();
   const [isLoading, setIsLoading] = useState(true);
   const [username, setUsername] = useState("");
+  const [creator, setCreator] = useState("");
+  const [title, setTitle] = useState("");
 
   // Get the pathname of the current route
   const pathname = usePathname();
@@ -33,13 +35,15 @@ export default function ProjectView({ userRole }: ProjectViewProps) {
     if (pathname) {
       const urlParams = new URLSearchParams(window.location.search);
       const creator = urlParams.get("creator");
+      setCreator(creator);
       let projectTitle = urlParams.get("title");
-
+      setTitle(projectTitle);
       if (projectTitle) {
         projectTitle = projectTitle.replace("-", " ");
       }
-
       fetchProjectInformation(creator, projectTitle);
+      console.log("verifying if bookmark exists");
+      setIsBookmarked(verifyBookmark(creator,title))
     }
   }, [pathname]);
 
@@ -73,8 +77,34 @@ export default function ProjectView({ userRole }: ProjectViewProps) {
     }
   };
 
+  const verifyBookmark = async (creator: string | null, projectTitle: string | null) =>{
+    if (!creator || !projectTitle) return;
+    try {
+      setIsLoading(true);
+      const response = await fetch("http://localhost:5001/verifyBookmark", {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ 
+          creatorusername: creator, 
+          title: projectTitle,
+          username: username
+        }),
+      });
+      console.log("seeing if bookmark already exists");
+      const data = await response.json;
+      console.log(data);
+      setIsBookmarked(data)
+    } catch (error) {
+      console.error("Error fetching adding bookmark:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const addBookmark = async (creator: string | null, projectTitle: string | null) => {
-    console.log("in the process of adding bookmark...");
     if (!creator || !projectTitle) return;
     try {
       setIsLoading(true);
@@ -90,10 +120,9 @@ export default function ProjectView({ userRole }: ProjectViewProps) {
           username: username
         }),
       });
-      console.log("Sent data to add bookmakr");
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
+      console.log("Sent data to add bookmark");
+      const data = await response.json();
+      console.log(data);
     } catch (error) {
       console.error("Error fetching adding bookmark:", error);
     } finally {
@@ -102,7 +131,6 @@ export default function ProjectView({ userRole }: ProjectViewProps) {
   };
 
   const delBookmark = async (creator: string | null, projectTitle: string | null) => {
-    console.log("in the process of removing bookmark...");
     if (!creator || !projectTitle) return;
     try {
       setIsLoading(true);
@@ -119,6 +147,8 @@ export default function ProjectView({ userRole }: ProjectViewProps) {
         }),
       });
       console.log("Sent data to delete bookmark");
+      const data = await response.json();
+      console.log(data);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -132,7 +162,6 @@ export default function ProjectView({ userRole }: ProjectViewProps) {
 
   const handleBookmarkClick = (creator: string | null, projectTitle: string | null) => {
     console.log("handling click");
-    setIsBookmarked((prev) => !prev);
     if(!isBookmarked){
       console.log("not bookmarked, adding bookmark");
       addBookmark(creator, projectTitle);
@@ -141,6 +170,7 @@ export default function ProjectView({ userRole }: ProjectViewProps) {
       console.log("bookmarked, removing bookmark");
       delBookmark(creator, projectTitle);
     }
+    setIsBookmarked((prev) => !prev);
   };
   
   if (isLoading) {

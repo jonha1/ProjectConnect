@@ -4,12 +4,10 @@ from psycopg2.extras import RealDictCursor
 
 class Notification:
     def __init__(self, toUser=None, fromUser=None, messageType=None, title=None):
-        self.notificationID = None
         self.toUser = toUser
         self.fromUser = fromUser
         self.messageType = messageType
         self.title = title
-        self.dateSent = None
 
     @staticmethod
     def get_db_connection():
@@ -48,6 +46,7 @@ class Notification:
                     cursor.execute("""
                         SELECT * FROM notifications 
                         WHERE touserid = %s
+                        ORDER BY datesent
                     """, (username,))
                     result = cursor.fetchall()
                     return result #list of tuples, each tuple is a row ex. [("Will", timestamp, "Green Energy", "alice")]

@@ -484,7 +484,7 @@ def rejectNotification():
     else:
         return jsonify(result), 201  # 201 for successful creation
 
-@app.route('/retrieveNotifications', methods=['GET'])
+@app.route('/retrieveNotifications', methods=['POST'])
 def retrieveNotifications():
     data = request.json
     user = data.get('username')
@@ -501,6 +501,16 @@ def retrieveNotifications():
     in from postman and should be altered to recieve the information from the fronend.
     Currently only have add bookmark, retrieve bookmark, and view all bookmarks.
 '''
+
+@app.route('/verifyBookmark', methods=['POST'])
+def verifyBookmark():
+    data = request.json
+    user = data.get('username')
+    post = data.get('title')
+    post_creator = data.get('creatorusername')
+    user_bookmark = Bookmark(user)
+    result = user_bookmark.verifyBookmark(post, post_creator)
+    return result, 201
 
 @app.route('/addBookmark', methods=['POST'])
 def addBookmark():

@@ -1,5 +1,4 @@
 "use client";
-
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faPlus,
@@ -11,23 +10,58 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import "../styles/navbar.modules.css";
 import "../styles/notifications.css"; 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { getUsernameFromCookie } from "../lib/cookieUtils";
 
 export default function Navbar() {
   // Sample notifications arrayx
-  const [notifications, setNotifications] = useState([
-    { id: 1, type: "Project Join Request", username: "SpicyDoritos", project: "Medical AI"},
-    { id: 2, type: "Request Denied", username: "TornadoMan", project: "Bench Woodmaking" },
-    { id: 3, type: "Project Invite Request", username: "John Smith", project: "Archaeologist Trip" },
-    { id: 4, type: "Invite Accepted", username: "HelloKittyGirl", project: "Art Mural" },
-    { id: 5, type: "Project Join Request", username: "Shaggy", project: "Eat Mountain"},
-    { id: 6, type: "Project Join Request", username: "Scooby", project: "Fart Bomb"},
-  ]);
-  
-  
+  const [username, setUsername] = useState("");
+  const [notifications, setNotifications] = useState([]);
+  // const [notifications, setNotifications] = useState([
+  //   { id: 1, type: "Project Join Request", username: "SpicyDoritos", project: "Medical AI"},
+  //   { id: 2, type: "Request Denied", username: "TornadoMan", project: "Bench Woodmaking" },
+  //   { id: 3, type: "Project Invite Request", username: "John Smith", project: "Archaeologist Trip" },
+  //   { id: 4, type: "Invite Accepted", username: "HelloKittyGirl", project: "Art Mural" },
+  //   { id: 5, type: "Project Join Request", username: "Shaggy", project: "Eat Mountain"},
+  //   { id: 6, type: "Project Join Request", username: "Scooby", project: "Fart Bomb"},
+  // ]);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  useEffect(() => {
+    const cookieUsername = getUsernameFromCookie(); // Retrieve the username from the cookie
+    if (cookieUsername) {
+      setUsername(cookieUsername); // Set the username in state
+    }
+    console.log("in the useEffect");
+    // const fetchNotifs = async () => {
+    //   try {
+    //     const response = await fetch("http://localhost:5001/retrieveNotifications", {
+    //       method: "POST",
+    //       credentials: "include",
+    //       headers: {
+    //         "Content-Type": "application/json",
+    //       },
+    //       body: JSON.stringify({ username: cookieUsername }),
+    //     });
+    //     if (!response.ok) {
+    //       throw new Error(`HTTP error! status: ${response.status}`);
+    //     }
+    //     const data = await response.json();
+    //     console.log(data);
+    //     // Transform the response data to match Postcard prop structure
+    //     // const transformedData = data.map((item) => ({
+    //     //   postName: item.title, // Use `title` for postName
+    //     //   postInfo: item.description, // Use `description` for postInfo
+    //     //   creatorName: item.creatorusername, // Use `creatorusername` for creatorName
+    //     // }));
 
+    //     setNotifications(data); // Update the state with transformed data    
+    //   } catch (error) {
+    //     console.error("Error fetching bookmarks:", error);
+    //   }
+    // };
+    // fetchNotifs();
+  }, []);  
   // Function to remove a notification by id
   const removeNotification = (id: number) => {
     setNotifications(notifications.filter((notification) => notification.id !== id));
