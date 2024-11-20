@@ -347,10 +347,11 @@ def project_exists():
         return {"exists": True}
     else:
         return {"exists": False}
-
+    
 @app.route('/buildProject', methods=['POST'])
 def buildProject():
     data = request.json
+    print('Received Data:', data)  # Log the incoming request
     creatorusername = data.get('creatorusername')
     title = data.get('title')
     description = data.get('description')
