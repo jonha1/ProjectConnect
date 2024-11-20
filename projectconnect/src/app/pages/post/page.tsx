@@ -6,6 +6,7 @@ import { faBookmark as filledBookmark } from "@fortawesome/free-solid-svg-icons"
 import { faBookmark as emptyBookmark } from "@fortawesome/free-regular-svg-icons";
 import Navbar from "../../components/navbar";
 import "../../styles/project_view.css";
+import Cookies from "js-cookie";
 
 // Define the type for project details
 interface ProjectDetails {
@@ -22,33 +23,83 @@ interface APIResponse {
   project: ProjectDetails;
 }
 
-// Props for the component
-type ProjectViewProps = {
-  userRole: "general" | "member" | "creator";
-};
+type UserRole = "general" | "member" | "creator";
 
-export default function ProjectView({ userRole }: ProjectViewProps) {
+
+export default function ProjectView() {
   const [activeTab, setActiveTab] = useState<"everyone" | "members">("everyone");
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [projectDetails, setProjectDetails] = useState<ProjectDetails | null>(null);
-
-  const pathname = usePathname(); // Get the current route's pathname
+  const [userRole, setUserRole] = useState<UserRole>();
+  const pathname = usePathname(); // Get the current route's pathname  
 
   // Extract creatorUsername and title from pathname and fetch project info
   useEffect(() => {
     if (pathname) {
       const urlParams = new URLSearchParams(window.location.search);
       const creator = urlParams.get("creator");
-      let projectTitle = urlParams.get("title");
+     
+      let project = urlParams.get("title");
+      console.log("title: ", project);
 
-      if (projectTitle) {
-        projectTitle = projectTitle.replace("-", " ");
+      if (project) {
+        project = project.replace("-", " ");
       }
+      console.log("projectitle: ", project);
 
-      fetchProjectInformation(creator, projectTitle);
+      fetchProjectInformation(creator, project);
+
     }
   }, [pathname]);
+
+  useEffect(() => {
+    if (projectDetails) {
+      const currentUsername = Cookies.get('username') || "";
+      console.log("Verifying membership for user:", currentUsername);
+  
+      if(currentUsername == projectDetails.creatorusername){
+        console.log("they are the creator");
+        setUserRole("creator");
+        setIsLoading(false);
+      }
+      else{
+        // Run verifyMembership with updated projectDetails
+        verifyMembership(currentUsername, projectDetails.creatorusername, projectDetails.title);
+      }
+    }
+  }, [projectDetails]);
+
+  const verifyMembership = async (
+    memberusername: string | null,
+    creator: string | null,
+    projectTitle: string | null
+  ) => {
+    if (!memberusername || !creator || !projectTitle) return;
+    try {
+      const response = await fetch("http://localhost:5001/verifyMembership", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          membersusername: memberusername,
+          creatorusername: creator,
+          title: projectTitle,
+        }),
+      });
+      if (response.ok) {
+        setUserRole("member"); // Set role to member
+      } else {
+        setUserRole("general"); // Fallback to general
+      }
+    } catch (error) {
+      console.log("error: ", error);
+      setUserRole("general"); // Fallback to general on error
+    }finally {
+      setIsLoading(false);
+    }
+  };
 
   const fetchProjectInformation = async (creator: string | null, projectTitle: string | null) => {
     if (!creator || !projectTitle) return;
@@ -73,16 +124,48 @@ export default function ProjectView({ userRole }: ProjectViewProps) {
       
       // Type the API response correctly
       const data: APIResponse = await response.json();
-      setProjectDetails(data.project); // Extract `project` from the response       
+      setProjectDetails(data.project); // Extract `project` from the response  
     } catch (error) {
       console.error("Error fetching project information:", error);
-    } finally {
-      setIsLoading(false);
     }
   };
 
   const handleBookmarkClick = () => {
     setIsBookmarked((prev) => !prev);
+  };
+
+  const handleDeleteProject = async () => {
+    if (!projectDetails) return;
+
+    const { creatorusername, title } = projectDetails;
+
+    try {
+      const response = await fetch("http://localhost:5001/delete-project", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          creatorusername: creatorusername,
+          title: title,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        console.log("Project deleted:", result);
+        alert("Project deleted successfully!");
+        // Navigate to another page or refresh the data
+        window.location.href = "/"; // Redirect to the homepage or project list
+      } else {
+        console.error("Delete project error:", result.error);
+        alert(`Failed to delete project: ${result.error}`);
+      }
+    } catch (error) {
+      console.error("Delete project error:", error);
+      alert("An error occurred while deleting the project.");
+    }
   };
 
   if (isLoading) {
@@ -178,7 +261,7 @@ export default function ProjectView({ userRole }: ProjectViewProps) {
           {userRole === "creator" && (
             <div className="buttonContainer">
               <button className="archiveButton">Archive</button>
-              <button className="deleteButton">Delete</button>
+              <button className="deleteButton" onClick={handleDeleteProject}>Delete</button>
               <button className="editButton">Edit</button>
               <button className="inviteButton">Invite</button>
             </div>
