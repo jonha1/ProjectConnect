@@ -39,6 +39,7 @@ class User:
 
     def getDisplayName(self):
         return self.displayName
+
     
     @staticmethod
     def user_exists(username):
