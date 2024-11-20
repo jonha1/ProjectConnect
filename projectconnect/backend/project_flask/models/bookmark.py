@@ -15,7 +15,25 @@ class Bookmark:
             cursor_factory=RealDictCursor
         )
 
+    def verifyBookmark(self, title, creatorusername):
+        try:
+            with Bookmark.get_db_connection() as conn:
+                with conn.cursor() as cursor:
+                    cursor.execute("""
+                        SELECT * FROM bookmarks 
+                        WHERE username = %s
+                        and title = %s
+                        and creatorusername = %s
+                    """, (self.username, title, creatorusername))
+                    result = cursor.fetchone()
+                    return result is not None
+        except Exception as e:
+            print(f"Error checking notification existence: {e}")
+            return False
+
     def addBookmark(self, title, creatorUsername):
+        # if(self.verifyBookmark(title,creatorUsername)):
+        #     return {"status": "error", "error": "bookmark already exists"}
         try:
             with Bookmark.get_db_connection() as conn:
                 with conn.cursor() as cursor:
@@ -83,3 +101,4 @@ class Bookmark:
         except Exception as e:
             print(f"Failure to remove bookmark: {e}")
             return {"status": "error", "error": str(e)}
+

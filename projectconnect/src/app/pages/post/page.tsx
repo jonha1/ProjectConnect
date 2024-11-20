@@ -6,6 +6,7 @@ import { faBookmark as filledBookmark } from "@fortawesome/free-solid-svg-icons"
 import { faBookmark as emptyBookmark } from "@fortawesome/free-regular-svg-icons";
 import Navbar from "../../components/navbar";
 import "../../styles/project_view.css";
+import { getUsernameFromCookie } from "../../lib/cookieUtils";
 
 type ProjectViewProps = {
   userRole: "general" | "member" | "creator";
@@ -15,6 +16,7 @@ export default function ProjectView({ userRole }: ProjectViewProps) {
   const [activeTab, setActiveTab] = useState("everyone");
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [username, setUsername] = useState("");
 
   // Get the pathname of the current route
   const pathname = usePathname();
@@ -24,6 +26,10 @@ export default function ProjectView({ userRole }: ProjectViewProps) {
 
   // Extract creatorUsername and title from pathname
   useEffect(() => {
+    const cookieUsername = getUsernameFromCookie(); // Retrieve the username from the cookie
+    if (cookieUsername) {
+      setUsername(cookieUsername); // Set the username in state
+    }
     if (pathname) {
       const urlParams = new URLSearchParams(window.location.search);
       const creator = urlParams.get("creator");
@@ -67,8 +73,74 @@ export default function ProjectView({ userRole }: ProjectViewProps) {
     }
   };
 
-  const handleBookmarkClick = () => {
+  const addBookmark = async (creator: string | null, projectTitle: string | null) => {
+    console.log("in the process of adding bookmark...");
+    if (!creator || !projectTitle) return;
+    try {
+      setIsLoading(true);
+      const response = await fetch("http://localhost:5001/addBookmark", {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ 
+          creatorusername: creator, 
+          title: projectTitle,
+          username: username
+        }),
+      });
+      console.log("Sent data to add bookmakr");
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+    } catch (error) {
+      console.error("Error fetching adding bookmark:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const delBookmark = async (creator: string | null, projectTitle: string | null) => {
+    console.log("in the process of removing bookmark...");
+    if (!creator || !projectTitle) return;
+    try {
+      setIsLoading(true);
+      const response = await fetch("http://localhost:5001/deleteBookmark", {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ 
+          creatorusername: creator, 
+          title: projectTitle,
+          username: username
+        }),
+      });
+      console.log("Sent data to delete bookmark");
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+    } catch (error) {
+      console.error("Error fetching adding bookmark:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+
+  const handleBookmarkClick = (creator: string | null, projectTitle: string | null) => {
+    console.log("handling click");
     setIsBookmarked((prev) => !prev);
+    if(!isBookmarked){
+      console.log("not bookmarked, adding bookmark");
+      addBookmark(creator, projectTitle);
+    }
+    else{
+      console.log("bookmarked, removing bookmark");
+      delBookmark(creator, projectTitle);
+    }
   };
   
   if (isLoading) {
@@ -99,7 +171,10 @@ export default function ProjectView({ userRole }: ProjectViewProps) {
       <div className="project-view-container">
         <div className="project-header"></div>
         <div className="content-bubble">
-          <button className="bookmark-icon" onClick={handleBookmarkClick}>
+          <button className="bookmark-icon" onClick={(event)=>{
+            event.preventDefault();
+            handleBookmarkClick(projectDetails.project.creatorusername, projectDetails.project.title);
+          }}>
             <FontAwesomeIcon icon={isBookmarked ? filledBookmark : emptyBookmark} />
           </button>
           <div className="left-column">
