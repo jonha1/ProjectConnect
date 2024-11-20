@@ -4,10 +4,11 @@ from psycopg2.extras import RealDictCursor
 from dotenv import load_dotenv
 from flask import Flask, request, jsonify, make_response
 from project_flask.models.account import Account
-# from project_flask.models.user import User
 from project_flask.models.project import Project
 from project_flask.models.bookmark import Bookmark
 from project_flask.models.notification import Notification
+from project_flask.models.user import User
+
 
 load_dotenv()
 
@@ -40,8 +41,8 @@ def test_db_connection():
         return jsonify({"status": "error", "message": str(e)}), 500
 
 ## ACCOUNT ##
-
-@app.route('/api/accounts', methods=['POST'])
+## make sure to find out if account exists 
+@app.route('/register', methods=['POST'])
 def register_account():
     data = request.json 
 
@@ -56,15 +57,44 @@ def register_account():
 @app.route('/api/login', methods=['POST'])
 def login():
     data = request.json
-    email = data.get("email")
+    check = data.get("check") 
     password = data.get("password")
 
-    account = Account.get_account_by_email(email)
+    if "@" in check:
+        account = Account.get_account_by_email(check)
+        if not account:
+            return jsonify({"error": "Incorrect email"}), 404
+    else:
+        account = Account.get_account_by_username(check)
+        if not account:
+            return jsonify({"error": "Incorrect username"}), 404
+
+    if not account:
+        return jsonify({"error": "Account doesn't exist"}), 404
+
+    if account['password'] != password:
+        return jsonify({"error": "Incorrect password"}), 401
 
     if account and account['password'] == password:
         return jsonify({"message": "Login successful", "user": account['username']}), 200
     else:
         return jsonify({"error": "Invalid credentials"}), 401
+    
+@app.route('/updateProfileFromEdit', methods=['POST'])
+def updateProfileFromEdit():
+    data = request.json
+    username = data.get("username")
+    column = data.get("column")
+    value = data.get("value")
+    
+    result = User.updateProfileFromEdit(username, column, value)
+
+    # Check if the result is an error
+    if "error" in result:
+        return jsonify(result), 400  # 400 for bad request (like duplicate entry)
+    else:
+        return jsonify(result), 201  # 201 for successful creation
+    
     
 @app.route('/getEmailByUser', methods=['POST'])
 def getEmailByUser():
@@ -356,6 +386,10 @@ def buildProject():
     creatorusername = data.get('creatorusername')
     title = data.get('title')
     description = data.get('description')
+    tag = data.get('tag')
+    
+    if not all([creatorusername, title, description, tag]):
+        return jsonify({"error": "Missing required fields: 'creatorusername', 'title', 'description', or 'tag'"}), 400
 
     # Extract optional fields, using None if they are not provided
     optional_fields = {
@@ -366,7 +400,7 @@ def buildProject():
     }
 
     # Call the buildProject method, passing required and optional parameters
-    result = Project.buildProject(creatorusername, title, description, **optional_fields)
+    result = Project.buildProject(creatorusername, title, description, tag, **optional_fields)
 
     # Check if the result is an error
     if "error" in result:
@@ -459,6 +493,27 @@ def findProjects():
         return jsonify(result), 400  # Bad request if there's an error
     else:
         return jsonify(result), 200  # Return the project list with 200 OK
+    
+@app.route('/projects/by_creator', methods=['POST'])
+def get_projects_by_creator():
+    try:
+        data = request.json
+        creatorusername = data.get("creatorusername")
+        
+        if not creatorusername:
+            return jsonify({"status": "error", "message": "Creator username is required"}), 400
+
+        response = Project.get_projects_by_creator(creatorusername)
+
+        if response["status"] == "success":
+            return jsonify({"status": "success", "projects": response["projects"]}), 200
+        else:
+            return jsonify({"status": "error", "message": response.get("message", "No projects found")}), 404
+
+    except Exception as e:
+        print(f"Error in /projects/by_creator: {e}")
+        return jsonify({"status": "error", "message": "Internal server error"}), 500
+
 
 @app.route('/sendNotification', methods=['POST'])
 def sendNotification():

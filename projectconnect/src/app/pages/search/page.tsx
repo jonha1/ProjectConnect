@@ -14,7 +14,7 @@ interface Post {
 }
 
 export default function Search() {
-  const { searchText, tag, setSearchText, setTag } = useSearchContext(); // Include setTag
+  const { searchText, tag, setSearchText } = useSearchContext(); // Include setTag
   const [posts, setPosts] = useState<Post[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -71,7 +71,7 @@ export default function Search() {
         <div
           className="spinner-border"
           role="status"
-          style={{ width: "5rem", height: "5rem" }}
+          style={{ width: "5rem", height: "5rem", color: "#2D2D2D" }}
         >
           <span className="sr-only">Loading...</span>
         </div>

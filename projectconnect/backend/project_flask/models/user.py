@@ -39,42 +39,55 @@ class User:
 
     def getDisplayName(self):
         return self.displayName
+
     
-    # @staticmethod
-    # def join_project(username, project_title):
-    #     # Check if the user is already a member of the project
-    #     if Member.inProject(username, project_title):
-    #         return {"error": "User is already a member of this project."}
-        
-    #     try:
-    #         with User.get_db_connection() as conn:
-    #             with conn.cursor() as cursor:
-    #                 cursor.execute("""
-    #                     SELECT creator_username FROM projects
-    #                     WHERE title = %s
-    #                 """, (project_title,))
-    #                 creator_result = cursor.fetchone()
-                    
-    #                 if not creator_result:
-    #                     return {"error": "Project not found."}
-                    
-    #                 creatorname = creator_result['creator_username']
+    @staticmethod
+    def user_exists(username):
+        try:
+            with User.get_db_connection() as conn:
+                with conn.cursor() as cursor:
+                    cursor.execute("""
+                        SELECT 1 FROM users 
+                        WHERE username = %s
+                        LIMIT 1;
+                    """, (username,))  # Ensure the parameter is passed as a tuple
+                    result = cursor.fetchone()
+                    return result is not None  # True if user exists, False otherwise
+        except Exception as e:
+            print(f"Error checking user existence for username '{username}': {e}")
+            return False
 
-    #                 cursor.execute("""
-    #                     INSERT INTO member (username, creatorname, project_title, timestamp)
-    #                     VALUES (%s, %s, %s, CURRENT_TIMESTAMP) RETURNING *;
-    #                 """, (username, creatorname, project_title))
-                    
-    #                 new_membership = cursor.fetchone()
-    #                 conn.commit()
-    #                 return new_membership
-    #     except Exception as e:
-    #         print(f"Error joining project: {e}")
-    #         return {"error": str(e)}
+    
+    @staticmethod
+    def updateProfileFromEdit(username, column, value):
+        allowed_columns = {"aboutme", "contactinfo", "skills"}
+    
+        if column not in allowed_columns:
+            return {"status": "error", "message": "Invalid column specified."}
+    
+        if not User.user_exists(username):
+            return {"status": "error", "message": f"User '{username}' does not exist."}
+        try:
+            with User.get_db_connection() as conn:
+                with conn.cursor() as cursor:
+                    # Use dynamic SQL safely by specifying the column name
+                    query = f"""
+                        UPDATE users 
+                        SET {column} = %s
+                        WHERE username = %s
+                    """
+                    cursor.execute(query, (value, username))
 
-    # def removeBookmark(self, creator_username, title):
+                    if cursor.rowcount > 0:  # Check if any rows were updated
+                        conn.commit()
+                        return {"status": "success", "message": f"{column} updated successfully."}
+                    else:
+                        return {"status": "error", "message": "No rows updated. Please check the username and column."}
+        except Exception as e:
+            print(f"Error updating column '{column}' for user '{username}': {e}")
+            return {"status": "error", "message": f"Failed to update column '{column}' for user '{username}': {str(e)}"}
 
-    # def addBookmark(self, creator_username, title):
+       
 
 
     

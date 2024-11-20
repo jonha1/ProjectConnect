@@ -1,5 +1,4 @@
 'use client';
-import { supabase } from '../../lib/supabase';
 import '../../styles/register.page.css';
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -12,9 +11,10 @@ export default function Register() {
     confirmPassword: '',
   });
   const [error, setError] = useState('');
-  const router = useRouter();
+  const [success, setSuccess] = useState('');
+  const router = useRouter(); 
 
-  const handleChange = (e:React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({
       ...prevData,
@@ -31,27 +31,39 @@ export default function Register() {
       setError('Passwords do not match. Please re-enter.');
       return;
     }
+
     setError('');
+    setSuccess('');
 
     try {
-      const { data: signUpData, error } = await supabase.auth.signUp({
-        email: formData.email,
-        password: formData.password,
+      const response = await fetch('http://127.0.0.1:5001/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          username: formData.username,
+          loginEmail: formData.email,
+          password: formData.password,
+        }),
       });
 
-      if (signUpData) {
-        console.log('Sign up successful:', signUpData);
-        router.push('/accountInfo');
-      }
+      const result = await response.json();
 
-      if (error) {
-        console.error('Sign up error:', error);
-        setError(error.message);
+      if (response.ok) {
+        setSuccess('Registration successful! Redirecting...');
+        setTimeout(() => {
+          router.push('/accountInfo'); 
+        }, 2000);
+      } else {
+        // Handle errors from the backend
+        setError(result.error || 'Registration failed. Please try again.');
       }
-    } catch (error) {
-      console.error('Sign up error:', error);
-      setError('An unexpected error occurred. Please try again.');
+    } catch (err) {
+      setError('An unexpected error occurred. Please try again later.');
+      console.error(err);
     }
+
   };
 
   return (
@@ -90,6 +102,7 @@ export default function Register() {
         onChange={handleChange}
       />
       {error && <div className="error">{error}</div>}
+      {success && <div className="success">{success}</div>}
       <div className="buttonContainer">
         <button
           type="button"
