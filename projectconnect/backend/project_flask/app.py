@@ -4,8 +4,8 @@ from psycopg2.extras import RealDictCursor
 from dotenv import load_dotenv
 from flask import Flask, request, jsonify, make_response
 from project_flask.models.account import Account
-# from project_flask.models.user import User
 from project_flask.models.project import Project
+from project_flask.models.user import User
 
 load_dotenv()
 
@@ -63,6 +63,22 @@ def login():
         return jsonify({"message": "Login successful", "user": account['username']}), 200
     else:
         return jsonify({"error": "Invalid credentials"}), 401
+    
+@app.route('/updateProfileFromEdit', methods=['POST'])
+def updateProfileFromEdit():
+    data = request.json
+    username = data.get("username")
+    column = data.get("column")
+    value = data.get("value")
+    
+    result = User.updateProfileFromEdit(username, column, value)
+
+    # Check if the result is an error
+    if "error" in result:
+        return jsonify(result), 400  # 400 for bad request (like duplicate entry)
+    else:
+        return jsonify(result), 201  # 201 for successful creation
+    
     
 @app.route('/getEmailByUser', methods=['POST'])
 def getEmailByUser():
