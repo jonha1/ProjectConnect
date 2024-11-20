@@ -179,9 +179,54 @@ class User:
             return {"status": "error", "message": str(e)}
 
 
-    # def removeBookmark(self, creator_username, title):
+    
+    @staticmethod
+    def user_exists(username):
+        try:
+            with User.get_db_connection() as conn:
+                with conn.cursor() as cursor:
+                    cursor.execute("""
+                        SELECT 1 FROM users 
+                        WHERE username = %s
+                        LIMIT 1;
+                    """, (username,))  # Ensure the parameter is passed as a tuple
+                    result = cursor.fetchone()
+                    return result is not None  # True if user exists, False otherwise
+        except Exception as e:
+            print(f"Error checking user existence for username '{username}': {e}")
+            return False
 
-    # def addBookmark(self, creator_username, title):
+    
+    @staticmethod
+    def updateProfileFromEdit(username, column, value):
+        allowed_columns = {"aboutme", "contactinfo", "skills"}
+    
+        if column not in allowed_columns:
+            return {"status": "error", "message": "Invalid column specified."}
+    
+        if not User.user_exists(username):
+            return {"status": "error", "message": f"User '{username}' does not exist."}
+        try:
+            with User.get_db_connection() as conn:
+                with conn.cursor() as cursor:
+                    # Use dynamic SQL safely by specifying the column name
+                    query = f"""
+                        UPDATE users 
+                        SET {column} = %s
+                        WHERE username = %s
+                    """
+                    cursor.execute(query, (value, username))
+
+                    if cursor.rowcount > 0:  # Check if any rows were updated
+                        conn.commit()
+                        return {"status": "success", "message": f"{column} updated successfully."}
+                    else:
+                        return {"status": "error", "message": "No rows updated. Please check the username and column."}
+        except Exception as e:
+            print(f"Error updating column '{column}' for user '{username}': {e}")
+            return {"status": "error", "message": f"Failed to update column '{column}' for user '{username}': {str(e)}"}
+
+       
 
 
     
