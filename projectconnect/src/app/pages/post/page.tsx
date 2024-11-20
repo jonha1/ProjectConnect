@@ -17,6 +17,8 @@ interface ProjectDetails {
   memberdescription?: string;
   memberlinks?: string;
   membercontactinfo?: string;
+  isarchived: boolean; 
+  tag: string;
 }
 
 interface APIResponse {
@@ -33,6 +35,7 @@ export default function ProjectView() {
   const [projectDetails, setProjectDetails] = useState<ProjectDetails | null>(null);
   const [userRole, setUserRole] = useState<UserRole>();
   const pathname = usePathname(); // Get the current route's pathname  
+  const [archived, setArchived] = useState("");
 
   // Extract creatorUsername and title from pathname and fetch project info
   useEffect(() => {
@@ -49,7 +52,6 @@ export default function ProjectView() {
       console.log("projectitle: ", project);
 
       fetchProjectInformation(creator, project);
-
     }
   }, [pathname]);
 
@@ -67,6 +69,12 @@ export default function ProjectView() {
         // Run verifyMembership with updated projectDetails
         verifyMembership(currentUsername, projectDetails.creatorusername, projectDetails.title);
       }
+      if (projectDetails.isarchived){
+        setArchived("Unarchive");
+      } else {
+        setArchived("Archive");
+      }
+
     }
   }, [projectDetails]);
 
@@ -124,7 +132,8 @@ export default function ProjectView() {
       
       // Type the API response correctly
       const data: APIResponse = await response.json();
-      setProjectDetails(data.project); // Extract `project` from the response  
+      console.log(data);
+      setProjectDetails(data.project); // Extract `project` from the response 
     } catch (error) {
       console.error("Error fetching project information:", error);
     }
@@ -168,6 +177,47 @@ export default function ProjectView() {
     }
   };
 
+  const handleArchive = async () => {
+    if (!projectDetails) return;
+  
+    try {
+      // Determine the API endpoint based on the current archived status
+      const apiEndpoint = projectDetails.isarchived
+        ? "http://localhost:5001/unarchiveProject"
+        : "http://localhost:5001/archiveProject";
+  
+      // Make the API call to toggle the archive status
+      const toggleResponse = await fetch(apiEndpoint, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          creatorusername: projectDetails.creatorusername,
+          title: projectDetails.title,
+        }),
+      });
+  
+      const result = await toggleResponse.json();
+  
+      if (toggleResponse.ok) {
+        alert(`Project ${projectDetails.isarchived ? "unarchived" : "archived"} successfully!`);
+  
+        // Update the project details to reflect the new archive state
+        setProjectDetails({
+          ...projectDetails,
+          isarchived: !projectDetails.isarchived, // Toggle the boolean value
+        });
+      } else {
+        console.error(`Failed to toggle archive state: ${result.error}`);
+        alert(`Failed to ${projectDetails.isarchived ? "unarchive" : "archive"} project.`);
+      }
+    } catch (error) {
+      console.error(`Error toggling archive state: ${error}`);
+      alert("An error occurred while toggling the archive state.");
+    }
+  };
+
   if (isLoading) {
     return (
       <div
@@ -208,8 +258,10 @@ export default function ProjectView() {
           <div className="left-column">
             <h3>Creator:</h3>
             <p className="creator-name">{projectDetails.creatorusername || "Unknown Creator"}</p>
-            <button className="view-profile-button">View Creator Profile</button>
-            <button className="current-members-button">Current Members</button>
+            <h3>Tag:</h3>
+            <p className="creator-name"> {projectDetails.tag}</p>
+            {/* <button className="view-profile-button">View Creator Profile</button>
+            <button className="current-members-button">Current Members</button> */}
           </div>
           <div className="right-column">
             <div className="tab-container">
@@ -233,6 +285,8 @@ export default function ProjectView() {
                 <div className="everyone-content">
                   <h2>Title</h2>
                   <p>{projectDetails.title || "Untitled Project"}</p>
+                  <h2>Archived</h2>
+                  <p>{projectDetails.isarchived ? "Yes" : "No"}</p>
                   <h3>Description</h3>
                   <p>{projectDetails.description || "No description"}</p>
                   <h3>Links</h3>
@@ -260,7 +314,12 @@ export default function ProjectView() {
           </div>
           {userRole === "creator" && (
             <div className="buttonContainer">
-              <button className="archiveButton">Archive</button>
+              <button
+                className="archiveButton"
+                onClick={handleArchive}
+              >
+                {projectDetails.isarchived ? "Unarchive" : "Archive"}
+              </button>
               <button className="deleteButton" onClick={handleDeleteProject}>Delete</button>
               <button className="editButton">Edit</button>
               <button className="inviteButton">Invite</button>
