@@ -46,7 +46,6 @@ export default function Createpost() {
         </div>
 
         <form className="formInput">
-          <AutoResizeTextarea placeholder="Display Name"  />
           <AutoResizeTextarea placeholder="Contact Information"/>
           <AutoResizeTextarea placeholder="Skills" />
           <AutoResizeTextarea placeholder="About Me"  />
