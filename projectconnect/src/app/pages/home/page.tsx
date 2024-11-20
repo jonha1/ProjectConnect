@@ -5,11 +5,12 @@ import Searchbar from "../../components/searchbar";
 import HomepageCards from "../../components/homepage_cards";
 import { useRouter } from "next/navigation";
 import { useSearchContext } from "../../context/SearchContext";
+import Cookies from "js-cookie"; // Import js-cookie for cookie management
 import '../../styles/home.page.css';
 import Cookies from "js-cookie";
 
 export default function Home() {
-  const { searchText, setSearchText, tag, setTag } = useSearchContext();
+  const { searchText, setSearchText, setTag } = useSearchContext();
   const router = useRouter();
 
   const tags = [
@@ -59,7 +60,7 @@ export default function Home() {
       />
       <div id="prompt">
         <h2>
-          Don't know what to search for? View projects by category tags below!
+          Don&#39;t know what to search for? View projects by category tags below!
         </h2>
       </div>
       <HomepageCards tags={tags} onTagClick={handleTagClick} />

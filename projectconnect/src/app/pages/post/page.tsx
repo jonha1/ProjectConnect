@@ -7,22 +7,35 @@ import { faBookmark as emptyBookmark } from "@fortawesome/free-regular-svg-icons
 import Navbar from "../../components/navbar";
 import "../../styles/project_view.css";
 
+// Define the type for project details
+interface ProjectDetails {
+  creatorusername: string;
+  title: string;
+  description: string;
+  links?: string;
+  memberdescription?: string;
+  memberlinks?: string;
+  membercontactinfo?: string;
+}
+
+interface APIResponse {
+  project: ProjectDetails;
+}
+
+// Props for the component
 type ProjectViewProps = {
   userRole: "general" | "member" | "creator";
 };
 
 export default function ProjectView({ userRole }: ProjectViewProps) {
-  const [activeTab, setActiveTab] = useState("everyone");
+  const [activeTab, setActiveTab] = useState<"everyone" | "members">("everyone");
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [projectDetails, setProjectDetails] = useState<ProjectDetails | null>(null);
 
-  // Get the pathname of the current route
-  const pathname = usePathname();
+  const pathname = usePathname(); // Get the current route's pathname
 
-  // State variables for project details
-  const [projectDetails, setProjectDetails] = useState<any>({});
-
-  // Extract creatorUsername and title from pathname
+  // Extract creatorUsername and title from pathname and fetch project info
   useEffect(() => {
     if (pathname) {
       const urlParams = new URLSearchParams(window.location.search);
@@ -48,18 +61,19 @@ export default function ProjectView({ userRole }: ProjectViewProps) {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ 
-          creatorusername: creator, 
-          title: projectTitle 
+        body: JSON.stringify({
+          creatorusername: creator,
+          title: projectTitle,
         }),
       });
-
+      
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-
-      const data = await response.json();
-      setProjectDetails({ ...data }); // Spread the object to ensure a new reference
+      
+      // Type the API response correctly
+      const data: APIResponse = await response.json();
+      setProjectDetails(data.project); // Extract `project` from the response       
     } catch (error) {
       console.error("Error fetching project information:", error);
     } finally {
@@ -70,7 +84,7 @@ export default function ProjectView({ userRole }: ProjectViewProps) {
   const handleBookmarkClick = () => {
     setIsBookmarked((prev) => !prev);
   };
-  
+
   if (isLoading) {
     return (
       <div
@@ -83,15 +97,21 @@ export default function ProjectView({ userRole }: ProjectViewProps) {
         <div
           className="spinner-border"
           role="status"
-          style={{ width: "5rem", height: "5rem" }}
+          style={{ width: "5rem", height: "5rem", color: "#2D2D2D" }}
         >
           <span className="sr-only">Loading...</span>
         </div>
       </div>
     );
   }
-  
-  
+
+  if (!projectDetails) {
+    return (
+      <div className="d-flex justify-content-center align-items-center" style={{ width: "100vw", height: "100vh" }}>
+        <h2>No project details available.</h2>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -104,7 +124,7 @@ export default function ProjectView({ userRole }: ProjectViewProps) {
           </button>
           <div className="left-column">
             <h3>Creator:</h3>
-            <p className="creator-name">{projectDetails.project.creatorusername || "Unknown Creator"}</p>
+            <p className="creator-name">{projectDetails.creatorusername || "Unknown Creator"}</p>
             <button className="view-profile-button">View Creator Profile</button>
             <button className="current-members-button">Current Members</button>
           </div>
@@ -129,11 +149,11 @@ export default function ProjectView({ userRole }: ProjectViewProps) {
               {activeTab === "everyone" ? (
                 <div className="everyone-content">
                   <h2>Title</h2>
-                  <p>{projectDetails.project.title || "Untitled Project"}</p>
+                  <p>{projectDetails.title || "Untitled Project"}</p>
                   <h3>Description</h3>
-                  <p>{projectDetails.project.description || "No description"}</p>
+                  <p>{projectDetails.description || "No description"}</p>
                   <h3>Links</h3>
-                  <p>{projectDetails.project.links || "No links provided"}</p>
+                  <p>{projectDetails.links || "No links provided"}</p>
                   <div className="spacer"></div>
                   {userRole === "general" && (
                     <div className="buttonContainer">
@@ -145,11 +165,11 @@ export default function ProjectView({ userRole }: ProjectViewProps) {
                 <div className="members-content">
                   <div className="members-section">
                     <h4>Member Description</h4>
-                    <p>{projectDetails.project.memberdescription || "No member description available"}</p>
+                    <p>{projectDetails.memberdescription || "No member description available"}</p>
                     <h4>Member Links</h4>
-                    <p>{projectDetails.project.memberlinks || "No member links available"}</p>
+                    <p>{projectDetails.memberlinks || "No member links available"}</p>
                     <h4>Member Contact Info</h4>
-                    <p>{projectDetails.project.membercontactinfo || "No contact info available"}</p>
+                    <p>{projectDetails.membercontactinfo || "No contact info available"}</p>
                   </div>
                 </div>
               )}

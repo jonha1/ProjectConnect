@@ -63,6 +63,7 @@ export default function Register() {
       setError('An unexpected error occurred. Please try again later.');
       console.error(err);
     }
+
   };
 
   return (
