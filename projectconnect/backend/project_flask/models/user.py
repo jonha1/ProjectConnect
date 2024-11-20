@@ -70,9 +70,9 @@ class User:
     #                 new_membership = cursor.fetchone()
     #                 conn.commit()
     #                 return new_membership
-    #     except Exception as e:
-    #         print(f"Error joining project: {e}")
-    #         return {"error": str(e)}
+        except Exception as e:
+            print(f"Error joining project: {e}")
+            return {"error": str(e)}
 
     # def removeBookmark(self, creator_username, title):
 

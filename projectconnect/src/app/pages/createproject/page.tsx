@@ -51,7 +51,6 @@ export default function Createpost() {
     memberContact: ''
   })
 
-  // const [username, setUsername] = useState("");
   const [selectedTag, setSelectedTag] = useState("Project Tags*");
   const [error, setError] = useState('');
 
@@ -101,11 +100,9 @@ export default function Createpost() {
         description: projectData.description,
         links: projectData.links,
         contact: projectData.contact,
-        members: {
-          description: projectData.memberDescription,
-          links: projectData.memberLinks,
-          contact: projectData.memberContact,
-        },
+        memberDescription: projectData.memberDescription,
+        memberLinks: projectData.memberLinks,
+        memberContact: projectData.memberContact,
         tag: selectedTag,
       };
 
@@ -119,8 +116,9 @@ export default function Createpost() {
         body: JSON.stringify(payload),
       });
 
+
       const result = await response.json();
-      console.log('response', result);
+      console.log('Raw response', result);
 
       if (response.ok) {
         console.log('Project Created:', result);

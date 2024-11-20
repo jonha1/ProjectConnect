@@ -403,33 +403,32 @@ def project_exists():
 def buildProject():
     data = request.json
     print('Received Data:', data)  # Log the incoming request
+    
     creatorusername = data.get('creatorusername')
     title = data.get('title')
     description = data.get('description')
     tag = data.get('tag')
-    
+   
+    links= data.get('links', '')
+    memberDescription= data.get('memberDescription', '')
+    memberLinks= data.get('memberLinks', '')
+    memberContact= data.get('memberContact', '')
+
     if not all([creatorusername, title, description, tag]):
         return jsonify({"error": "Missing required fields: 'creatorusername', 'title', 'description', or 'tag'"}), 400
-
-    # Extract optional fields, using None if they are not provided
-    optional_fields = {
-        "links": data.get('links'),
-        "memberdescription": data.get('memberdescription'),
-        "memberlinks": data.get('memberlinks'),
-        "membercontactinfo": data.get('membercontactinfo'),
-    }
 
     creator = Creator(
         username=creatorusername,
         displayName=data.get('displayName', ""),
         loginEmail=data.get('loginEmail', ""),
+        password = data.get('password', ""),
         aboutMe=data.get('aboutMe', ""),
         contactInfo=data.get('contactInfo', ""),
         skills=data.get('skills', "")
     )
 
     # Call the buildProject method, passing required and optional parameters
-    result = creator.createProject(creatorusername, title, description, tag, **optional_fields)
+    result = creator.createProject(creatorusername, title, description, tag, links ,memberDescription, memberLinks, memberContact)
 
     # Check if the result is an error
     if "error" in result:
