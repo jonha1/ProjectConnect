@@ -1,10 +1,11 @@
 "use client";
-import React from "react";
+import React, {useEffect} from "react";
 import Navbar from "../../components/navbar";
 import Searchbar from "../../components/searchbar";
 import HomepageCards from "../../components/homepage_cards";
 import { useRouter } from "next/navigation";
 import { useSearchContext } from "../../context/SearchContext";
+import Cookies from "js-cookie"; // Import js-cookie for cookie management
 import '../../styles/home.page.css';
 
 export default function Home() {
@@ -22,6 +23,14 @@ export default function Home() {
     "Writing",
     "Other",
   ];
+
+  //check
+  useEffect(() => {
+    const username = Cookies.get('username');
+    if (!username) {
+      router.push('/login');
+    }
+  }, [router]);
 
   const handleSearchKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === "Enter") {
