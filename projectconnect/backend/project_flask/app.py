@@ -58,6 +58,11 @@ def login():
     password = data.get("password")
 
     account = Account.get_account_by_email(email)
+    if not account:
+        return jsonify({"error": "Account doesn't exist"}), 404
+
+    if account['password'] != password:
+        return jsonify({"error": "Incorrect password"}), 401
 
     if account and account['password'] == password:
         return jsonify({"message": "Login successful", "user": account['username']}), 200
