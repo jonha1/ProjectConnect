@@ -218,8 +218,7 @@ export default function Home() {
             About Me: {aboutMe}
           </div>
           <div className="profileCard">
-            <p>Contact Information: </p>
-            <p>Email: {contactInfo}</p>
+            <p>Contact Information: {contactInfo} </p>
           </div>
           <div className="profileCard">Skills: {skills}</div>
           <div className="buttonContainer">

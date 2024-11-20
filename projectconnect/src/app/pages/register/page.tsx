@@ -13,9 +13,10 @@ export default function Register() {
     confirmPassword: '',
   });
   const [error, setError] = useState('');
-  const router = useRouter();
+  const [success, setSuccess] = useState('');
+  const router = useRouter(); 
 
-  const handleChange = (e:React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({
       ...prevData,
@@ -32,10 +33,10 @@ export default function Register() {
       setError('Passwords do not match. Please re-enter.');
       return;
     }
+
     setError('');
     try {
-      // Assuming your backend API saves the user and returns success
-      const response = await fetch('http://localhost:5001/register', {
+      const response = await fetch('http://127.0.0.1:5001/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -107,6 +108,7 @@ export default function Register() {
         onChange={handleChange}
       />
       {error && <div className="error">{error}</div>}
+      {success && <div className="success">{success}</div>}
       <div className="buttonContainer">
         <button
           type="button"

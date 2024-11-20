@@ -58,6 +58,20 @@ class Account:
         except Exception as e:
             print(f"Error retrieving account: {e}")
             return None
+        
+    @staticmethod
+    def get_account_by_username(username):
+        try:
+            with Account.get_db_connection() as conn:
+                with conn.cursor() as cursor:
+                    cursor.execute("""
+                        SELECT username, loginEmail, password FROM users 
+                        WHERE username = %s
+                    """, (username,))
+                    return cursor.fetchone()  
+        except Exception as e:
+            print(f"Error retrieving account: {e}")
+            return None
 
     @staticmethod
     def register(username, displayname, loginEmail, password):
