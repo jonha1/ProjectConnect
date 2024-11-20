@@ -419,8 +419,17 @@ def buildProject():
         "membercontactinfo": data.get('membercontactinfo'),
     }
 
+    creator = Creator(
+        username=creatorusername,
+        displayName=data.get('displayName', ""),
+        loginEmail=data.get('loginEmail', ""),
+        aboutMe=data.get('aboutMe', ""),
+        contactInfo=data.get('contactInfo', ""),
+        skills=data.get('skills', "")
+    )
+
     # Call the buildProject method, passing required and optional parameters
-    result = Project.buildProject(creatorusername, title, description, tag, **optional_fields)
+    result = creator.createProject(creatorusername, title, description, tag, **optional_fields)
 
     # Check if the result is an error
     if "error" in result:
