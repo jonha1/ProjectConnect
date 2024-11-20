@@ -38,8 +38,8 @@ def test_db_connection():
         return jsonify({"status": "error", "message": str(e)}), 500
 
 ## ACCOUNT ##
-
-@app.route('/api/accounts', methods=['POST'])
+## make sure to find out if account exists 
+@app.route('/register', methods=['POST'])
 def register_account():
     data = request.json 
 
@@ -54,10 +54,23 @@ def register_account():
 @app.route('/api/login', methods=['POST'])
 def login():
     data = request.json
-    email = data.get("email")
+    check = data.get("check") 
     password = data.get("password")
 
-    account = Account.get_account_by_email(email)
+    if "@" in check:
+        account = Account.get_account_by_email(check)
+        if not account:
+            return jsonify({"error": "Incorrect email"}), 404
+    else:
+        account = Account.get_account_by_username(check)
+        if not account:
+            return jsonify({"error": "Incorrect username"}), 404
+
+    if not account:
+        return jsonify({"error": "Account doesn't exist"}), 404
+
+    if account['password'] != password:
+        return jsonify({"error": "Incorrect password"}), 401
 
     if account and account['password'] == password:
         return jsonify({"message": "Login successful", "user": account['username']}), 200

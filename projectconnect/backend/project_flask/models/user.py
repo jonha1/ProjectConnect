@@ -39,38 +39,6 @@ class User:
 
     def getDisplayName(self):
         return self.displayName
-    
-    # @staticmethod
-    # def join_project(username, project_title):
-    #     # Check if the user is already a member of the project
-    #     if Member.inProject(username, project_title):
-    #         return {"error": "User is already a member of this project."}
-        
-    #     try:
-    #         with User.get_db_connection() as conn:
-    #             with conn.cursor() as cursor:
-    #                 cursor.execute("""
-    #                     SELECT creator_username FROM projects
-    #                     WHERE title = %s
-    #                 """, (project_title,))
-    #                 creator_result = cursor.fetchone()
-                    
-    #                 if not creator_result:
-    #                     return {"error": "Project not found."}
-                    
-    #                 creatorname = creator_result['creator_username']
-
-    #                 cursor.execute("""
-    #                     INSERT INTO member (username, creatorname, project_title, timestamp)
-    #                     VALUES (%s, %s, %s, CURRENT_TIMESTAMP) RETURNING *;
-    #                 """, (username, creatorname, project_title))
-                    
-    #                 new_membership = cursor.fetchone()
-    #                 conn.commit()
-    #                 return new_membership
-    #     except Exception as e:
-    #         print(f"Error joining project: {e}")
-    #         return {"error": str(e)}
 
     # def removeBookmark(self, creator_username, title):
 
