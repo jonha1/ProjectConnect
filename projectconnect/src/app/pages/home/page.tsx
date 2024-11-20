@@ -5,9 +5,8 @@ import Searchbar from "../../components/searchbar";
 import HomepageCards from "../../components/homepage_cards";
 import { useRouter } from "next/navigation";
 import { useSearchContext } from "../../context/SearchContext";
-import Cookies from "js-cookie"; // Import js-cookie for cookie management
+import Cookies from "js-cookie"; 
 import '../../styles/home.page.css';
-import Cookies from "js-cookie";
 
 export default function Home() {
   const { searchText, setSearchText, setTag } = useSearchContext();

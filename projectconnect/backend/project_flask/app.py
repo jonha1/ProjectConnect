@@ -54,10 +54,18 @@ def register_account():
 @app.route('/api/login', methods=['POST'])
 def login():
     data = request.json
-    email = data.get("email")
+    check = data.get("check") 
     password = data.get("password")
 
-    account = Account.get_account_by_email(email)
+    if "@" in check:
+        account = Account.get_account_by_email(check)
+        if not account:
+            return jsonify({"error": "Incorrect email"}), 404
+    else:
+        account = Account.get_account_by_username(check)
+        if not account:
+            return jsonify({"error": "Incorrect username"}), 404
+
     if not account:
         return jsonify({"error": "Account doesn't exist"}), 404
 
