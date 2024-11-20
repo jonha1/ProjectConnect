@@ -79,10 +79,10 @@ export default function Login() {
       {/* Error Notification */}
       {error && <div className="errorNotification">{error}</div>}
       <div className="buttonContainer">
-        <button type="button" className="btn registerButtons" onClick={signin}>
+        <button type="button" className="registerButtons" onClick={signin}>
           Sign In
         </button>
-        <button type="button" className="btn registerButtons" onClick={signup}>
+        <button type="button" className="registerButtons" onClick={signup}>
           Sign Up
         </button>
       </div>

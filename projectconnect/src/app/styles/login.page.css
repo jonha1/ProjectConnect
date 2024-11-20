@@ -35,11 +35,10 @@ input{
 }
 
 .registerButtons,
-.registerButtons:hover,
 .registerButtons:active,
 .registerButtons:focus {
-    background-color: #2D2D2D !important;
-    color: white !important;
+    background-color: #2D2D2D ;
+    color: white ;
     border: none; /* Remove border */
     outline: none; /* Remove outline on focus */
     padding-left: 30px;
@@ -47,7 +46,11 @@ input{
     font-size: 2.5rem;
 }
 
-/* Remove hyperlink on sigin button */
+.registerButtons:hover{
+    background-color: #444444 !important;
+    color: white !important;
+}
+
 a,
 a:hover {
     color: inherit;    
