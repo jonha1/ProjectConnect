@@ -1,7 +1,6 @@
 import os
 import psycopg2
 from psycopg2.extras import RealDictCursor
-#from member import Member
 
 class User:
     def __init__(self, username, displayName, loginEmail, password, aboutMe, contactInfo, skills):
@@ -182,42 +181,11 @@ class User:
 
     
     @staticmethod
-    def join_project(username, project_title):
-        from project_flask.models.member import Member
-        # Check if the user is already a member of the project
-        if Member.inProject(username, project_title):
-            return {"error": "User is already a member of this project."}
-        
     def user_exists(username):
         try:
             with User.get_db_connection() as conn:
                 with conn.cursor() as cursor:
                     cursor.execute("""
-                        SELECT creatorusername FROM projects
-                        WHERE title = %s
-                    """, (project_title,))
-                    creator_result = cursor.fetchone()
-                    
-    #                 if not creator_result:
-    #                     return {"error": "Project not found."}
-                    
-                    creatorname = creator_result['creatorusername']
-
-                    cursor.execute("""
-                        INSERT INTO joinedprojects (membersusername, creatorusername, projecttitle, datejoined)
-                        VALUES (%s, %s, %s, CURRENT_TIMESTAMP) RETURNING *;
-                    """, (username, creatorname, project_title))
-                    
-    #                 new_membership = cursor.fetchone()
-    #                 conn.commit()
-    #                 return new_membership
-        except Exception as e:
-            print(f"Error joining project: {e}")
-            return {"error": str(e)}
-
-    # def removeBookmark(self, creator_username, title):
-
-    # def addBookmark(self, creator_username, title):
                         SELECT 1 FROM users 
                         WHERE username = %s
                         LIMIT 1;
@@ -258,7 +226,8 @@ class User:
             print(f"Error updating column '{column}' for user '{username}': {e}")
             return {"status": "error", "message": f"Failed to update column '{column}' for user '{username}': {str(e)}"}
 
-  
+       
+
 
     
         
