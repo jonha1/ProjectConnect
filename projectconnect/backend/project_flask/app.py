@@ -128,25 +128,6 @@ def delete_project():
     else:
         return jsonify(result), 200
         
-@app.route('/getEmailByUser', methods=['POST'])
-def get_email_by_user():
-    try:
-        data = request.json
-        username = data.get("username")
-
-        if not username:
-            return jsonify({"status": "error", "message": "Username is required"}), 400
-
-        result = Account.getEmailByUser(username)
-
-        if result["status"] == "success":
-            return jsonify({"email": result["email"]}), 200
-        else:
-            return jsonify({"status": "error", "message": result["message"]}), 404
-    except Exception as e:
-        print(f"Error in getEmailByUser route: {e}")
-        return jsonify({"status": "error", "message": "Internal server error"}), 500
-    
 @app.route('/updateProfileFromEdit', methods=['POST'])
 def updateProfileFromEdit():
     data = request.json
