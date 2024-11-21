@@ -329,7 +329,8 @@ def buildProject():
     title = data.get('title')
     description = data.get('description')
     tag = data.get('tag')
-   
+    contact = data.get('contact')
+
     links= data.get('links', '')
     memberDescription= data.get('memberDescription', '')
     memberLinks= data.get('memberLinks', '')
@@ -349,7 +350,7 @@ def buildProject():
     )
 
     # Call the buildProject method, passing required and optional parameters
-    result = creator.createProject(creatorusername, title, description, tag, links ,memberDescription, memberLinks, memberContact)
+    result = creator.createProject(creatorusername, title, description, tag, links , contact, memberDescription, memberLinks, memberContact)
 
     # Check if the result is an error
     if "error" in result:
