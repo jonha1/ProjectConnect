@@ -45,10 +45,7 @@ export default function ProjectView({ userRole }: ProjectViewProps) {
     const cookieUsername = getUsernameFromCookie(); // Retrieve the username from the cookie
     if (cookieUsername) {
       setUsername(cookieUsername); // Set the username in state
-      console.log(username);
     }
-    console.log("cookieUsername: ", cookieUsername);
-    console.log("Username:", username);
     if (pathname) {
       const urlParams = new URLSearchParams(window.location.search);
       const creator = urlParams.get("creator");
@@ -59,7 +56,6 @@ export default function ProjectView({ userRole }: ProjectViewProps) {
         projectTitle = projectTitle.replace("-", " ");
       }
       fetchProjectInformation(creator, projectTitle);
-      console.log("verifying if bookmark exists");
       verifyBookmark(creator, projectTitle, cookieUsername);
 
     }
@@ -69,7 +65,6 @@ export default function ProjectView({ userRole }: ProjectViewProps) {
     if (!creator || !projectTitle) return;
 
     try {
-      setIsLoading(true);
       const response = await fetch("http://localhost:5001/getProjectInfo", {
         method: "POST",
         credentials: "include",
@@ -98,7 +93,6 @@ export default function ProjectView({ userRole }: ProjectViewProps) {
 
   const verifyBookmark = async (creator: string | null, projectTitle: string | null, user: string | undefined) => {
     try {
-      setIsLoading(true);
       const response = await fetch("http://localhost:5001/verifyBookmark", {
         method: "POST",
         credentials: "include",
@@ -115,8 +109,6 @@ export default function ProjectView({ userRole }: ProjectViewProps) {
       setIsBookmarked(data.result);
     } catch (error) {
       console.error("Error fetching adding bookmark:", error);
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -124,7 +116,6 @@ export default function ProjectView({ userRole }: ProjectViewProps) {
   const addBookmark = async (creator: string | null, projectTitle: string | null) => {
     if (!creator || !projectTitle) return;
     try {
-      setIsLoading(true);
       const response = await fetch("http://localhost:5001/addBookmark", {
         method: "POST",
         credentials: "include",
@@ -137,20 +128,15 @@ export default function ProjectView({ userRole }: ProjectViewProps) {
           username: username
         }),
       });
-      console.log("Sent data to add bookmark");
       const data = await response.json();
-      console.log(data);
     } catch (error) {
       console.error("Error fetching adding bookmark:", error);
-    } finally {
-      setIsLoading(false);
     }
   };
 
   const delBookmark = async (creator: string | null, projectTitle: string | null) => {
     if (!creator || !projectTitle) return;
     try {
-      setIsLoading(true);
       const response = await fetch("http://localhost:5001/deleteBookmark", {
         method: "POST",
         credentials: "include",
@@ -163,28 +149,21 @@ export default function ProjectView({ userRole }: ProjectViewProps) {
           username: username
         }),
       });
-      console.log("Sent data to delete bookmark");
       const data = await response.json();
-      console.log(data);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
     } catch (error) {
       console.error("Error fetching adding bookmark:", error);
-    } finally {
-      setIsLoading(false);
     }
   };
 
 
   const handleBookmarkClick = (creator: string | null, projectTitle: string | null) => {
-    console.log("handling click");
     if(!isBookmarked){
-      console.log("not bookmarked, adding bookmark");
       addBookmark(creator, projectTitle);
     }
     else{
-      console.log("bookmarked, removing bookmark");
       delBookmark(creator, projectTitle);
     }
     setIsBookmarked((prev) => !prev);

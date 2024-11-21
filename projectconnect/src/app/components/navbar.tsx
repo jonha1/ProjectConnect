@@ -23,9 +23,6 @@ export default function Navbar() {
     const cookieUsername = getUsernameFromCookie(); // Retrieve the username from the cookie
     if (cookieUsername) {
       setUsername(cookieUsername); // Set the username in state
-      console.log("username",username);
-      console.log("cookieusername",cookieUsername);
-
     }
     fetchNotifs(cookieUsername);
   }, []);  
@@ -34,7 +31,6 @@ export default function Navbar() {
     setNotifications(notifications.filter((notification) => notification.id !== id));
   };
   const fetchNotifs = async (user: string| null) => {
-    console.log("in fetch notifs");
     try {
       const response = await fetch("http://localhost:5001/retrieveNotifications", {
         method: "POST",
@@ -48,7 +44,6 @@ export default function Navbar() {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       const data = await response.json();
-      console.log(data);
       // Transform the response data to match Postcard prop structure
       const transformedData = data.map((item) => ({
         id: item.notificationid,
