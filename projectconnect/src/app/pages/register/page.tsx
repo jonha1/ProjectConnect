@@ -87,7 +87,7 @@ export default function Register() {
         id="displayname"
         type="text"
         name="displayname"
-        placeholder="Displayname"
+        placeholder="Display Name"
         value={formData.displayname}
         onChange={handleChange}
       />

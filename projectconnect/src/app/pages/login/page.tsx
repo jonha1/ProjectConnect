@@ -30,7 +30,6 @@ export default function Login() {
       const result = await response.json();
   
       if (response.ok) {
-        console.log("Logged in:", result);
         Cookies.set("username", result.user, { expires: 30, path: "/" });
         router.push("/");
       } else {
