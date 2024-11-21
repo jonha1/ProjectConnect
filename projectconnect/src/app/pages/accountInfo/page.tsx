@@ -71,7 +71,6 @@ export default function Createpost() {
   // Submit form data to backend
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault(); 
-    console.log(storedUsername)
     if (!storedUsername) {
       console.error("No username found in cookies.");
       return;
@@ -91,7 +90,6 @@ export default function Createpost() {
 
       const result = await response.json();
       if (response.ok) {
-        console.log("User info updated:", result);
         router.push("/"); // Redirect to homepage
       } else {
         console.error("Error updating user info:", result.message);
