@@ -88,7 +88,7 @@ export default function ProjectView({ userRole }: ProjectViewProps) {
   if (isLoading) {
     return (
       <div className="d-flex justify-content-center align-items-center" style={{ width: "100vw", height: "100vh" }}>
-        <div className="spinner-border" role="status" style={{ width: "5rem", height: "5rem" }}>
+        <div className="spinner-border" role="status" style={{ width: "5rem", height: "5rem", color: "#2D2D2D"}}>
           <span className="sr-only">Loading...</span>
         </div>
       </div>
