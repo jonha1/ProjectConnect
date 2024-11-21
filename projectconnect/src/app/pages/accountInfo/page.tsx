@@ -109,6 +109,11 @@ export default function Createpost() {
         </div>
 
         <form className="formInput" onSubmit={handleSubmit}>
+        <AutoResizeTextarea
+            placeholder="About Me"
+            value={formData.aboutMe}
+            onChange={(value) => handleInputChange("aboutMe", value)}
+          />
           <AutoResizeTextarea
             placeholder="Contact Information"
             value={formData.contactInfo}
@@ -119,23 +124,18 @@ export default function Createpost() {
             value={formData.skills}
             onChange={(value) => handleInputChange("skills", value)}
           />
-          <AutoResizeTextarea
-            placeholder="About Me"
-            value={formData.aboutMe}
-            onChange={(value) => handleInputChange("aboutMe", value)}
-          />
-    <div className="buttonContainer">
-      <button
-        type="button"
-        className="submit-button"
-        onClick={() => router.push("/")}
-      >
-        Skip
-      </button>
-      <button type="submit" className="submit-button">
-        Next
-      </button>
-    </div>
+          <div className="buttonContainer">
+            <button
+              type="button"
+              className="submit-button"
+              onClick={() => router.push("/")}
+            >
+              Skip
+            </button>
+            <button type="submit" className="submit-button">
+              Next
+            </button>
+          </div>
         </form>
       </div>
     </>
