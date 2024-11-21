@@ -3,7 +3,6 @@ import "../../styles/accountInfo.page.css";
 import React, {useState} from 'react';
 import { useRouter } from "next/navigation";
 
-
 function AutoResizeTextarea({ placeholder }: { placeholder: string }) {
   const [text, setText] = useState('');
 
