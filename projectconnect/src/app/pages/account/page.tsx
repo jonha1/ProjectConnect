@@ -115,7 +115,7 @@ export default function Account() {
           } else {
             // console.error("Error fetching projects:", postsResult.message);
           }
-        } catch (error) {
+        } catch {
           // console.error("Error fetching data:", error);
         } finally {
           setIsLoading(false);
@@ -140,7 +140,7 @@ export default function Account() {
             // console.error("Error fetching joined projects:", result.message);
           }
         }
-        catch (error) {
+        catch {
           // console.error("Error fetching joined projects:", error);
         }
       };
@@ -223,14 +223,14 @@ export default function Account() {
         }),
       });
   
-      const result = await response.json();
+      // const result = await response.json();
   
       if (response.ok) {
         // console.log("updated successfully:", result.message);
       } else {
         // console.error(`Failed to update ${column}:`, result.error || result.message);
       }
-    } catch (error) {
+    } catch {
       // console.error(`Error updating ${column}:`, error);
     }
   };
