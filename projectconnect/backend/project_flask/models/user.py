@@ -43,7 +43,7 @@ class User:
     
     @staticmethod
     def user_exists(username):
-        try:
+                try:
             with User.get_db_connection() as conn:
                 with conn.cursor() as cursor:
                     cursor.execute("""
@@ -77,7 +77,6 @@ class User:
                         WHERE username = %s
                     """
                     cursor.execute(query, (value, username))
-
                     if cursor.rowcount > 0:  # Check if any rows were updated
                         conn.commit()
                         return {"status": "success", "message": f"{column} updated successfully."}
@@ -88,6 +87,37 @@ class User:
             return {"status": "error", "message": f"Failed to update column '{column}' for user '{username}': {str(e)}"}
 
        
+
+    def join_project(username, project_title):
+        from project_flask.models.member import Member
+        # Check if the user is already a member of the project
+        if Member.inProject(username, project_title):
+            return {"error": "User is already a member of this project."}
+        try:
+            with User.get_db_connection() as conn:
+                with conn.cursor() as cursor:
+                    cursor.execute("""
+                        SELECT creatorusername FROM projects
+                        WHERE title = %s
+                    """, (project_title,))
+                    creator_result = cursor.fetchone()
+                    
+                    if not creator_result:
+                        return {"error": "Project not found."}
+                    
+                    creatorname = creator_result['creatorusername']
+
+                    cursor.execute("""
+                        INSERT INTO joinedprojects (membersusername, creatorusername, projecttitle, datejoined)
+                        VALUES (%s, %s, %s, CURRENT_TIMESTAMP) RETURNING *;
+                    """, (username, creatorname, project_title))
+                    
+                    new_membership = cursor.fetchone()
+                    conn.commit()
+                    return new_membership
+        except Exception as e:
+            print(f"Error joining project: {e}")
+            return {"error": str(e)}
 
 
     
