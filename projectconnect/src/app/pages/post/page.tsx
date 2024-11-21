@@ -32,7 +32,6 @@ export default function ProjectView({ userRole }: ProjectViewProps) {
   const [activeTab, setActiveTab] = useState<"everyone" | "members">("everyone");
   const [isBookmarked, setIsBookmarked] = useState();
   const [isLoading, setIsLoading] = useState(true);
-  const [username, setUsername] = useState<string | undefined>();
   const [creator, setCreator] = useState("");
   const [title, setTitle] = useState("");
   const [projectDetails, setProjectDetails] = useState<ProjectDetails | null>(null);
@@ -43,9 +42,6 @@ export default function ProjectView({ userRole }: ProjectViewProps) {
   // Extract creatorUsername and title from pathname and fetch project info
   useEffect(() => {
     const cookieUsername = getUsernameFromCookie(); // Retrieve the username from the cookie
-    if (cookieUsername) {
-      setUsername(cookieUsername); // Set the username in state
-    }
     if (pathname) {
       const urlParams = new URLSearchParams(window.location.search);
       const creator = urlParams.get("creator");
@@ -114,6 +110,7 @@ export default function ProjectView({ userRole }: ProjectViewProps) {
 
 
   const addBookmark = async (creator: string | null, projectTitle: string | null) => {
+    const cookieUsername = getUsernameFromCookie();
     if (!creator || !projectTitle) return;
     try {
       const response = await fetch("http://localhost:5001/addBookmark", {
@@ -125,16 +122,20 @@ export default function ProjectView({ userRole }: ProjectViewProps) {
         body: JSON.stringify({ 
           creatorusername: creator, 
           title: projectTitle,
-          username: username
+          username: cookieUsername
         }),
       });
-      await response.json();
+      const data = await response.json();
+      if (data.result == 'error') {
+        throw new Error(`HTTP error! status: ${data.error}`);
+      }
     } catch (error) {
       console.error("Error fetching adding bookmark:", error);
     }
   };
 
   const delBookmark = async (creator: string | null, projectTitle: string | null) => {
+    const cookieUsername = getUsernameFromCookie();
     if (!creator || !projectTitle) return;
     try {
       const response = await fetch("http://localhost:5001/deleteBookmark", {
@@ -146,12 +147,12 @@ export default function ProjectView({ userRole }: ProjectViewProps) {
         body: JSON.stringify({ 
           creatorusername: creator, 
           title: projectTitle,
-          username: username
+          username: cookieUsername
         }),
       });
-      await response.json();
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+      const data = await response.json();
+      if (data.result == 'error') {
+        throw new Error(`HTTP error! status: ${data.error}`);
       }
     } catch (error) {
       console.error("Error fetching adding bookmark:", error);
