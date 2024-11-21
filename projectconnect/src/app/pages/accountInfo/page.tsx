@@ -32,7 +32,6 @@ function AutoResizeTextarea({
         resize: "none",
         overflow: "hidden",
       }}
-      required
     />
   );
 }
