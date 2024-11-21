@@ -129,36 +129,24 @@ def delete_project():
         return jsonify(result), 200
         
 @app.route('/getEmailByUser', methods=['POST'])
-def getEmailByUser():
-    data = request.json
-    username = data.get("username")
-
-    # Validate input
-    if not username:
-        return jsonify({"status": "error", "message": "Username is required"}), 400
-
+def get_email_by_user():
     try:
-        print(f"Attempting to fetch email for username: {username}")
-        with Account.get_db_connection() as conn:
-            with conn.cursor() as cursor:
-                cursor.execute(
-                    """
-                    SELECT loginemail FROM users WHERE username = %s
-                    """,
-                    (username,)
-                )
-                result = cursor.fetchone()
+        data = request.json
+        username = data.get("username")
 
-        if result:
-             # Extract email directly
-            email = result['loginemail'] 
-            return jsonify({"email": email}), 200 
+        if not username:
+            return jsonify({"status": "error", "message": "Username is required"}), 400
+
+        result = Account.getEmailByUser(username)
+
+        if result["status"] == "success":
+            return jsonify({"email": result["email"]}), 200
         else:
-            print(result)
-            return jsonify({"status": "error", "message": "User not found"}), 404
+            return jsonify({"status": "error", "message": result["message"]}), 404
     except Exception as e:
+        print(f"Error in getEmailByUser route: {e}")
         return jsonify({"status": "error", "message": "Internal server error"}), 500
-      
+    
 @app.route('/updateProfileFromEdit', methods=['POST'])
 def updateProfileFromEdit():
     data = request.json
