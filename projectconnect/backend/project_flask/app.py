@@ -128,6 +128,7 @@ def delete_project():
     else:
         return jsonify(result), 200
         
+
 @app.route('/updateProfileFromEdit', methods=['POST'])
 def updateProfileFromEdit():
     data = request.json
@@ -462,6 +463,19 @@ def get_projects_by_creator():
     except Exception as e:
         print(f"Error in /projects/by_creator: {e}")
         return jsonify({"status": "error", "message": "Internal server error"}), 500
+
+@app.route('/projects/by_member', methods=['POST'])
+def get_projects_by_member():
+    data = request.json
+    username = data.get('username')
+    
+    if not username:
+        return jsonify({"error": "Username is required"}), 400
+
+    result = Member.get_projects_by_member(username)
+    if "error" in result:
+        return jsonify(result), 404
+    return jsonify(result), 200
 
 
 if __name__ == "__main__":

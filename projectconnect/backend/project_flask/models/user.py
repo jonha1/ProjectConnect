@@ -178,8 +178,6 @@ class User:
             print(f"Error fetching details for user {username}: {e}")
             return {"status": "error", "message": str(e)}
 
-
-    
     @staticmethod
     def user_exists(username):
         try:
