@@ -178,8 +178,6 @@ class User:
             print(f"Error fetching details for user {username}: {e}")
             return {"status": "error", "message": str(e)}
 
-
-    
     @staticmethod
     def user_exists(username):
         try:
@@ -225,6 +223,29 @@ class User:
         except Exception as e:
             print(f"Error updating column '{column}' for user '{username}': {e}")
             return {"status": "error", "message": f"Failed to update column '{column}' for user '{username}': {str(e)}"}
+        
+    @staticmethod
+    def updateUserInfo(username, contact_info, skills, about_me):
+        if not username:
+            return {"status": "error", "message": "Username is required"}
+        
+        try:
+            with User.get_db_connection() as conn:
+                with conn.cursor() as cursor:
+                    cursor.execute(
+                        """
+                        UPDATE users 
+                        SET contactinfo = %s, skills = %s, aboutme = %s 
+                        WHERE username = %s
+                        """,
+                        (contact_info, skills, about_me, username)
+                    )
+                    conn.commit()
+            return {"status": "success", "message": "User info updated successfully"}
+        except Exception as e:
+            print(f"Error updating user info for {username}: {e}")
+            return {"status": "error", "message": str(e)}
+
 
        
 

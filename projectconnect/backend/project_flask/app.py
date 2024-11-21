@@ -47,6 +47,7 @@ def register_account():
 
     result = Account.register(
         username=data.get('username'),
+        displayname=data.get('displayname'),
         loginEmail=data.get('loginEmail'),
         password=data.get('password')  
     )
@@ -128,6 +129,7 @@ def delete_project():
     else:
         return jsonify(result), 200
         
+
 @app.route('/updateProfileFromEdit', methods=['POST'])
 def updateProfileFromEdit():
     data = request.json
@@ -307,6 +309,23 @@ def get_user_details():
         print(f"Error fetching user details: {e}")
         return jsonify({"status": "error", "message": str(e)}), 500
     
+## important ##
+@app.route('/api/updateUserInfo', methods=['POST'])
+def update_user_info():
+    data = request.json
+    username = data.get("username")
+    contact_info = data.get("contactInfo")
+    skills = data.get("skills")
+    about_me = data.get("aboutMe")
+
+    result = User.updateUserInfo(username, contact_info, skills, about_me)
+
+    if result["status"] == "success":
+        return jsonify(result), 200
+    else:
+        return jsonify(result), 400 if result.get("message") == "Username is required" else 500
+
+    
 # Project API's
     
 @app.route('/project_exists', methods=['GET'])
@@ -462,6 +481,19 @@ def get_projects_by_creator():
     except Exception as e:
         print(f"Error in /projects/by_creator: {e}")
         return jsonify({"status": "error", "message": "Internal server error"}), 500
+
+@app.route('/projects/by_member', methods=['POST'])
+def get_projects_by_member():
+    data = request.json
+    username = data.get('username')
+    
+    if not username:
+        return jsonify({"error": "Username is required"}), 400
+
+    result = Member.get_projects_by_member(username)
+    if "error" in result:
+        return jsonify(result), 404
+    return jsonify(result), 200
 
 
 if __name__ == "__main__":
