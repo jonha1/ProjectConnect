@@ -125,18 +125,18 @@ export default function Createpost() {
             value={formData.aboutMe}
             onChange={(value) => handleInputChange("aboutMe", value)}
           />
-          <div className="buttons">
-            <button
-              type="button"
-              className="submit-button"
-              onClick={() => router.push("/")}
-            >
-              Skip
-            </button>
-            <button type="submit" className="submit-button">
-              Next
-            </button>
-          </div>
+    <div className="buttonContainer">
+      <button
+        type="button"
+        className="submit-button"
+        onClick={() => router.push("/")}
+      >
+        Skip
+      </button>
+      <button type="submit" className="submit-button">
+        Next
+      </button>
+    </div>
         </form>
       </div>
     </>
