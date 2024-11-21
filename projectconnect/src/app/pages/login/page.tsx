@@ -6,42 +6,42 @@ import { useState } from "react";
 import Cookies from 'js-cookie';
 
 export default function Login() {
-  const [data, setData] = useState<{ email: string; password: string }>({
-    email: '',
-    password: '',
+  const [data, setData] = useState<{ check: string; password: string }>({
+    check: "",
+    password: "",
   });
+  const [error, setError] = useState<string | null>(null); 
 
   const router = useRouter();
-
-  const navigateToRegisterAccount = () => {
-    router.push("/register");
-  };
-
+  
   const signin = async () => {
     try {
-      const response = await fetch('http://127.0.0.1:5001/api/login', {
-        method: 'POST',
+      const response = await fetch("http://127.0.0.1:5001/api/login", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify(data),
+        body: JSON.stringify({
+          check: data.check, 
+          password: data.password,
+        }),
       });
-
+  
       const result = await response.json();
-
+  
       if (response.ok) {
         console.log("Logged in:", result);
-        // Expires in 7 days
-        Cookies.set('username', result.user, { expires: 7, path: '/' });
-        router.refresh();
+        Cookies.set("username", result.user, { expires: 30, path: "/" });
         router.push("/");
       } else {
-        console.error("Login error:", result.error);
+        setError(result.error); 
       }
     } catch (error) {
+      setError("Something went wrong. Please try again.");
       console.error("Login error:", error);
     }
   };
+  
 
   const signup = () => {
     router.push("/register");  
@@ -59,12 +59,13 @@ export default function Login() {
     <div className="loginContainer">
       <div id="title">ProjectConnect</div>
       {/* <div id="description">Login In</div> */}
+
       <input
-        id="email"
+        id="check"
         type="text"
-        name="email"
-        placeholder="Email"
-        value={data.email}
+        name="check"
+        placeholder="Email or Username"
+        value={data.check}
         onChange={handleChange}
       />
       <input
@@ -75,6 +76,8 @@ export default function Login() {
         value={data.password}
         onChange={handleChange}
       />
+      {/* Error Notification */}
+      {error && <div className="errorNotification">{error}</div>}
       <div className="buttonContainer">
         <button type="button" className="btn registerButtons" onClick={signin}>
           Sign In
