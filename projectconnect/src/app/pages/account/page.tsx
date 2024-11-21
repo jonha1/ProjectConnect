@@ -95,7 +95,7 @@ export default function Account() {
             setContactInfo(userResult.contactinfo || "No Contact information found.");
             setSkills(userResult.skills || "No skills found.");
           } else {
-            console.error("Error fetching user details:", userResult.message);
+            // console.error("Error fetching user details:", userResult.message);
           }
 
           // Fetch user's created posts
@@ -112,10 +112,10 @@ export default function Account() {
           if (postsResponse.ok) {
             setPostsCreated(postsResult.projects || []); 
           } else {
-            console.error("Error fetching projects:", postsResult.message);
+            // console.error("Error fetching projects:", postsResult.message);
           }
         } catch (error) {
-          console.error("Error fetching data:", error);
+          // console.error("Error fetching data:", error);
         } finally {
           setIsLoading(false);
         }
@@ -123,7 +123,7 @@ export default function Account() {
 
       fetchUserData();
     } else {
-      console.error("Username not found in cookies.");
+      // console.error("Username not found in cookies.");
       setAboutMe("Username not found.");
       setDisplayName("DisplayName not found");
       setContactInfo("Username not found.");
@@ -201,12 +201,12 @@ export default function Account() {
       const result = await response.json();
   
       if (response.ok) {
-        console.log("updated successfully:", result.message);
+        // console.log("updated successfully:", result.message);
       } else {
-        console.error(`Failed to update ${column}:`, result.error || result.message);
+        // console.error(`Failed to update ${column}:`, result.error || result.message);
       }
     } catch (error) {
-      console.error(`Error updating ${column}:`, error);
+      // console.error(`Error updating ${column}:`, error);
     }
   };
   
