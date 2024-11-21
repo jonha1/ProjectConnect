@@ -529,11 +529,21 @@ def sendNotification():
         return jsonify(result), 201  # 201 for successful creation
 
 
-@app.route('/rejectNotification', methods=['POST'])
-def rejectNotification():
+@app.route('/removeNotification', methods=['POST'])
+def removeNotification():
     data = request.json
-    creator = data.get('notificationid')
-    result = Notification.rejectNotification(5)
+    notif_id = data.get('notificationid')
+    result = Notification.removeNotification(notif_id)
+    if result["status"] == "error":
+        return jsonify(result), 400  # 400 for bad request (like duplicate entry)
+    else:
+        return jsonify(result), 201  # 201 for successful creation
+
+@app.route('/acceptNotification', methods=['POST'])
+def acceptNotification():
+    data = request.json
+    notif_id = data.get('notificationid')
+    result = Notification.acceptNotification(notif_id)
     if result["status"] == "error":
         return jsonify(result), 400  # 400 for bad request (like duplicate entry)
     else:
@@ -545,9 +555,9 @@ def retrieveNotifications():
     user = data.get('username')
     result = Notification.retrieveNotifications(user)
     if len(result)== 0:
-        return result,   # 400 for bad request (like duplicate entry)
+        return result, 400   # 400 for bad request (like duplicate entry)
     else:
-        return result, 400  # 201 for successful creation        
+        return result, 201  # 201 for successful creation        
 
 '''
     Bookmark()

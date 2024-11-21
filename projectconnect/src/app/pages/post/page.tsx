@@ -111,9 +111,7 @@ export default function ProjectView({ userRole }: ProjectViewProps) {
           username: user
         }),
       });
-      console.log("seeing if bookmark already exists");
       const data = await response.json();
-      console.log(data);
       setIsBookmarked(data.result);
     } catch (error) {
       console.error("Error fetching adding bookmark:", error);

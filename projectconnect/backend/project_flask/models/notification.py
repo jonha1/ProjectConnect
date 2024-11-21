@@ -49,7 +49,18 @@ class Notification:
                         ORDER BY datesent
                     """, (username,))
                     result = cursor.fetchall()
-                    return result #list of tuples, each tuple is a row ex. [("Will", timestamp, "Green Energy", "alice")]
+                    allNotifs = []
+                    for row in result:
+                        fromUser = row['fromuserid']
+                        toUser = row['touserid'] 
+                        messageType = row['messagetype']
+                        title = row['title']
+                        notificationid = row['notificationid']
+                        notif_dict = {"notificationid":notificationid,
+                        "title": title, "messagetype": messageType,
+                         "fromuserid": fromUser, "touserid": toUser};
+                        allNotifs.append(notif_dict)
+                    return allNotifs #list of tuples, each tuple is a row ex. [("Will", timestamp, "Green Energy", "alice")]
         except Exception as e:
             print(f"Error checking bookmarks existence: {e}")
             return []
@@ -70,7 +81,7 @@ class Notification:
             return False
 
     @staticmethod
-    def rejectNotification(notificationID):
+    def removeNotification(notificationID):
         if Notification.verifyNotification(notificationID):
             try:
                 with Notification.get_db_connection() as conn:
@@ -84,7 +95,7 @@ class Notification:
                         return {"status": "success", "deleted": notificationID}
             except Exception as e:
                 print(f"Failure to remove notification: {e}")
-                return {"error": str(e)}
+                return {"status": "error", "error": str(e)}
 
     @staticmethod
     def acceptNotification(notificationID):
@@ -99,19 +110,30 @@ class Notification:
                         """
                         cursor.execute(postgres_get, (notificationID,))
                         full_row = cursor.fetchone()
+                        
+                        if full_row['messagetype'] == 'Invite':
+                            member = full_row['touserid']
+                            creator = full_row['fromuserid']
+                            title = full_row['title']
+                            result = cursor.execute("""
+                                INSERT into joinedprojects
+                                (membersusername, creatorusername, projecttitle)
+                                VALUES (%s, %s, %s) RETURNING *
+                            """, (member, creator, title))
+                        elif full_row['messagetype'] == 'Join':
+                            member = full_row['fromuserid']
+                            creator = full_row['touserid']
+                            title = full_row['title']
+                            result = cursor.execute("""
+                                INSERT INTO joinedprojects
+                                (membersusername, creatorusername, projecttitle)
+                                VALUES (%s, %s, %s) RETURNING *
+                            """, (member, creator, title))
                         '''
-                        using the full_row, need to manipulate the the associating
-                        projects object with the senders id and add to the members 
-                        the recipient user id of this notification.
+                        else if full_row['messagetype'] == [new notification types]:
 
-                        '''
-                        postgres_delete = """
-                            DELETE FROM notifications 
-                            WHERE notificationid = %s
-                        """
-                        cursor.execute(postgres_delete, (notificationID,))
-                        conn.commit()
-                        return {"status": "success", "deleted": notificationID}
+                        '''    
+                        return {"status": "success", "Project added": title}
             except Exception as e:
                 print(f"Failure to remove notification: {e}")
-                return {"error": str(e)}
+                return {"status": "error", "error": str(e)}
