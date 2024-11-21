@@ -1,75 +1,144 @@
 "use client";
 import "../../styles/accountInfo.page.css";
-import React, {useState} from 'react';
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Cookies from "js-cookie";
 
-function AutoResizeTextarea({ placeholder }: { placeholder: string }) {
-  const [text, setText] = useState('');
-
+function AutoResizeTextarea({
+  placeholder,
+  value,
+  onChange,
+}: {
+  placeholder: string;
+  value: string;
+  onChange: (value: string) => void;
+}) {
   const handleChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
     const textarea = event.target;
-    textarea.style.height = 'auto';  // Reset height
-    textarea.style.height = `${textarea.scrollHeight}px`;  // Adjust to content height
-    setText(textarea.value);
+    textarea.style.height = "auto"; 
+    textarea.style.height = `${textarea.scrollHeight}px`;
+    onChange(textarea.value);
   };
 
   return (
     <textarea
-      value={text}
+      value={value}
       onChange={handleChange}
       placeholder={placeholder}
       className="inputBox"
       style={{
-        width: '100%',
-        minHeight: '50px',
-        resize: 'none',
-        overflow: 'hidden',
+        width: "100%",
+        minHeight: "50px",
+        resize: "none",
+        overflow: "hidden",
       }}
       required
     />
   );
 }
 
+// Createpost component
 export default function Createpost() {
-  // const [isActive, setIsActive] = useState(false);
   const router = useRouter();
-  const handleClick = () => {
-  //   setIsActive(true);
-  //   setTimeout(() => setIsActive(false), 2000); //2seconds 
-    router.push("/");
+
+  // State for form data
+  const [formData, setFormData] = useState({
+    contactInfo: "",
+    skills: "",
+    aboutMe: "",
+  });
+
+  // State to store username
+  const [storedUsername, setStoredUsername] = useState<string | null>(null);
+
+  // Fetch username from cookies
+  useEffect(() => {
+    const username = Cookies.get("username");
+    if (!username) {
+      router.push("/login"); // Redirect to login if username is not found
+    } else {
+      setStoredUsername(username); // Store username in state
+    }
+  }, [router]);
+
+  // Update state when input changes
+  const handleInputChange = (field: string, value: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
   };
+
+  // Submit form data to backend
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault(); 
+    console.log(storedUsername)
+    if (!storedUsername) {
+      console.error("No username found in cookies.");
+      return;
+    }
+
+    try {
+      const response = await fetch("http://127.0.0.1:5001/api/updateUserInfo", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          ...formData,
+          username: storedUsername, 
+        }),
+      });
+
+      const result = await response.json();
+      if (response.ok) {
+        console.log("User info updated:", result);
+        router.push("/"); // Redirect to homepage
+      } else {
+        console.error("Error updating user info:", result.message);
+      }
+    } catch (error) {
+      console.error("Error submitting form:", error);
+    }
+  };
+
   return (
     <>
-    <div className="formContainer">
-        <div className='formHeader'>
-            <h1> Tell people about yourself</h1>
+      <div className="formContainer">
+        <div className="formHeader">
+          <h1> Tell people about yourself</h1>
         </div>
 
-        <form className="formInput">
-          <AutoResizeTextarea placeholder="Contact Information"/>
-          <AutoResizeTextarea placeholder="Skills" />
-          <AutoResizeTextarea placeholder="About Me"  />
+        <form className="formInput" onSubmit={handleSubmit}>
+          <AutoResizeTextarea
+            placeholder="Contact Information"
+            value={formData.contactInfo}
+            onChange={(value) => handleInputChange("contactInfo", value)}
+          />
+          <AutoResizeTextarea
+            placeholder="Skills"
+            value={formData.skills}
+            onChange={(value) => handleInputChange("skills", value)}
+          />
+          <AutoResizeTextarea
+            placeholder="About Me"
+            value={formData.aboutMe}
+            onChange={(value) => handleInputChange("aboutMe", value)}
+          />
+          <div className="buttons">
+            <button
+              type="button"
+              className="submit-button"
+              onClick={() => router.push("/")}
+            >
+              Skip
+            </button>
+            <button type="submit" className="submit-button">
+              Next
+            </button>
+          </div>
         </form>
-
-        <div className="buttons">        
-          <button 
-          type="submit" 
-          className="submit-button" 
-          onClick={handleClick}
-        >
-            Skip
-        </button>
-        <button 
-          type="submit" 
-          className="submit-button" 
-          onClick={handleClick}
-        >
-            Next
-        </button>        
-        </div>
-
       </div>
-     
     </>
   );
 }
