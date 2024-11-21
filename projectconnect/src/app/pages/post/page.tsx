@@ -32,7 +32,7 @@ export default function ProjectView({ userRole }: ProjectViewProps) {
   const [activeTab, setActiveTab] = useState<"everyone" | "members">("everyone");
   const [isBookmarked, setIsBookmarked] = useState();
   const [isLoading, setIsLoading] = useState(true);
-  const [username, setUsername] = useState("");
+  const [username, setUsername] = useState<string | undefined>();
   const [creator, setCreator] = useState("");
   const [title, setTitle] = useState("");
   const [projectDetails, setProjectDetails] = useState<ProjectDetails | null>(null);
@@ -45,7 +45,10 @@ export default function ProjectView({ userRole }: ProjectViewProps) {
     const cookieUsername = getUsernameFromCookie(); // Retrieve the username from the cookie
     if (cookieUsername) {
       setUsername(cookieUsername); // Set the username in state
+      console.log(username);
     }
+    console.log("cookieUsername: ", cookieUsername);
+    console.log("Username:", username);
     if (pathname) {
       const urlParams = new URLSearchParams(window.location.search);
       const creator = urlParams.get("creator");
@@ -57,7 +60,8 @@ export default function ProjectView({ userRole }: ProjectViewProps) {
       }
       fetchProjectInformation(creator, projectTitle);
       console.log("verifying if bookmark exists");
-      setIsBookmarked(verifyBookmark(creator,title))
+      verifyBookmark(creator, projectTitle, cookieUsername);
+
     }
   }, [pathname]);
 
@@ -92,8 +96,7 @@ export default function ProjectView({ userRole }: ProjectViewProps) {
     }
   };
 
-  const verifyBookmark = async (creator: string | null, projectTitle: string | null) =>{
-    if (!creator || !projectTitle) return;
+  const verifyBookmark = async (creator: string | null, projectTitle: string | null, user: string | undefined) => {
     try {
       setIsLoading(true);
       const response = await fetch("http://localhost:5001/verifyBookmark", {
@@ -105,19 +108,20 @@ export default function ProjectView({ userRole }: ProjectViewProps) {
         body: JSON.stringify({ 
           creatorusername: creator, 
           title: projectTitle,
-          username: username
+          username: user
         }),
       });
       console.log("seeing if bookmark already exists");
-      const data = await response.json;
+      const data = await response.json();
       console.log(data);
-      setIsBookmarked(data)
+      setIsBookmarked(data.result);
     } catch (error) {
       console.error("Error fetching adding bookmark:", error);
     } finally {
       setIsLoading(false);
     }
   };
+
 
   const addBookmark = async (creator: string | null, projectTitle: string | null) => {
     if (!creator || !projectTitle) return;
@@ -224,7 +228,7 @@ export default function ProjectView({ userRole }: ProjectViewProps) {
         <div className="content-bubble">
           <button className="bookmark-icon" onClick={(event)=>{
             event.preventDefault();
-            handleBookmarkClick(projectDetails.project.creatorusername, projectDetails.project.title);
+            handleBookmarkClick(creator, title);
           }}>
             <FontAwesomeIcon icon={isBookmarked ? filledBookmark : emptyBookmark} />
           </button>

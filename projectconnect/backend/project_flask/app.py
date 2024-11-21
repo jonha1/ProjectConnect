@@ -564,8 +564,8 @@ def verifyBookmark():
     post = data.get('title')
     post_creator = data.get('creatorusername')
     user_bookmark = Bookmark(user)
-    result = user_bookmark.verifyBookmark(post, post_creator)
-    return result, 201
+    result = {"status": "success", "result": user_bookmark.verifyBookmark(post, post_creator)}
+    return jsonify(result), 201
 
 @app.route('/addBookmark', methods=['POST'])
 def addBookmark():
