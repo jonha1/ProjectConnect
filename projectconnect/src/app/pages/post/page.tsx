@@ -128,7 +128,7 @@ export default function ProjectView({ userRole }: ProjectViewProps) {
           username: username
         }),
       });
-      const data = await response.json();
+      await response.json();
     } catch (error) {
       console.error("Error fetching adding bookmark:", error);
     }
@@ -149,7 +149,7 @@ export default function ProjectView({ userRole }: ProjectViewProps) {
           username: username
         }),
       });
-      const data = await response.json();
+      await response.json();
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }

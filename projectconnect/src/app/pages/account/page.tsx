@@ -145,7 +145,6 @@ export default function Account() {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
         const data = await response.json();
-        console.log(data);
         // Transform the response data to match Postcard prop structure
         const transformedData = data.map((item) => ({
           postName: item.title, // Use `title` for postName

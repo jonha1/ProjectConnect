@@ -16,14 +16,10 @@ import { getUsernameFromCookie } from "../lib/cookieUtils";
 
 export default function Navbar() {
   // Sample notifications arrayx
-  const [username, setUsername] = useState("");
   const [notifications, setNotifications] = useState([]);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   useEffect(() => {
     const cookieUsername = getUsernameFromCookie(); // Retrieve the username from the cookie
-    if (cookieUsername) {
-      setUsername(cookieUsername); // Set the username in state
-    }
     fetchNotifs(cookieUsername);
   }, []);  
   // Function to remove a notification by id
@@ -69,7 +65,7 @@ export default function Navbar() {
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      const data = await response.json();
+      await response.json();
       removeNotifs(notif_id);
       removeNotification(notif_id);
     } catch (error) {
@@ -89,7 +85,7 @@ export default function Navbar() {
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      const data = await response.json();
+      await response.json();
       removeNotification(notif_id);
     } catch (error) {
       console.error("Error fetching bookmarks:", error);
