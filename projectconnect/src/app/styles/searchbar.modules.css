@@ -47,6 +47,9 @@
 
 
 /* Dropdown Container */
+.dropdown{
+    margin: 0 !important;
+}
 .dropdown-toggle {
     position: relative;
     background-color: #2D2D2D;

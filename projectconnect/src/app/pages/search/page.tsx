@@ -14,7 +14,7 @@ interface Post {
 }
 
 export default function Search() {
-  const { searchText, tag, setSearchText } = useSearchContext(); // Include setTag
+  const { searchText, tag, setSearchText } = useSearchContext(); 
   const [posts, setPosts] = useState<Post[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
