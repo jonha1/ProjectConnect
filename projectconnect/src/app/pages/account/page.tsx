@@ -63,7 +63,6 @@ export default function Account() {
   const [aboutMe, setAboutMe] = useState("Loading...");
   const [contactInfo, setContactInfo] = useState("Loading...");
   const [postsCreated, setPostsCreated] = useState<Project[]>([]); 
-  const [joinedProjects,  setJoinedProjects] = useState<Project[]>([]);
   const [skills, setSkills] = useState("Loading...");
   const [editComponent, setEditComponent] = useState("");
   const [textareaValue, setTextareaValue] = useState(""); 
@@ -123,31 +122,7 @@ export default function Account() {
         }
       };
 
-
-      const fetchJoinedProjects = async () => {
-        try{
-          const response = await fetch("http://127.0.0.1:5001/projects/by_member", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ username: cookieUsername }),
-          });
-
-          const result = await response.json();
-          if (response.ok) {
-            setJoinedProjects(result.projects || []);
-          } else {
-            console.error("Error fetching joined projects:", result.message);
-          }
-        }
-        catch (error) {
-          console.error("Error fetching joined projects:", error);
-        }
-      };
-
       fetchUserData();
-      fetchJoinedProjects();
     } else {
       console.error("Username not found in cookies.");
       setAboutMe("Username not found.");
@@ -381,21 +356,6 @@ export default function Account() {
             )}
             {activeTab === "joined" && (
               <div className="joinedProjects">
-                <div className={styles.postContainer}>
-                  {joinedProjects.length > 0 ? (
-                    joinedProjects.map((project, index) => (
-                      <Postcard
-                        key={index}
-                        postName={project.title}
-                        postInfo={project.description}
-                        creatorName={project.creatorusername}
-                        className={styles.postCard}
-                      />
-                    ))
-                  ) : (
-                    <p>No joined projects found.</p>
-                  )}
-                </div>
               </div>
             )}
             {activeTab === "bookmarks" && (

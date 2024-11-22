@@ -37,12 +37,6 @@
   width: 100%;
 }
 
-.buttonContainer {
-  display: flex;
-  justify-content: center;
-  gap: 15px; 
-}
-
 .submit-button {
   padding: 10px 20px;
   font-size: 16px;
@@ -55,7 +49,7 @@
   align-self: center; /* Center buttons within the form */
 }
 
-.submit-button:hover{
-  background-color: #2d2d2d;
-  color: white;
+.submit-button.active {
+  background-color: rgb(1, 123, 107);
+  color: #2d2d2d;
 }
