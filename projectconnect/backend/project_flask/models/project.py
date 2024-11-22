@@ -3,11 +3,12 @@ import psycopg2
 from psycopg2.extras import RealDictCursor
 
 class Project:
-    def __init__(self, creatorusername, title, description, links, memberDescription, memberLinks, memberContactInfo, dateposted, isarchived):
+    def __init__(self, creatorusername, title, description, links, contact, memberDescription, memberLinks, memberContactInfo, dateposted, isarchived):
         self.creatorusername = creatorusername
         self.title = title
         self.description = description
         self.links = links
+        self.contact = contact 
         self.memberDescription = memberDescription
         self.memberLinks = memberLinks
         self.memberContactInfo = memberContactInfo
@@ -54,14 +55,16 @@ class Project:
 
 
     @staticmethod
-    def buildProject(creatorusername, title, description, tag, **optional_fields):
+
+    def buildProject(creatorusername, title, description, tag, links, contact, memberDescription, memberLinks, memberContact):
         # Check if a project with the same creatorusername and title already exists
         if Project.project_exists(creatorusername, title):
             return {"error": "A project with this creatorusername and title already exists."}
 
         # Define required fields
-        fields = ["creatorusername", "title", "description", "tag"]
-        values = [creatorusername, title, description, tag]
+        fields = ["creatorusername", "title", "description", "tag", "links", "contact", "memberdescription", "memberlinks","membercontactinfo"]
+        values = [creatorusername, title, description, tag, links, contact, memberDescription, memberLinks, memberContact]
+
 
         # Add optional fields if they are provided
         optional_columns = {
@@ -306,10 +309,7 @@ class Project:
                     
                     projects = cursor.fetchall()  
                     
-                    if projects:
-                        return {"status": "success", "projects": projects}
-                    else:
-                        return {"status": "error", "message": "No projects found for the specified username"}
+                    return {"status": "success", "projects": projects or []}
         except Exception as e:
             print(f"Error fetching projects for creator '{creatorusername}': {e}")
             return {"error": f"Failed to fetch projects for creator '{creatorusername}': {str(e)}"}

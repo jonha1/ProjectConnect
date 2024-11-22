@@ -1,5 +1,4 @@
 "use client";
-
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faPlus,
@@ -11,28 +10,87 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import "../styles/navbar.modules.css";
 import "../styles/notifications.css"; 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { getUsernameFromCookie } from "../lib/cookieUtils";
 
 export default function Navbar() {
   // Sample notifications arrayx
-  const [notifications, setNotifications] = useState([
-    { id: 1, type: "Project Join Request", username: "SpicyDoritos", project: "Medical AI"},
-    { id: 2, type: "Request Denied", username: "TornadoMan", project: "Bench Woodmaking" },
-    { id: 3, type: "Project Invite Request", username: "John Smith", project: "Archaeologist Trip" },
-    { id: 4, type: "Invite Accepted", username: "HelloKittyGirl", project: "Art Mural" },
-    { id: 5, type: "Project Join Request", username: "Shaggy", project: "Eat Mountain"},
-    { id: 6, type: "Project Join Request", username: "Scooby", project: "Fart Bomb"},
-  ]);
-  
-  
+  const [notifications, setNotifications] = useState([]);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-
+  useEffect(() => {
+    const cookieUsername = getUsernameFromCookie(); // Retrieve the username from the cookie
+    fetchNotifs(cookieUsername);
+  }, []);  
   // Function to remove a notification by id
   const removeNotification = (id: number) => {
     setNotifications(notifications.filter((notification) => notification.id !== id));
   };
-
+  const fetchNotifs = async (user: string| null) => {
+    try {
+      const response = await fetch("http://localhost:5001/retrieveNotifications", {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ username: user }),
+      });
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      // Transform the response data to match Postcard prop structure
+      const transformedData = data.map((item) => ({
+        id: item.notificationid,
+        type: item.messagetype, 
+        username: item.fromuserid, 
+        project: item.title
+      }));
+      setNotifications(transformedData)
+    } catch (error) {
+      console.error("Error fetching bookmarks:", error);
+    }
+  };
+  const acceptNotifs = async (notif_id: string| null) => {
+    try {
+      const response = await fetch("http://localhost:5001/acceptNotification", {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ notificationid: notif_id }),
+      });
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      await response.json();
+      removeNotifs(notif_id);
+      removeNotification(notif_id);
+    } catch (error) {
+      console.error("Error fetching bookmarks:", error);
+    }
+  };
+  const removeNotifs = async (notif_id: string| null) => {
+    try {
+      const response = await fetch("http://localhost:5001/removeNotification", {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ notificationid: notif_id }),
+      });
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      await response.json();
+      removeNotification(notif_id);
+    } catch (error) {
+      console.error("Error fetching bookmarks:", error);
+    }
+  };
   const toggleDropdown = () => {
     setIsDropdownOpen(!isDropdownOpen);
   };
@@ -91,12 +149,12 @@ export default function Navbar() {
                           {/* Icons for actionable and dismissible notifications */}
                           <div className="iconContainer">
                             {/* Show the check and X icons for actionable notifications */}
-                            {(notification.type === "Project Join Request" || notification.type === "Project Invite Request") && (
+                            {(notification.type === "Join" || notification.type === "Invite") && (
                               <>
                                 <div className="iconButton">
                                   <FontAwesomeIcon icon={faCheck} onClick={(e) => {
                                     e.stopPropagation();
-                                    removeNotification(notification.id);
+                                    acceptNotifs(notification.id);
                                   }}/>
                                 </div>
                               </>
@@ -104,6 +162,7 @@ export default function Navbar() {
                             {/* Show only the X icon for dismissing all types */}
                             <div className="iconButton" onClick={(e) => {
                               e.stopPropagation();
+                              removeNotifs(notification.id);
                               removeNotification(notification.id);
                             }}>
                               <FontAwesomeIcon icon={faTimes} />

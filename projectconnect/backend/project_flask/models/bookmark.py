@@ -1,0 +1,104 @@
+import os
+import psycopg2
+from psycopg2.extras import RealDictCursor
+from project_flask.models.project import Project
+
+class Bookmark:
+    def __init__(self, user):
+        self.username = user
+        #self.bookmarkedPost = set() # post objects
+
+    @staticmethod
+    def get_db_connection():
+        return psycopg2.connect(
+            os.getenv("DATABASE_URL"),
+            cursor_factory=RealDictCursor
+        )
+
+    def verifyBookmark(self, title, creatorusername):
+        try:
+            with Bookmark.get_db_connection() as conn:
+                with conn.cursor() as cursor:
+                    cursor.execute("""
+                        SELECT * FROM bookmarks 
+                        WHERE username = %s
+                        and title = %s
+                        and creatorusername = %s
+                    """, (self.username, title, creatorusername))
+                    result = cursor.fetchone()
+                    return result is not None
+        except Exception as e:
+            print(f"Error checking notification existence: {e}")
+            return False
+
+    def addBookmark(self, title, creatorUsername):
+        if(self.verifyBookmark(title,creatorUsername)):
+            print("bookmark already exists")
+            return self.deleteBookmark(title,creatorUsername) 
+        try:
+            with Bookmark.get_db_connection() as conn:
+                with conn.cursor() as cursor:
+                    postgres_insert_query = """ 
+                        INSERT INTO bookmarks 
+                        (username, title, creatorusername) 
+                        VALUES (%s, %s, %s) RETURNING *;
+                    """
+                    row_to_insert = (self.username, title, creatorUsername)
+                    cursor.execute(postgres_insert_query, row_to_insert)
+                    full_row = cursor.fetchone()
+                    conn.commit()
+                    print("got here")
+                    return {"status": "success", "bookmark": full_row}
+        except Exception as e:
+            print(f"Error adding bookmark: {e}")
+            return {"status": "error", "error": str(e)}
+
+    def retrieveBookmarks(self):
+        try:
+            with Bookmark.get_db_connection() as conn:
+                with conn.cursor() as cursor:
+                    cursor.execute("""
+                        SELECT * FROM bookmarks 
+                        WHERE username = %s
+                    """, (self.username,))
+                    result = cursor.fetchall()
+                    return {"status": "success", "bookmarks": result or []};
+        #             all_bookmarks = []
+        #             for row in result:
+        #                 creator = row['creatorusername']
+        #                 title = row['title']
+        #                 cursor.execute("""
+        #                 SELECT * FROM projects 
+        #                 WHERE creatorusername = %s
+        #                 and title = %s
+        #                  """, (creator, title))
+        #                 project_row = cursor.fetchone()
+        #                 description = project_row['description']
+        #                 bookmark_dict = {"title": title, "description": description, "creatorusername": creator}
+        #                 print(bookmark_dict)
+        #                 all_bookmarks.append(bookmark_dict)
+        #                 if len(all_bookmarks)>0:
+        #                     return {"status":"success", "bookmarks": all_bookmarks }
+        #                 else:
+        #                     return {"status":"success", "bookmarks": [] }
+        except Exception as e:
+            print(f"Error checking bookmarks existence: {e}")
+
+    def deleteBookmark(self, title, creatorUsername):
+        print("deleting the bookmark now")
+        try:
+            with Bookmark.get_db_connection() as conn:
+                with conn.cursor() as cursor:
+                    postgres_delete = """
+                        DELETE FROM bookmarks 
+                        WHERE username = %s
+                        and title = %s
+                        and creatorusername = %s
+                    """
+                    cursor.execute(postgres_delete, (self.username, title, creatorUsername,))
+                    conn.commit()
+                    return {"status": "success", "deleted_post": title}
+        except Exception as e:
+            print(f"Failure to remove bookmark: {e}")
+            return {"status": "error", "error": str(e)}
+

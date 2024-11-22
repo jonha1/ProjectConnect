@@ -43,27 +43,6 @@ class Account:
         except Exception as e:
             print(f"Error retrieving account: {e}")
             return None
-        
-    @staticmethod
-    def getEmailByUser(username):
-        try:
-            with Account.get_db_connection() as conn:
-                with conn.cursor() as cursor:
-                    cursor.execute(
-                        """
-                        SELECT loginemail FROM users WHERE username = %s
-                        """,
-                        (username,)
-                    )
-                    result = cursor.fetchone()
-
-            if result and "loginemail" in result:
-                return {"status": "success", "email": result["loginemail"]}
-            else:
-                return {"status": "error", "message": "User not found"}
-        except Exception as e:
-            print(f"Error fetching email for user {username}: {e}")
-        return {"status": "error", "message": str(e)}
 
     ## returns json
     @staticmethod
