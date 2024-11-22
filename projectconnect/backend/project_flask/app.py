@@ -438,20 +438,6 @@ def getProjectInfo():
     else:
         return jsonify(result), 201  # 201 for successful creation
     
-# @app.route('/deleteProject', methods=['POST'])
-# def deleteProject():
-#     data = request.json
-#     creatorusername = data.get('creatorusername')
-#     title = data.get('title')
-
-#     result = Project.deleteProject(creatorusername, title)
-
-#     # Check if the result is an error
-#     if "error" in result:
-#         return jsonify(result), 400  # 400 for bad request (like duplicate entry)
-#     else:
-#         return jsonify(result), 201  # 201 for successful creation
-    
 @app.route('/archiveProject', methods=['POST'])
 def archiveProject():
     data = request.json
@@ -556,6 +542,23 @@ def verifyMembership():
     except Exception as e:
         print(f"Error checking joined project info: {e}")
         return jsonify({"error": str(e)}), 500
+    
+@app.route('/editProject', methods=['POST'])
+def edit_project():
+    data = request.json
+    creatorusername = data.get('creatorusername')
+    title = data.get('title')
+    new_details = data.get('new_details') 
+
+    if not creatorusername or not title or not new_details:
+        return jsonify({"error": "Missing required fields"}), 400
+
+    result = Creator.editPost(creatorusername, title, new_details)
+
+    if "error" in result:
+        return jsonify(result), 400
+    else:
+        return jsonify(result), 200
 
 if __name__ == "__main__":
     app.run(port=5001, debug=True)

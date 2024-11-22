@@ -19,6 +19,7 @@ interface ProjectDetails {
   membercontactinfo?: string;
   isarchived: boolean; 
   tag: string;
+  contact: string;
 }
 
 interface APIResponse {
@@ -27,6 +28,51 @@ interface APIResponse {
 
 type UserRole = "general" | "member" | "creator";
 
+interface EditModalProps {
+  projectDetails: ProjectDetails;
+  onClose: () => void;
+  onSave: (updatedDetails: Partial<ProjectDetails>) => Promise<void>;
+}
+
+const EditProjectModal: React.FC<EditModalProps> = ({ projectDetails, onClose, onSave }) => {
+  const [description, setDescription] = useState(projectDetails.description);
+  const [links, setLinks] = useState(projectDetails.links || "");
+  const [contact, setContact] = useState(projectDetails.contact || "");
+  const [tag, setTag] = useState(projectDetails.tag || "");
+
+  const handleSubmit = async () => {
+    const updatedDetails = { description, links, contact, tag };
+    await onSave(updatedDetails);
+  };
+
+  return (
+    <div className="modal">
+      <div className="modal-content">
+        <h2>Edit Project</h2>
+        <form>
+          <label>
+            Description:
+            <textarea value={description} onChange={(e) => setDescription(e.target.value)} />
+          </label>
+          <label>
+            Links:
+            <input type="text" value={links} onChange={(e) => setLinks(e.target.value)} />
+          </label>
+          <label>
+            Contact Info:
+            <input type="text" value={contact} onChange={(e) => setContact(e.target.value)} />
+          </label>
+          <button className="saveButton" onClick={handleSubmit}>
+            Save
+          </button>
+          <button className="cancelButton" onClick={onClose}>
+            Cancel
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+};
 
 export default function ProjectView() {
   const [activeTab, setActiveTab] = useState<"everyone" | "members">("everyone");
@@ -34,8 +80,8 @@ export default function ProjectView() {
   const [isLoading, setIsLoading] = useState(true);
   const [projectDetails, setProjectDetails] = useState<ProjectDetails | null>(null);
   const [userRole, setUserRole] = useState<UserRole>();
-  const pathname = usePathname(); // Get the current route's pathname  
-  const [archived, setArchived] = useState("");
+  const pathname = usePathname();  
+  const [showEditModal, setShowEditModal] = useState(false);
 
   // Extract creatorUsername and title from pathname and fetch project info
   useEffect(() => {
@@ -69,12 +115,6 @@ export default function ProjectView() {
         // Run verifyMembership with updated projectDetails
         verifyMembership(currentUsername, projectDetails.creatorusername, projectDetails.title);
       }
-      if (projectDetails.isarchived){
-        setArchived("Unarchive");
-      } else {
-        setArchived("Archive");
-      }
-
     }
   }, [projectDetails]);
 
@@ -218,6 +258,67 @@ export default function ProjectView() {
     }
   };
 
+  const handleLeaveProject = async () => {
+    if (!projectDetails) return;
+  
+    const { title } = projectDetails;
+    const currentUsername = Cookies.get("username");
+  
+    try {
+      const response = await fetch("http://localhost:5001/api/leave-project", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          username: currentUsername,
+          project_title: title,
+        }),
+      });
+  
+      const result = await response.json();
+  
+      if (response.ok) {
+        alert(`Successfully left the project: ${title}`);
+        // Redirect user to another page or refresh the project list
+        window.location.href = "/";
+      } else {
+        alert(`Error leaving project: ${result.error}`);
+      }
+    } catch (error) {
+      console.error("Error leaving project:", error);
+      alert("An error occurred while leaving the project.");
+    }
+  };
+
+  const handleEditSave = async (updatedDetails: Partial<ProjectDetails>) => {
+    if (!projectDetails) return;
+
+    try {
+      const response = await fetch("http://localhost:5001/editProject", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          creatorusername: "testuser",
+          title: "testproject",
+          new_details: { description: "Updated description" },
+        }),
+      });
+
+      if (response.ok) {
+        const updatedProject = await response.json();
+        setProjectDetails(updatedProject.project); // Update project details in state
+        setShowEditModal(false); // Close the modal
+        alert("Project updated successfully!");
+      } else {
+        alert("Error updating project.");
+      }
+    } catch (error) {
+      console.error("Error updating project:", error);
+      alert("An error occurred.");
+    }
+  };
+
   if (isLoading) {
     return (
       <div
@@ -260,8 +361,8 @@ export default function ProjectView() {
             <p className="creator-name">{projectDetails.creatorusername || "Unknown Creator"}</p>
             <h3>Tag:</h3>
             <p className="creator-name"> {projectDetails.tag}</p>
-            {/* <button className="view-profile-button">View Creator Profile</button>
-            <button className="current-members-button">Current Members</button> */}
+            <button className="view-profile-button">View Creator Profile</button>
+            {/* <button className="current-members-button">Current Members</button> */}
           </div>
           <div className="right-column">
             <div className="tab-container">
@@ -285,8 +386,8 @@ export default function ProjectView() {
                 <div className="everyone-content">
                   <h2>Title</h2>
                   <p>{projectDetails.title || "Untitled Project"}</p>
-                  <h2>Archived</h2>
-                  <p>{projectDetails.isarchived ? "Yes" : "No"}</p>
+                  <h2>Contact Information</h2>
+                  <p>{projectDetails.contact || "No contact information"}</p>
                   <h3>Description</h3>
                   <p>{projectDetails.description || "No description"}</p>
                   <h3>Links</h3>
@@ -321,14 +422,25 @@ export default function ProjectView() {
                 {projectDetails.isarchived ? "Unarchive" : "Archive"}
               </button>
               <button className="deleteButton" onClick={handleDeleteProject}>Delete</button>
-              <button className="editButton">Edit</button>
+              <button className="editButton" onClick={() => setShowEditModal(true)}>
+                Edit
+              </button>
               <button className="inviteButton">Invite</button>
             </div>
           )}
           {userRole === "member" && (
             <div className="buttonContainer">
-              <button className="leaveButton">Leave</button>
+              <button className="leaveButton" onClick={handleLeaveProject}>
+                Leave Project
+              </button>
             </div>
+          )}
+          {showEditModal && projectDetails && (
+            <EditProjectModal
+              projectDetails={projectDetails}
+              onClose={() => setShowEditModal(false)}
+              onSave={handleEditSave}
+            />
           )}
         </div>
       </div>
