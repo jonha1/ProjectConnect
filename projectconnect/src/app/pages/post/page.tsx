@@ -37,8 +37,8 @@ export default function ProjectView() {
   const [title, setTitle] = useState("");
   const [projectDetails, setProjectDetails] = useState<ProjectDetails | null>(null);
   const [userRole, setUserRole] = useState<UserRole>();
-  const pathname = usePathname(); // Get the current route's pathname
   const [requestSent, setRequestSent] = useState(false);
+  const pathname = usePathname(); // Get the current route's pathname
   // const [archived, setArchived] = useState("");
 
   // Extract creatorUsername and title from pathname and fetch project info
@@ -325,7 +325,6 @@ export default function ProjectView() {
       console.error("Error fetching sending notification:", error);
     }
   };
-
   if (isLoading) {
     return (
       <div
@@ -440,6 +439,7 @@ export default function ProjectView() {
               <button className="deleteButton" onClick={handleDeleteProject}>Delete</button>
               <button className="editButton">Edit</button>
               <button className="inviteButton">Invite</button>
+
             </div>
           )}
           {userRole === "member" && (
