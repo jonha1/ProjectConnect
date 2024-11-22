@@ -39,6 +39,16 @@ class Creator(Member):
             if "error" in project_result:
                 return project_result  # Return any errors from the Project class
 
+            return {
+                "status": "success",
+                "message": f"Project '{title}' created successfully.",
+                "project": project_result.get("project"),
+            }
+
+        except Exception as e:
+            print(f"Error in createProject: {e}")
+            return {"error": f"Failed to create project: {str(e)}"}
+
     @staticmethod
     def archiveProject(creatorusername, title):
         return Project.archiveProject(creatorusername, title)
