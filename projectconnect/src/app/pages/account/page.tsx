@@ -305,6 +305,7 @@ export default function Account() {
               </div>
             </div>
           </div>
+          
         </div>
 
         <div className="mainContent">
