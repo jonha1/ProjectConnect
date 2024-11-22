@@ -57,8 +57,8 @@ class Member(User):
                     """, (username,))
                     
                     projects = cursor.fetchall()
-                    return {"status": "success", "projects": projects} if projects else {"status": "error", "message": "No joined projects found"}
+                return {"status": "success", "projects": projects or []}
         except Exception as e:
             print(f"Error fetching joined projects for member '{username}': {e}")
-            return {"error": f"Failed to fetch joined projects for member '{username}': {str(e)}"}
+            return {"status": "error", "message": f"Failed to fetch joined projects for member '{username}': {str(e)}"}
         

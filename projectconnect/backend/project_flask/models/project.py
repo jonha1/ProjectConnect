@@ -299,10 +299,7 @@ class Project:
                     
                     projects = cursor.fetchall()  
                     
-                    if projects:
-                        return {"status": "success", "projects": projects}
-                    else:
-                        return {"status": "error", "message": "No projects found for the specified username"}
+                    return {"status": "success", "projects": projects or []}
         except Exception as e:
             print(f"Error fetching projects for creator '{creatorusername}': {e}")
             return {"error": f"Failed to fetch projects for creator '{creatorusername}': {str(e)}"}
