@@ -50,7 +50,7 @@ class Creator(Member):
         pass
 
     
-    def createProject(self, creatorusername, title, description, tag, links, memberDescription, memberLinks, memberContact):
+    def createProject(self, creatorusername, title, description, tag, links, contact, memberDescription, memberLinks, memberContact):
         try:
             # Validate that the creator exists in the database
             # with self.get_db_connection() as conn:
@@ -64,7 +64,7 @@ class Creator(Member):
             #             return {"error": "Creator does not exist. Please register first."}
 
             # Delegate project creation to the Project class
-            project_result = Project.buildProject(creatorusername, title, description,tag, links, memberDescription, memberLinks, memberContact)
+            project_result = Project.buildProject(creatorusername, title, description,tag, links, contact ,memberDescription, memberLinks, memberContact)
 
             if "error" in project_result:
                 return project_result  # Return any errors from the Project class
