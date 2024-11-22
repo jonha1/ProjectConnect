@@ -185,7 +185,7 @@ export default function ProjectView() {
         },
         body: JSON.stringify({ 
           creatorusername: creator, 
-          title: projectTitle,
+          title: projectTitle.replace("-", " "),
           username: user
         }),
       });
@@ -209,7 +209,7 @@ export default function ProjectView() {
         },
         body: JSON.stringify({ 
           creatorusername: creator, 
-          title: projectTitle,
+          title: projectTitle.replace("-", " "),
           username: cookieUsername
         }),
       });
@@ -234,7 +234,7 @@ export default function ProjectView() {
         },
         body: JSON.stringify({ 
           creatorusername: creator, 
-          title: projectTitle,
+          title: projectTitle.replace("-", " "),
           username: cookieUsername
         }),
       });
@@ -347,7 +347,7 @@ export default function ProjectView() {
           touserid: toUser, 
           fromuserid: cookieUsername,
           messagetype: messageType,
-          projectitle: projectTitle
+          projectitle: projectTitle.replace("-", " ")
         }),
       });
       const data = await response.json();
