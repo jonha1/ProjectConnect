@@ -30,10 +30,10 @@ type ProjectViewProps = {
 
 export default function ProjectView({ userRole }: ProjectViewProps) {
   const [activeTab, setActiveTab] = useState<"everyone" | "members">("everyone");
-  const [isBookmarked, setIsBookmarked] = useState();
+  const [isBookmarked, setIsBookmarked] = useState<boolean | undefined>(undefined);
   const [isLoading, setIsLoading] = useState(true);
-  const [creator, setCreator] = useState("");
-  const [title, setTitle] = useState("");
+  const [creator, setCreator] = useState<string | null>(null);
+  const [title, setTitle] = useState<string | null>(null);
   const [projectDetails, setProjectDetails] = useState<ProjectDetails | null>(null);
 
 
