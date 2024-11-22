@@ -66,7 +66,6 @@ export default function Account() {
   const [skills, setSkills] = useState("Loading...");
   const [editComponent, setEditComponent] = useState("");
   const [textareaValue, setTextareaValue] = useState(""); 
-
   const [isLoading, setIsLoading] = useState(true);
   const [bookmarks, setBookmarks] = useState([]);
 
@@ -146,13 +145,12 @@ export default function Account() {
         }
         const data = await response.json();
         // Transform the response data to match Postcard prop structure
-        const transformedData = data.map((item) => ({
+        const transformedData = data.bookmarks.map((item) => ({
           postName: item.title, // Use `title` for postName
           postInfo: item.description, // Use `description` for postInfo
           creatorName: item.creatorusername, // Use `creatorusername` for creatorName
         }));
-
-        setBookmarks(transformedData); // Update the state with transformed data    
+        setBookmarks(transformedData); // Update the state with transformed data  
       } catch (error) {
         console.error("Error fetching bookmarks:", error);
       } finally {
@@ -361,15 +359,19 @@ export default function Account() {
             {activeTab === "bookmarks" && (
               <div className="bookmarks">
                 <div className={styles.postContainer}>
-                  {bookmarks.map((post, index) => (
-                    <Postcard
-                      key={index}
-                      postName={post.postName}
-                      postInfo={post.postInfo}
-                      creatorName={post.creatorName}
-                      className={styles.postCard} // Apply class to each card
-                    />
-                  ))}
+                  {bookmarks.length > 0 ? (
+                    bookmarks.map((post, index) => (
+                      <Postcard
+                        key={index}
+                        postName={post.postName}
+                        postInfo={post.postInfo}
+                        creatorName={post.creatorName}
+                        className={styles.postCard} // Apply class to each card
+                      />
+                    ))
+                  ) : (
+                    <p>No Bookmarked posts found. </p>
+                  )}
                 </div>
               </div>
             )}

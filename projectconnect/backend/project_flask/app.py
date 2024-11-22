@@ -613,10 +613,7 @@ def retrieveNotifications():
     data = request.json
     user = data.get('username')
     result = Notification.retrieveNotifications(user)
-    if len(result)== 0:
-        return result, 400   # 400 for bad request (like duplicate entry)
-    else:
-        return result, 201  # 201 for successful creation        
+    return result, 201  # 201 for successful creation        
 
 @app.route('/sendNotification', methods=['POST'])
 def sendNotification():
@@ -666,15 +663,13 @@ def addBookmark():
 def retrieveBookmarks():
     data = request.json
     user = data.get('username')
+    print(user)
     user_bookmark = Bookmark(user)
     print(user_bookmark.username, " Bookmarks: ")
     result = user_bookmark.retrieveBookmarks()
 
     print(result)
-    if len(result) == 0 :
-        return jsonify(result), 400  # 400 for bad request (like duplicate entry)
-    else:
-        return jsonify(result), 200  # 201 for successful creation
+    return jsonify(result), 201  # 201 for successful creation
 
 @app.route('/deleteBookmark', methods=['POST'])
 def deleteBookmark():

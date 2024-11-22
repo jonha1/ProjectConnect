@@ -62,29 +62,27 @@ class Bookmark:
                         WHERE username = %s
                     """, (self.username,))
                     result = cursor.fetchall()
-                    print(result)
-                    all_bookmarks = []
-                    for row in result:
-                        print("row: ", row)
-                        creator = row['creatorusername']
-                        title = row['title']
-                        print(creator, title)
-                        cursor.execute("""
-                        SELECT * FROM projects 
-                        WHERE creatorusername = %s
-                        and title = %s
-                         """, (creator, title))
-                        print("-----------------------------")
-                        project_row = cursor.fetchone()
-                        print(project_row)
-                        description = project_row['description']
-                        print(description)
-                        bookmark_dict = {"title": title, "description": description, "creatorusername": creator}
-                        all_bookmarks.append(bookmark_dict)
-                    return all_bookmarks #list of tuples, each tuple is a row ex.[ ["alice","Green Energy","testing"], ]
+                    return {"status": "success", "bookmarks": result or []};
+        #             all_bookmarks = []
+        #             for row in result:
+        #                 creator = row['creatorusername']
+        #                 title = row['title']
+        #                 cursor.execute("""
+        #                 SELECT * FROM projects 
+        #                 WHERE creatorusername = %s
+        #                 and title = %s
+        #                  """, (creator, title))
+        #                 project_row = cursor.fetchone()
+        #                 description = project_row['description']
+        #                 bookmark_dict = {"title": title, "description": description, "creatorusername": creator}
+        #                 print(bookmark_dict)
+        #                 all_bookmarks.append(bookmark_dict)
+        #                 if len(all_bookmarks)>0:
+        #                     return {"status":"success", "bookmarks": all_bookmarks }
+        #                 else:
+        #                     return {"status":"success", "bookmarks": [] }
         except Exception as e:
             print(f"Error checking bookmarks existence: {e}")
-            return []
 
     def deleteBookmark(self, title, creatorUsername):
         print("deleting the bookmark now")
