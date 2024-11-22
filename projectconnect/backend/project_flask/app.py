@@ -521,6 +521,35 @@ def get_projects_by_member():
         return jsonify(result), 404
     return jsonify(result), 200
 
+@app.route('/updateProjectDetails', methods=['POST', 'OPTIONS'])
+def updateProjectDetails():
+    if request.method == "OPTIONS":
+        response = make_response()
+        response.headers.add("Access-Control-Allow-Origin", "http://localhost:3000")
+        response.headers.add("Access-Control-Allow-Methods", "POST, OPTIONS")
+        response.headers.add("Access-Control-Allow-Headers", "Content-Type, Authorization")
+        response.headers.add("Access-Control-Allow-Credentials", "true")
+        return response
+    
+    # Parse JSON data from the request body
+    data = request.json
+    creatorusername = data.get('creatorusername', "")
+    title = data.get('title', "")
+    updates = data.get('updates', {})
+
+    if not creatorusername or not title:
+        return jsonify({"status": "error", "message": "Missing required fields: creatorusername or title."}), 400
+
+    # Call the Project.updateProjectDetails method to update the project details
+    result = Project.updateProjectDetails(creatorusername, title, updates)
+
+    # Check if the result is an error
+    if "error" in result:
+        return jsonify(result), 400  # Bad request if there's an error
+    else:
+        return jsonify(result), 200  # Return success message with 200 OK
+
+
 
 if __name__ == "__main__":
     app.run(port=5001, debug=True)
