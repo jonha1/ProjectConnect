@@ -4,7 +4,6 @@ from psycopg2.extras import RealDictCursor
 from project_flask.models.member import Member
 from project_flask.models.project import Project
 
-
 class Creator(Member):
     def __init__(self, username, displayName, loginEmail, password, aboutMe, contactInfo, skills):
         super().__init__(username, displayName, loginEmail, password, aboutMe, contactInfo, skills)

@@ -7,6 +7,8 @@ import Postcard from "../../components/post_card";
 import styles from "../../styles/searchpage.module.css"; 
 import { useSearchParams } from "next/navigation"; 
 import { getUsernameFromCookie } from "../../lib/cookieUtils"; 
+import { faPencil } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 interface Project {
   creatorusername: string;
@@ -20,17 +22,51 @@ interface Project {
   isarchived: boolean;
 }
 
-export default function Home() {
+type AutoResizeTextareaProps = {
+  placeholder: string;
+  value: string;
+  onChange: (value: string) => void;
+};
+
+function AutoResizeTextarea({ placeholder, value, onChange }: AutoResizeTextareaProps) {
+  const handleChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const textarea = event.target;
+    textarea.style.height = 'auto';  
+    textarea.style.height = `${textarea.scrollHeight}px`;  
+    onChange(textarea.value);
+  };
+
+  return (
+    <textarea
+      value={value}
+      onChange={handleChange}
+      placeholder={placeholder}
+      className="inputBox"
+      style={{
+        width: '100%',
+        minHeight: '50px',
+        resize: 'none',
+        overflow: 'hidden',
+        color: 'black',
+      }}
+      required
+    />
+  );
+}
+
+export default function Account() {
   const searchParams = useSearchParams();
   const initialTab = searchParams.get("query") === "bookmark" ? "bookmarks" : "created";
   const [activeTab, setActiveTab] = useState(initialTab);
   const [username, setUsername] = useState("");
-  const [email, setEmail] = useState("Loading...");
   const [displayName, setDisplayName] = useState("Loading...");
   const [aboutMe, setAboutMe] = useState("Loading...");
   const [contactInfo, setContactInfo] = useState("Loading...");
   const [postsCreated, setPostsCreated] = useState<Project[]>([]); 
+  const [joinedProjects,  setJoinedProjects] = useState<Project[]>([]);
   const [skills, setSkills] = useState("Loading...");
+  const [editComponent, setEditComponent] = useState("");
+  const [textareaValue, setTextareaValue] = useState(""); 
 
   const [isLoading, setIsLoading] = useState(true);
 
@@ -55,8 +91,6 @@ export default function Home() {
           const userResult = await userResponse.json();
 
           if (userResponse.ok) {
-            setEmail(userResult.loginemail || "No email found.");
-            console.log(email);
             setDisplayName(userResult.displayname || "No displayName found");
             setAboutMe(userResult.aboutme || "No About Me information found.");
             setContactInfo(userResult.contactinfo || "No Contact information found.");
@@ -88,10 +122,33 @@ export default function Home() {
         }
       };
 
+
+      const fetchJoinedProjects = async () => {
+        try{
+          const response = await fetch("http://127.0.0.1:5001/projects/by_member", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ username: cookieUsername }),
+          });
+
+          const result = await response.json();
+          if (response.ok) {
+            setJoinedProjects(result.projects || []);
+          } else {
+            console.error("Error fetching joined projects:", result.message);
+          }
+        }
+        catch (error) {
+          console.error("Error fetching joined projects:", error);
+        }
+      };
+
       fetchUserData();
+      fetchJoinedProjects();
     } else {
       console.error("Username not found in cookies.");
-      setEmail("Username not found.");
       setAboutMe("Username not found.");
       setDisplayName("DisplayName not found");
       setContactInfo("Username not found.");
@@ -129,82 +186,79 @@ export default function Home() {
     />
   ))}
 
-  const postsJoined = [
-    {
-      postName: "SkillBridge",
-      postInfo: "SkillBridge is a mentorship platform connecting students and young professionals with industry experts for career guidance and skill development. The app offers mentorship matchmaking, one-on-one video sessions, and progress tracking features. Built with a Next.js frontend, Django REST API, and PostgreSQL database, SkillBridge supports meaningful mentorship connections across various industries.",
-      creatorName: "Swagalicious995"
-    },
-    {
-      postName: "Nexxus Connect",
-      postInfo:
-        "Nexxus Connect is a networking platform designed to foster collaboration among freelance professionals. With features like a personalized portfolio builder, advanced project matching, and secure messaging, users can seamlessly connect with potential clients and other freelancers in their field. Built with a React frontend, Node.js backend, and PostgreSQL for data management, Nexxus Connect helps bridge the gap between opportunity and skill, creating an ecosystem that thrives on collaboration.",
-      creatorName: "ChatGPT 4o",
-    },
-    {
-      postName: "Insightify",
-      postInfo:
-        "Insightify is a data visualization tool built for small business owners and analysts who need intuitive, real-time insights into their operations. This project processes data from various sources, such as sales, customer feedback, and inventory, and visualizes key trends using dynamic graphs and charts. With a sleek React UI, Express for API handling, and D3.js for interactive charts, Insightify offers actionable insights at a glance, simplifying decision-making for business growth.",
-      creatorName: "ChatGPT 4o",
-    },
-    {
-      postName: "PathFinder",
-      postInfo:
-        "PathFinder is a career planning and mentorship platform designed to connect students and recent graduates with mentors in their desired fields. Users can create profiles, browse career paths, access mentorship resources, and engage in direct messaging with mentors. The project combines React for user interfaces, Node.js for backend services, and PostgreSQL to store user profiles and career data. PathFinder aims to make career guidance accessible and tailored to individual aspirations.",
-      creatorName: "ChatGPT 4o",
-    },
-    {
-      postName: "ProjectConnect",
-      postInfo:
-        "Here would be the descriptions of project that shouldn't be too long. The next few are unfortuantely ai generated.",
-      creatorName: "Swagalicious995",
-    },
-    {
-      postName: "Nexxus Connect",
-      postInfo:
-        "Nexxus Connect is a networking platform designed to foster collaboration among freelance professionals. With features like a personalized portfolio builder, advanced project matching, and secure messaging, users can seamlessly connect with potential clients and other freelancers in their field. Built with a React frontend, Node.js backend, and PostgreSQL for data management, Nexxus Connect helps bridge the gap between opportunity and skill, creating an ecosystem that thrives on collaboration.",
-      creatorName: "ChatGPT 4o",
-    },
-  ];
+  const handleEdit = (component: string) => {
+    setEditComponent(component);
 
-  const postsBookmarked = [
-    {
-      postName: "SkillSync",
-      postInfo:
-        "SkillSync is a platform built for individuals seeking to enhance their skills through real-world projects. Users can create or join projects aligned with their interests, gain hands-on experience, and receive feedback from mentors. The app uses Vue.js for a responsive interface, a Django backend, and integrates with GitHub for project tracking. SkillSync fosters continuous learning and practical application of skills in an immersive, collaborative environment.",
-      creatorName: "DevGuru45",
-    },
-    {
-      postName: "EcoHub",
-      postInfo:
-        "EcoHub is a community-driven app designed for individuals passionate about sustainable living. The app connects users with local events, green initiatives, and eco-friendly businesses. EcoHub was built using Angular for the front end, Node.js for server-side processing, and MongoDB to store user-generated content and event data. With EcoHub, users can find eco-conscious events, share green tips, and contribute to a growing community of environmental advocates.",
-      creatorName: "EcoWarrior99",
-    },
-    {
-      postName: "EventLink",
-      postInfo:
-        "EventLink is an event planning and networking platform where hosts and attendees can connect based on their interests. From concerts to workshops, EventLink offers an intuitive event discovery and RSVP system. Using Svelte for the UI and Firebase for authentication and real-time data sync, EventLink streamlines the event experience by helping people discover and join events they are passionate about.",
-      creatorName: "EventMaster00",
-    },
-    {
-      postName: "CodeQuest",
-      postInfo:
-        "CodeQuest is a coding challenge and skill-building platform designed for developers of all levels. With daily challenges and skill-based leaderboards, users can hone their skills and track progress. CodeQuest utilizes Next.js for fast-loading pages, a Python Flask API, and Redis for caching challenges and leaderboard data. By offering gamified challenges, CodeQuest keeps coding fun and engaging.",
-      creatorName: "HackGuru2023",
-    },
-    {
-      postName: "PhotoFusion",
-      postInfo:
-        "PhotoFusion is a social media platform dedicated to photography enthusiasts. Users can create profiles, share photos, participate in photo challenges, and receive feedback. Built with a React frontend, Ruby on Rails backend, and AWS S3 for image storage, PhotoFusion supports high-quality image sharing and engagement. This community-centric app is perfect for aspiring photographers looking to connect and learn from others.",
-      creatorName: "ShutterBug101",
-    },
-    {
-      postName: "TutorSphere",
-      postInfo:
-        "TutorSphere is an online tutoring marketplace that connects students with qualified tutors across a variety of subjects. Tutors can create profiles, list subjects, and set hourly rates, while students can book sessions and leave reviews. Built with a Vue.js frontend, Node.js backend, and PostgreSQL database, TutorSphere aims to make quality tutoring accessible and customizable to individual learning needs.",
-      creatorName: "EduCoach88",
-    },
-  ];
+    // Set the initial value based on the component being edited
+    switch (component) {
+      case "About Me":
+        setTextareaValue(aboutMe);
+        break;
+      case "Contact Information":
+        setTextareaValue(contactInfo);
+        break;
+      case "Skills":
+        setTextareaValue(skills);
+        break;
+      default:
+        setTextareaValue("");
+    }
+  };
+
+  const updateProfile = async (
+    username: string,
+    column: string,
+    value: string
+  ): Promise<void> => {
+    try {
+      const response = await fetch('http://localhost:5001/updateProfileFromEdit', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          username: username,
+          column: column, 
+          value: value,
+        }),
+      });
+  
+      const result = await response.json();
+  
+      if (response.ok) {
+        console.log("updated successfully:", result.message);
+      } else {
+        console.error(`Failed to update ${column}:`, result.error || result.message);
+      }
+    } catch (error) {
+      console.error(`Error updating ${column}:`, error);
+    }
+  };
+  
+
+  const handleSave = () => {
+    // Save the updated value based on the `editComponent`
+    let columnToEdit = "";
+    switch (editComponent) {
+      case "About Me":
+        setAboutMe(textareaValue);
+        columnToEdit = "aboutme";
+        break;
+      case "Contact Information":
+        setContactInfo(textareaValue);
+        columnToEdit = "contactinfo";
+        break;
+      case "Skills":
+        setSkills(textareaValue);
+        columnToEdit = "skills";
+        break;
+      default:
+        break;
+    }
+
+    updateProfile(username, columnToEdit, textareaValue);
+  };
+
 
   return (
     <div className="wrapper">
@@ -213,22 +267,40 @@ export default function Home() {
       <div className="contentContainer">
         <div className="sidePanel">
           <div className="displayName">{displayName}</div>
-          <div className="userName">{username}</div>
+          <div className="userName">
+            {username}</div>
           <div className="profileCard">
             About Me: {aboutMe}
+            <FontAwesomeIcon onClick={() => handleEdit("About Me")} icon={faPencil} role='button' className="editIcon" data-bs-toggle="modal" data-bs-target="#editAccountModal"/>
           </div>
           <div className="profileCard">
-            <p>Contact Information: </p>
-            <p>Email: {contactInfo}</p>
+            <p>Contact Information: {contactInfo}</p>
+            <FontAwesomeIcon onClick={() => handleEdit("Contact Information")} icon={faPencil} role='button' className="editIcon" data-bs-toggle="modal" data-bs-target="#editAccountModal"/>
           </div>
-          <div className="profileCard">Skills: {skills}</div>
-          <div className="buttonContainer">
-            <button type="button" className="btn profileActionButtons">
-              Edit Profile
-            </button>
-            <button type="button" className="btn profileActionButtons">
-              Settings
-            </button>
+          <div className="profileCard">
+            Skills: {skills} 
+            <FontAwesomeIcon onClick={() => handleEdit("Skills")} icon={faPencil} role='button' className="editIcon" data-bs-toggle="modal" data-bs-target="#editAccountModal"/>
+          </div>
+
+          <div className="modal fade" id="editAccountModal" tabIndex={-1} role="dialog" aria-labelledby="editAccountModal" aria-hidden="true">
+            <div className="modal-dialog" role="document">
+              <div className="modal-content">
+                <div className="modal-header">
+                  <h5 className="modal-title" id="editAccountModal">Edit {editComponent}</h5>
+                </div>
+                <div className="modal-body">
+                <AutoResizeTextarea
+                    placeholder={`Edit ${editComponent}`}
+                    value={textareaValue}
+                    onChange={(value) => setTextareaValue(value)}
+                  />
+                </div>
+                <div className="modal-footer">
+                  <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                  <button type="button" className="btn btn-primary" data-bs-dismiss="modal" onClick={handleSave}>Save</button>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -277,31 +349,24 @@ export default function Home() {
             {activeTab === "joined" && (
               <div className="joinedProjects">
                 <div className={styles.postContainer}>
-                  {postsJoined.map((post, index) => (
-                    <Postcard
-                      key={index}
-                      postName={post.postName}
-                      postInfo={post.postInfo}
-                      creatorName={post.creatorName}
-                      className={styles.postCard} // Apply class to each card
-                    />
-                  ))}
+                  {joinedProjects.length > 0 ? (
+                    joinedProjects.map((project, index) => (
+                      <Postcard
+                        key={index}
+                        postName={project.title}
+                        postInfo={project.description}
+                        creatorName={project.creatorusername}
+                        className={styles.postCard}
+                      />
+                    ))
+                  ) : (
+                    <p>No joined projects found.</p>
+                  )}
                 </div>
               </div>
             )}
             {activeTab === "bookmarks" && (
               <div className="bookmarks">
-                <div className={styles.postContainer}>
-                  {postsBookmarked.map((post, index) => (
-                    <Postcard
-                      key={index}
-                      postName={post.postName}
-                      postInfo={post.postInfo}
-                      creatorName={post.creatorName}
-                      className={styles.postCard} // Apply class to each card
-                    />
-                  ))}
-                </div>
               </div>
             )}
           </div>

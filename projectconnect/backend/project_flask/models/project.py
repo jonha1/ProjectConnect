@@ -3,11 +3,12 @@ import psycopg2
 from psycopg2.extras import RealDictCursor
 
 class Project:
-    def __init__(self, creatorusername, title, description, links, memberDescription, memberLinks, memberContactInfo, dateposted, isarchived):
+    def __init__(self, creatorusername, title, description, links, contact, memberDescription, memberLinks, memberContactInfo, dateposted, isarchived):
         self.creatorusername = creatorusername
         self.title = title
         self.description = description
         self.links = links
+        self.contact = contact 
         self.memberDescription = memberDescription
         self.memberLinks = memberLinks
         self.memberContactInfo = memberContactInfo
@@ -54,27 +55,20 @@ class Project:
 
 
     @staticmethod
-    def buildProject(creatorusername, title, description, tag, **optional_fields):
+    def buildProject(creatorusername, title, description, tag, links, contact, memberDescription, memberLinks, memberContact):
         # Check if a project with the same creatorusername and title already exists
         if Project.project_exists(creatorusername, title):
             return {"error": "A project with this creatorusername and title already exists."}
 
         # Define required fields
-        fields = ["creatorusername", "title", "description", "tag"]
-        values = [creatorusername, title, description, tag]
+        fields = ["creatorusername", "title", "description", "tag", "links", "contact", "memberdescription", "memberlinks","membercontactinfo"]
+        values = [creatorusername, title, description, tag, links, contact, memberDescription, memberLinks, memberContact]
 
-        # Add optional fields if they are provided
-        optional_columns = {
-            "links": optional_fields.get("links"),
-            "memberdescription": optional_fields.get("memberdescription"),
-            "memberlinks": optional_fields.get("memberlinks"),
-            "membercontactinfo": optional_fields.get("membercontactinfo"),
-        }
 
-        for key, value in optional_columns.items():
-            if value is not None:
-                fields.append(key)
-                values.append(value)
+        # for key, value in optional_columns.items():
+        #     if value is not None:
+        #         fields.append(key)
+        #         values.append(value)
 
         # Dynamically build the SQL query based on available fields
         field_names = ", ".join(fields)

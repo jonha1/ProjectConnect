@@ -28,22 +28,6 @@
     height: 100%; /* Ensure it takes up the full height of its parent */
 }
 
-/* .displayName{
-    font-size: 3rem;
-}
-
-.userName{
-    font-size: 1.5rem;
-}
-
-.displayName, .userName{
-    width: 100%;
-    height: 100%;
-    text-align: center;
-    word-wrap: break-word; /* Ensures long words wrap */
-    /* overflow-wrap: break-word; /* For better compatibility */
-/* } */ 
-
 .displayName {
     font-size: 3rem;
     width: 100%; /* Ensures it takes full width */
@@ -66,31 +50,44 @@
     background-color: #2D2D2D;
     border-radius: 20px;
     padding: 10px;
-    word-wrap: break-word; /* Ensures long words wrap */
-    overflow-wrap: break-word; /* For better compatibility */
-    width: 100%; /* Take full width of the container */
-    max-height: 100%; /* Set max height to limit the card size */
-    overflow-y: auto; /* Enable vertical scrolling */
+    word-wrap: break-word; 
+    overflow-wrap: break-word;
+    width: 100%; 
+    max-height: 100%;
+    overflow-y: auto; 
     height: 100%;
-    text-align: left; /* Adjust text alignment if needed */
+    text-align: left; 
+    position: relative; 
+  }
+  
+  .editIcon {
+    position: absolute;
+    top: 10px; 
+    right: 10px;
+    cursor: pointer; 
+  }
+
+.modal-content{
+    background-color: #2D2D2D;
 }
+  
 
 
-.buttonContainer{
+/* .buttonContainer{
     display: flex;
     gap: 10px;
-}
+} */
 
-.profileActionButtons,
+/* .profileActionButtons,
 .profileActionButtons:hover,
 .profileActionButtons:active,
 .profileActionButtons:focus {
     background-color: #2D2D2D !important;
     color: white !important;
-    border: none; /* Remove border */
-    outline: none; /* Remove outline on focus */
+    border: none; 
+    outline: none; 
     padding: 10px 20px;
-}
+} */
 
 .tabs{
     font-size: 2rem;
@@ -107,7 +104,7 @@
 }
 
 .projects{
-    height: 60vh;
+    height: 70vh;
     width: 100%;
     margin: 3%;
     overflow-y: auto; 
