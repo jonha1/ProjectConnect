@@ -26,6 +26,38 @@ interface APIResponse {
   project: ProjectDetails;
 }
 
+type AutoResizeTextareaProps = {
+  placeholder: string;
+  value: string;
+  onChange: (value: string) => void;
+};
+
+function AutoResizeTextarea({ placeholder, value, onChange }: AutoResizeTextareaProps) {
+  const handleChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const textarea = event.target;
+    textarea.style.height = 'auto';  
+    textarea.style.height = `${textarea.scrollHeight}px`;  
+    onChange(textarea.value);
+  };
+
+  return (
+    <textarea
+      value={value}
+      onChange={handleChange}
+      placeholder={placeholder}
+      className="inputBox"
+      style={{
+        width: '100%',
+        minHeight: '50px',
+        resize: 'none',
+        overflow: 'hidden',
+        color: 'black',
+      }}
+      required
+    />
+  );
+}
+
 type UserRole = "general" | "member" | "creator";
 
 
@@ -39,6 +71,7 @@ export default function ProjectView() {
   const [userRole, setUserRole] = useState<UserRole>();
   const [requestSent, setRequestSent] = useState(false);
   const pathname = usePathname(); // Get the current route's pathname
+  const [textareaValue, setTextareaValue] = useState(""); 
   // const [archived, setArchived] = useState("");
 
   // Extract creatorUsername and title from pathname and fetch project info
@@ -325,6 +358,13 @@ export default function ProjectView() {
       console.error("Error fetching sending notification:", error);
     }
   };
+
+  const handleInvite = async (username: string | null, title: string | null) => {
+    console.log(username);
+    sendNotif(username, title, "Invite");
+    console.log("got past");
+  };
+
   if (isLoading) {
     return (
       <div
@@ -438,7 +478,31 @@ export default function ProjectView() {
               </button>
               <button className="deleteButton" onClick={handleDeleteProject}>Delete</button>
               <button className="editButton">Edit</button>
-              <button className="inviteButton">Invite</button>
+              <button className="inviteButton" type="button" data-bs-toggle="modal" data-bs-target="#InviteModal">
+                Invite
+              </button>
+
+              <div className="modal fade" id="InviteModal" tabIndex={-1} role="dialog" aria-labelledby="editAccountModal" aria-hidden="true">
+                <div className="modal-dialog" role="document">
+                  <div className="modal-content">
+                    <div className="modal-body">
+                    <AutoResizeTextarea
+                    placeholder={`Username`}
+                    value={textareaValue}
+                    onChange={(value) => setTextareaValue(value)}
+                  />
+                    </div>
+                    <div className="modal-footer">
+                      <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                      <button type="button" className="btn btn-primary" data-bs-dismiss="modal" 
+                      onClick={(event)=>{
+                        event.preventDefault();
+                        handleInvite(textareaValue, projectDetails.title);
+                      }}>Invite</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
 
             </div>
           )}
