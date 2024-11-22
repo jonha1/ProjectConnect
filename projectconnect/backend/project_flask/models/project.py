@@ -8,7 +8,7 @@ class Project:
         self.title = title
         self.description = description
         self.links = links
-        self.links = contact 
+        self.contact = contact 
         self.memberDescription = memberDescription
         self.memberLinks = memberLinks
         self.memberContactInfo = memberContactInfo
