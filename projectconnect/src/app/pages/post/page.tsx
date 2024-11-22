@@ -360,9 +360,7 @@ export default function ProjectView() {
   };
 
   const handleInvite = async (username: string | null, title: string | null) => {
-    console.log(username);
     sendNotif(username, title, "Invite");
-    console.log("got past");
   };
 
   if (isLoading) {
