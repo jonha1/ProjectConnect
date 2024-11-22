@@ -38,10 +38,11 @@ const EditProjectModal: React.FC<EditModalProps> = ({ projectDetails, onClose, o
   const [description, setDescription] = useState(projectDetails.description);
   const [links, setLinks] = useState(projectDetails.links || "");
   const [contact, setContact] = useState(projectDetails.contact || "");
-  const [tag, setTag] = useState(projectDetails.tag || "");
+  const [title, setTitle] = useState(projectDetails.title || "");
 
   const handleSubmit = async () => {
-    const updatedDetails = { description, links, contact, tag };
+    e.preventDefault();
+    const updatedDetails = { description, links, contact, title };
     await onSave(updatedDetails);
   };
 
@@ -51,6 +52,14 @@ const EditProjectModal: React.FC<EditModalProps> = ({ projectDetails, onClose, o
         <h2>Edit Project</h2>
         <form>
           <label>
+            Title:
+            <textarea value={title} onChange={(e) => setTitle(e.target.value)} />
+          </label>
+          <label>
+            Contact Info:
+            <input type="text" value={contact} onChange={(e) => setContact(e.target.value)} />
+          </label>
+          <label>
             Description:
             <textarea value={description} onChange={(e) => setDescription(e.target.value)} />
           </label>
@@ -58,10 +67,7 @@ const EditProjectModal: React.FC<EditModalProps> = ({ projectDetails, onClose, o
             Links:
             <input type="text" value={links} onChange={(e) => setLinks(e.target.value)} />
           </label>
-          <label>
-            Contact Info:
-            <input type="text" value={contact} onChange={(e) => setContact(e.target.value)} />
-          </label>
+          
           <button className="saveButton" onClick={handleSubmit}>
             Save
           </button>
@@ -293,7 +299,6 @@ export default function ProjectView() {
 
   const handleEditSave = async (updatedDetails: Partial<ProjectDetails>) => {
     if (!projectDetails) return;
-
     try {
       const response = await fetch("http://localhost:5001/editProject", {
         method: "POST",
