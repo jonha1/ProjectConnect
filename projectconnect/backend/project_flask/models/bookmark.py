@@ -35,6 +35,7 @@ class Bookmark:
         if(self.verifyBookmark(title,creatorUsername)):
             print("bookmark already exists")
             return self.deleteBookmark(title,creatorUsername) 
+        print(title);
         try:
             with Bookmark.get_db_connection() as conn:
                 with conn.cursor() as cursor:

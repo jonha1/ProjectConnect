@@ -33,7 +33,7 @@ export default function ProjectView({ userRole }: ProjectViewProps) {
   const [isBookmarked, setIsBookmarked] = useState<boolean | undefined>(undefined);
   const [isLoading, setIsLoading] = useState(true);
   const [creator, setCreator] = useState<string | null>(null);
-  const [title, setTitle] = useState<string | null>(null);
+  const [title, setTitle] = useState("");
   const [projectDetails, setProjectDetails] = useState<ProjectDetails | null>(null);
 
 
@@ -97,7 +97,7 @@ export default function ProjectView({ userRole }: ProjectViewProps) {
         },
         body: JSON.stringify({ 
           creatorusername: creator, 
-          title: projectTitle,
+          title: projectTitle.replace("-", " "),
           username: user
         }),
       });
@@ -121,7 +121,7 @@ export default function ProjectView({ userRole }: ProjectViewProps) {
         },
         body: JSON.stringify({ 
           creatorusername: creator, 
-          title: projectTitle,
+          title: projectTitle.replace("-", " "),
           username: cookieUsername
         }),
       });
@@ -146,7 +146,7 @@ export default function ProjectView({ userRole }: ProjectViewProps) {
         },
         body: JSON.stringify({ 
           creatorusername: creator, 
-          title: projectTitle,
+          title: projectTitle.replace("-", " "),
           username: cookieUsername
         }),
       });

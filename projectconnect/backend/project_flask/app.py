@@ -580,6 +580,7 @@ def verifyBookmark():
 @app.route('/addBookmark', methods=['POST'])
 def addBookmark():
     data = request.json
+    print(data)
     user = data.get('username')
     post = data.get('title')
     post_creator = data.get('creatorusername')
@@ -599,10 +600,7 @@ def retrieveBookmarks():
     result = user_bookmark.retrieveBookmarks()
 
     print(result)
-    if len(result) == 0 :
-        return jsonify(result), 400  # 400 for bad request (like duplicate entry)
-    else:
-        return jsonify(result), 200  # 201 for successful creation
+    return jsonify(result), 200  # 201 for successful creation
 
 @app.route('/deleteBookmark', methods=['POST'])
 def deleteBookmark():
