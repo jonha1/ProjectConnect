@@ -19,6 +19,25 @@ class Creator(Member):
     @staticmethod
     def deleteProject(creatorusername, title):
         return Project.deleteProject(creatorusername, title)
+      
+    def createProject(self, creatorusername, title, description, tag, links, contact, memberDescription, memberLinks, memberContact):
+        try:
+            # Validate that the creator exists in the database
+            # with self.get_db_connection() as conn:
+            #     with conn.cursor() as cursor:
+            #         cursor.execute("""
+            #             SELECT * FROM creators WHERE username = %s
+            #         """, (creatorusername,))
+            #         creator = cursor.fetchone()
+
+            #         if not creator:
+            #             return {"error": "Creator does not exist. Please register first."}
+
+            # Delegate project creation to the Project class
+            project_result = Project.buildProject(creatorusername, title, description,tag, links, contact ,memberDescription, memberLinks, memberContact)
+
+            if "error" in project_result:
+                return project_result  # Return any errors from the Project class
 
     @staticmethod
     def archiveProject(creatorusername, title):

@@ -42,3 +42,23 @@ class Member(User):
         except Exception as e:
             print(f"Error leaving project: {e}")
             return {"error": str(e)}
+    
+    @staticmethod
+    def get_projects_by_member(username):
+        try:
+            with Member.get_db_connection() as conn:
+                with conn.cursor() as cursor:
+                    cursor.execute("""
+                        SELECT p.*
+                        FROM joinedprojects jp
+                        JOIN projects p ON jp.projecttitle = p.title
+                        WHERE jp.membersusername = %s
+                        ORDER BY p.dateposted DESC;
+                    """, (username,))
+                    
+                    projects = cursor.fetchall()
+                return {"status": "success", "projects": projects or []}
+        except Exception as e:
+            print(f"Error fetching joined projects for member '{username}': {e}")
+            return {"status": "error", "message": f"Failed to fetch joined projects for member '{username}': {str(e)}"}
+        
