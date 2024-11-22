@@ -26,59 +26,8 @@ interface APIResponse {
   project: ProjectDetails;
 }
 
+
 type UserRole = "general" | "member" | "creator";
-
-interface EditModalProps {
-  projectDetails: ProjectDetails;
-  onClose: () => void;
-  onSave: (updatedDetails: Partial<ProjectDetails>) => Promise<void>;
-}
-
-const EditProjectModal: React.FC<EditModalProps> = ({ projectDetails, onClose, onSave }) => {
-  const [description, setDescription] = useState(projectDetails.description);
-  const [links, setLinks] = useState(projectDetails.links || "");
-  const [contact, setContact] = useState(projectDetails.contact || "");
-  const [title, setTitle] = useState(projectDetails.title || "");
-
-  const handleSubmit = async () => {
-    e.preventDefault();
-    const updatedDetails = { description, links, contact, title };
-    await onSave(updatedDetails);
-  };
-
-  return (
-    <div className="modal">
-      <div className="modal-content">
-        <h2>Edit Project</h2>
-        <form>
-          <label>
-            Title:
-            <textarea value={title} onChange={(e) => setTitle(e.target.value)} />
-          </label>
-          <label>
-            Contact Info:
-            <input type="text" value={contact} onChange={(e) => setContact(e.target.value)} />
-          </label>
-          <label>
-            Description:
-            <textarea value={description} onChange={(e) => setDescription(e.target.value)} />
-          </label>
-          <label>
-            Links:
-            <input type="text" value={links} onChange={(e) => setLinks(e.target.value)} />
-          </label>
-          
-          <button className="saveButton" onClick={handleSubmit}>
-            Save
-          </button>
-          <button className="cancelButton" onClick={onClose}>
-            Cancel
-          </button>
-        </form>
-      </div>
-    </div>
-  );
-};
 
 export default function ProjectView() {
   const [activeTab, setActiveTab] = useState<"everyone" | "members">("everyone");
@@ -87,7 +36,6 @@ export default function ProjectView() {
   const [projectDetails, setProjectDetails] = useState<ProjectDetails | null>(null);
   const [userRole, setUserRole] = useState<UserRole>();
   const pathname = usePathname();  
-  const [showEditModal, setShowEditModal] = useState(false);
 
   // Extract creatorUsername and title from pathname and fetch project info
   useEffect(() => {
@@ -297,33 +245,6 @@ export default function ProjectView() {
     }
   };
 
-  const handleEditSave = async (updatedDetails: Partial<ProjectDetails>) => {
-    if (!projectDetails) return;
-    try {
-      const response = await fetch("http://localhost:5001/editProject", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          creatorusername: "testuser",
-          title: "testproject",
-          new_details: { description: "Updated description" },
-        }),
-      });
-
-      if (response.ok) {
-        const updatedProject = await response.json();
-        setProjectDetails(updatedProject.project); // Update project details in state
-        setShowEditModal(false); // Close the modal
-        alert("Project updated successfully!");
-      } else {
-        alert("Error updating project.");
-      }
-    } catch (error) {
-      console.error("Error updating project:", error);
-      alert("An error occurred.");
-    }
-  };
-
   if (isLoading) {
     return (
       <div className="d-flex justify-content-center align-items-center" style={{ width: "100vw", height: "100vh" }}>
@@ -356,7 +277,9 @@ export default function ProjectView() {
             <p className="creator-name">{projectDetails.creatorusername || "Unknown Creator"}</p>
             <h3>Tag:</h3>
             <p className="creator-name"> {projectDetails.tag}</p>
-            <button className="view-profile-button">View Creator Profile</button>
+            <button className="view-profile-button" onClick={() => {
+              window.location.href = `/account?username=${projectDetails.creatorusername}`;
+            }}>View Creator Profile</button>
             {/* <button className="current-members-button">Current Members</button> */}
           </div>
           <div className="right-column">
@@ -417,7 +340,9 @@ export default function ProjectView() {
                 {projectDetails.isarchived ? "Unarchive" : "Archive"}
               </button>
               <button className="deleteButton" onClick={handleDeleteProject}>Delete</button>
-              <button className="editButton" onClick={() => setShowEditModal(true)}>
+              <button
+                type = "button" className="editButton" data-bs-toggle="modal" data-bs-target="#editAccountModal"
+              >
                 Edit
               </button>
               <button className="inviteButton">Invite</button>
@@ -429,13 +354,6 @@ export default function ProjectView() {
                 Leave Project
               </button>
             </div>
-          )}
-          {showEditModal && projectDetails && (
-            <EditProjectModal
-              projectDetails={projectDetails}
-              onClose={() => setShowEditModal(false)}
-              onSave={handleEditSave}
-            />
           )}
         </div>
       </div>
