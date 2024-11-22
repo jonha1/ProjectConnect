@@ -587,19 +587,6 @@ def verifyMembership():
         print(f"Error checking joined project info: {e}")
         return jsonify({"error": str(e)}), 500
 
-@app.route('/sendNotification', methods=['POST'])
-def sendNotification():
-    data = request.json
-    creator = data.get('creator')
-    recipient = data.get('recipient')
-    type = data.get('messagetype')
-    title = data.get('title')
-    result = Notification.sendNotification(recipient, creator, type, title)
-    if result["status"] == "error":
-        return jsonify(result), 400  # 400 for bad request (like duplicate entry)
-    else:
-        return jsonify(result), 201  # 201 for successful creation
-
 
 @app.route('/removeNotification', methods=['POST'])
 def removeNotification():
@@ -630,6 +617,19 @@ def retrieveNotifications():
         return result, 400   # 400 for bad request (like duplicate entry)
     else:
         return result, 201  # 201 for successful creation        
+
+@app.route('/sendNotification', methods=['POST'])
+def sendNotification():
+    data = request.json
+    touser = data.get('touserid')
+    fromuser = data.get('fromuserid')
+    type = data.get('messagetype')
+    title = data.get('projectitle')
+    result = Notification.sendNotification(touser, fromuser, type, title)
+    if result["status"] == "error":
+        return jsonify(result), 400  # 400 for bad request (like duplicate entry)
+    else:
+        return jsonify(result), 201  # 201 for successful creation
 
 '''
     Bookmark()

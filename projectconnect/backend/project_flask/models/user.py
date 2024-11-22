@@ -43,7 +43,7 @@ class User:
     
     @staticmethod
     def user_exists(username):
-                try:
+        try:
             with User.get_db_connection() as conn:
                 with conn.cursor() as cursor:
                     cursor.execute("""

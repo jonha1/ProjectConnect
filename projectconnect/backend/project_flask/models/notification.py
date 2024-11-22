@@ -17,27 +17,34 @@ class Notification:
         )
 
     def sendNotification(ToUserID, FromUser, MessageType, Title):
-        #self.toUser = ToUserID
-        #self.messageType = MessageType
-        #self.title = Title
         try:
             with Notification.get_db_connection() as conn:
                 with conn.cursor() as cursor:
-                    postgres_insert_query = """ 
-                        INSERT INTO notifications 
-                        (touserid, fromuserid, messagetype, title) 
-                        VALUES (%s, %s, %s, %s) RETURNING *;
+                    #see if that user already sent a notif
+                    verify_query = """
+                        SELECT * FROM notifications
+                        WHERE touserid = %s
+                        and fromuserid = %s
+                        and messagetype = %s
+                        and title = %s
                     """
-                    row_to_insert = (ToUserID, FromUser, MessageType, Title)
-                    cursor.execute(postgres_insert_query, row_to_insert)
-                    full_row = cursor.fetchone()
-                    #self.notificationID = full_row[0]
-                    #self.dateSent = full_row[5]
-                    conn.commit()
-                    return {"status": "success", "notification": full_row}
+                    cursor.execute(verify_query, (ToUserID, FromUser, MessageType, Title))
+                    exists = cursor.fetchone()
+                    if exists is None:
+                        postgres_insert_query = """ 
+                            INSERT INTO notifications 
+                            (touserid, fromuserid, messagetype, title) 
+                            VALUES (%s, %s, %s, %s) RETURNING *;
+                        """
+                        row_to_insert = (ToUserID, FromUser, MessageType, Title)
+                        cursor.execute(postgres_insert_query, row_to_insert)
+                        full_row = cursor.fetchone()
+                        conn.commit()
+                        return {"status": "success", "notification": full_row}
+                    return {"status": "error", "error": "notification already sent"}
         except Exception as e:
             print(f"Error sending notification: {e}")
-            return {"error": str(e)}
+            return {"status":"error", "error": str(e)}
 
     def retrieveNotifications(username):
         try:

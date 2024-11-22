@@ -37,8 +37,9 @@ export default function ProjectView() {
   const [title, setTitle] = useState("");
   const [projectDetails, setProjectDetails] = useState<ProjectDetails | null>(null);
   const [userRole, setUserRole] = useState<UserRole>();
-  const pathname = usePathname(); // Get the current route's pathname  
-  const [archived, setArchived] = useState("");
+  const pathname = usePathname(); // Get the current route's pathname
+  const [requestSent, setRequestSent] = useState(false);
+  // const [archived, setArchived] = useState("");
 
   // Extract creatorUsername and title from pathname and fetch project info
   useEffect(() => {
@@ -60,7 +61,7 @@ export default function ProjectView() {
 
   useEffect(() => {
     if (projectDetails) {
-      const currentUsername = Cookies.get('username') || "";
+      const currentUsername = getUsernameFromCookie();
       console.log("Verifying membership for user:", currentUsername);
   
       if(currentUsername == projectDetails.creatorusername){
@@ -72,11 +73,11 @@ export default function ProjectView() {
         // Run verifyMembership with updated projectDetails
         verifyMembership(currentUsername, projectDetails.creatorusername, projectDetails.title);
       }
-      if (projectDetails.isarchived){
-        setArchived("Unarchive");
-      } else {
-        setArchived("Archive");
-      }
+      // if (projectDetails.isarchived){
+      //   setArchived("Unarchive");
+      // } else {
+      //   setArchived("Archive");
+      // }
 
     }
   }, [projectDetails]);
@@ -299,6 +300,32 @@ export default function ProjectView() {
     }
   };
 
+  const sendNotif = async (toUser: string | null, projectTitle: string | null, messageType: string | null) => {
+    const cookieUsername = getUsernameFromCookie();
+    if (!toUser || !messageType) return;
+    try {
+      const response = await fetch("http://localhost:5001/sendNotification", {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ 
+          touserid: toUser, 
+          fromuserid: cookieUsername,
+          messagetype: messageType,
+          projectitle: projectTitle
+        }),
+      });
+      const data = await response.json();
+      if (data.status == 'error') {
+        throw new Error(`HTTP error! status: ${data.error}`);
+      }
+    } catch (error) {
+      console.error("Error fetching sending notification:", error);
+    }
+  };
+
   if (isLoading) {
     return (
       <div
@@ -378,7 +405,13 @@ export default function ProjectView() {
                   <div className="spacer"></div>
                   {userRole === "general" && (
                     <div className="buttonContainer">
-                      <button className="requestJoinButton">Request Join</button>
+                      <button className="requestJoinButton" 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          sendNotif(projectDetails.creatorusername,projectDetails.title, "Join");
+                          setRequestSent(true);
+                        }}
+                      > {requestSent ? "Requested" : "Request Join"} </button>
                     </div>
                   )}
                 </div>
