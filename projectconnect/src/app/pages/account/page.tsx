@@ -70,9 +70,12 @@ export default function Account() {
   const [bookmarks, setBookmarks] = useState([]);
 
   useEffect(() => {
-    const cookieUsername = getUsernameFromCookie(); 
-    if (cookieUsername) {
-      setUsername(cookieUsername); 
+    const searchParams = new URLSearchParams(window.location.search);
+    const urlUsername = searchParams.get("username");
+    const usernameToFetch = urlUsername || getUsernameFromCookie();
+
+    if (usernameToFetch ) {
+      setUsername(usernameToFetch );
 
       const fetchUserData = async () => {
         try {
@@ -84,7 +87,7 @@ export default function Account() {
             headers: {
               "Content-Type": "application/json",
             },
-            body: JSON.stringify({ username: cookieUsername }),
+            body: JSON.stringify({ username: usernameToFetch }),
           });
 
           const userResult = await userResponse.json();
@@ -104,7 +107,7 @@ export default function Account() {
             headers: {
               "Content-Type": "application/json",
             },
-            body: JSON.stringify({ creatorusername: cookieUsername }),
+            body: JSON.stringify({ creatorusername: usernameToFetch }),
           });
           
           const postsResult = await postsResponse.json();
@@ -118,6 +121,30 @@ export default function Account() {
           console.error("Error fetching data:", error);
         } finally {
           setIsLoading(false);
+        }
+      };
+
+
+
+      const fetchJoinedProjects = async () => {
+        try{
+          const response = await fetch("http://127.0.0.1:5001/projects/by_member", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ username: usernameToFetch }),
+          });
+
+          const result = await response.json();
+          if (response.ok) {
+            setJoinedProjects(result.projects || []);
+          } else {
+            console.error("Error fetching joined projects:", result.message);
+          }
+        }
+        catch (error) {
+          console.error("Error fetching joined projects:", error);
         }
       };
 
@@ -308,6 +335,7 @@ export default function Account() {
               </div>
             </div>
           </div>
+          
         </div>
 
         <div className="mainContent">
