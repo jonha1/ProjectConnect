@@ -75,9 +75,18 @@ export default function ProjectView() {
   const [requestSent, setRequestSent] = useState(false);
   const [tempProjectDetails, setTempProjectDetails] = useState<ProjectDetails | null>(null);
   const pathname = usePathname(); // Get the current route's pathname
+  const [textareaValue, setTextareaValue] = useState(""); 
+  const [isInviteModalVisible, setIsInviteModalVisible] = useState(false); // Separate state for Invite modal
 
+  // Function to open the Invite modal
+  const openInviteModal = () => {
+    setIsInviteModalVisible(true);
+  };
 
-
+  // Function to close the Invite modal
+  const closeInviteModal = () => {
+    setIsInviteModalVisible(false);
+  };
 
   // Extract creatorUsername and title from pathname and fetch project info
   useEffect(() => {
@@ -513,6 +522,10 @@ export default function ProjectView() {
     );
   }
 
+  const handleInvite = async (username: string | null, title: string | null) => {
+    sendNotif(username, title, "Invite");
+  };
+
   return (
     <>
       <Navbar />
@@ -604,7 +617,7 @@ export default function ProjectView() {
               >
                 Edit
               </button>
-              <button className="inviteButton" type="button" data-bs-toggle="modal" data-bs-target="#InviteModal">
+              <button className="inviteButton" type="button" onClick={openInviteModal}>
                 Invite
               </button>
             </div>
@@ -672,6 +685,55 @@ export default function ProjectView() {
                       onClick={handleSave}
                     >
                       Save
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+          {isInviteModalVisible && (
+            <div
+              className="modal fade show"
+              id="InviteModal"
+              tabIndex={-1}
+              role="dialog"
+              aria-labelledby="inviteModalLabel"
+              aria-hidden={!isInviteModalVisible}
+              style={{ display: "block" }} // Ensure visibility matches modal state
+            >
+              <div className="modal-dialog" role="document">
+                <div className="modal-content">
+                  <div className="modal-header">
+                    <h5 className="modal-title" id="inviteModalLabel">
+                      Invite a User
+                    </h5>
+                  </div>
+                  <div className="modal-body">
+                    {/* Invite Textarea */}
+                    <AutoResizeTextarea
+                      placeholder="Enter a username to invite"
+                      value={textareaValue}
+                      onChange={(value) => setTextareaValue(value)}
+                    />
+                  </div>
+                  <div className="modal-footer">
+                    <button
+                      type="button"
+                      className="btn btn-secondary"
+                      onClick={closeInviteModal} // Close modal without action
+                    >
+                      Close
+                    </button>
+                    <button
+                      type="button"
+                      className="btn btn-primary"
+                      onClick={(event) => {
+                        event.preventDefault();
+                        handleInvite(textareaValue, projectDetails?.title || null); // Send invite
+                        closeInviteModal(); // Close the modal
+                      }}
+                    >
+                      Send Invite
                     </button>
                   </div>
                 </div>
