@@ -5,10 +5,10 @@ from flask import Flask, request, jsonify, make_response
 from project_flask.models.account import Account
 from project_flask.models.member import Member
 from project_flask.models.creator import Creator
-# from project_flask.models.user import User
-
 from project_flask.models.project import Project
 from project_flask.models.user import User
+from project_flask.models.bookmark import Bookmark
+from project_flask.models.notification import Notification
 
 load_dotenv()
 app = Flask(__name__)
@@ -495,6 +495,103 @@ def get_projects_by_member():
     if "error" in result:
         return jsonify(result), 404
     return jsonify(result), 200
+
+
+@app.route('/removeNotification', methods=['POST'])
+def removeNotification():
+    data = request.json
+    notif_id = data.get('notificationid')
+    result = Notification.removeNotification(notif_id)
+    if result["status"] == "error":
+        return jsonify(result), 400  # 400 for bad request (like duplicate entry)
+    else:
+        return jsonify(result), 201  # 201 for successful creation
+
+@app.route('/acceptNotification', methods=['POST'])
+def acceptNotification():
+    data = request.json
+    notif_id = data.get('notificationid')
+    result = Notification.acceptNotification(notif_id)
+    if result["status"] == "error":
+        return jsonify(result), 400  # 400 for bad request (like duplicate entry)
+    else:
+        return jsonify(result), 201  # 201 for successful creation
+
+@app.route('/retrieveNotifications', methods=['POST'])
+def retrieveNotifications():
+    data = request.json
+    user = data.get('username')
+    result = Notification.retrieveNotifications(user)
+    return result, 201  # 201 for successful creation        
+
+@app.route('/sendNotification', methods=['POST'])
+def sendNotification():
+    data = request.json
+    touser = data.get('touserid')
+    fromuser = data.get('fromuserid')
+    type = data.get('messagetype')
+    title = data.get('projectitle')
+    result = Notification.sendNotification(touser, fromuser, type, title)
+    if result["status"] == "error":
+        return jsonify(result), 400  # 400 for bad request (like duplicate entry)
+    else:
+        return jsonify(result), 201  # 201 for successful creation
+
+'''
+    Bookmark()
+
+    Flask routes relating to the Bookmarks python class. Currently the data is coming
+    in from postman and should be altered to recieve the information from the fronend.
+    Currently only have add bookmark, retrieve bookmark, and view all bookmarks.
+'''
+
+@app.route('/verifyBookmark', methods=['POST'])
+def verifyBookmark():
+    data = request.json
+    user = data.get('username')
+    post = data.get('title')
+    post_creator = data.get('creatorusername')
+    user_bookmark = Bookmark(user)
+    result = {"status": "success", "result": user_bookmark.verifyBookmark(post, post_creator)}
+    return jsonify(result), 201
+
+@app.route('/addBookmark', methods=['POST'])
+def addBookmark():
+    data = request.json
+    user = data.get('username')
+    post = data.get('title')
+    post_creator = data.get('creatorusername')
+    user_bookmark = Bookmark(user)
+    result = user_bookmark.addBookmark(post, post_creator)
+    if result["status"] == "error":
+        return jsonify(result), 400  # 400 for bad request (like duplicate entry)
+    else:
+        return jsonify(result), 201  # 201 for successful creation
+
+@app.route('/retrieveBookmarks', methods=['POST'])
+def retrieveBookmarks():
+    data = request.json
+    user = data.get('username')
+    print(user)
+    user_bookmark = Bookmark(user)
+    print(user_bookmark.username, " Bookmarks: ")
+    result = user_bookmark.retrieveBookmarks()
+
+    print(result)
+    return jsonify(result), 201  # 201 for successful creation
+
+@app.route('/deleteBookmark', methods=['POST'])
+def deleteBookmark():
+    data = request.json
+    user = data.get('username')
+    post = data.get('title')
+    post_creator = data.get('creatorusername')
+    user_bookmark = Bookmark(user)
+    result = user_bookmark.deleteBookmark(post, post_creator)
+    if result["status"] == "error":
+        return jsonify(result), 400  # 400 for bad request (like duplicate entry)
+    else:
+        return jsonify(result), 201  # 201 for successful creation
 
 
 if __name__ == "__main__":

@@ -67,8 +67,8 @@ export default function Account() {
   const [skills, setSkills] = useState("Loading...");
   const [editComponent, setEditComponent] = useState("");
   const [textareaValue, setTextareaValue] = useState(""); 
-
   const [isLoading, setIsLoading] = useState(true);
+  const [bookmarks, setBookmarks] = useState([]);
 
   useEffect(() => {
     const cookieUsername = getUsernameFromCookie(); 
@@ -154,6 +154,36 @@ export default function Account() {
       setContactInfo("Username not found.");
       setSkills("Username not found.");
     }
+
+    const fetchBookmarks = async () => {
+      try {
+        const response = await fetch("http://localhost:5001/retrieveBookmarks", {
+          method: "POST",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ username: cookieUsername }),
+        });
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        // Transform the response data to match Postcard prop structure
+        const transformedData = data.bookmarks.map((item) => ({
+          postName: item.title, // Use `title` for postName
+          postInfo: item.description, // Use `description` for postInfo
+          creatorName: item.creatorusername, // Use `creatorusername` for creatorName
+        }));
+        setBookmarks(transformedData); // Update the state with transformed data  
+      } catch (error) {
+        console.error("Error fetching bookmarks:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchBookmarks();
+
   }, []);
   
   if (isLoading) {
@@ -365,8 +395,22 @@ export default function Account() {
                 </div>
               </div>
             )}
-            {activeTab === "bookmarks" && (
               <div className="bookmarks">
+                <div className={styles.postContainer}>
+                  {bookmarks.length > 0 ? (
+                    bookmarks.map((post, index) => (
+                      <Postcard
+                        key={index}
+                        postName={post.postName}
+                        postInfo={post.postInfo}
+                        creatorName={post.creatorName}
+                        className={styles.postCard} // Apply class to each card
+                      />
+                    ))
+                  ) : (
+                    <p>No Bookmarked posts found. </p>
+                  )}
+                </div>
               </div>
             )}
           </div>
