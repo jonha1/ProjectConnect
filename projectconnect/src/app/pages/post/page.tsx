@@ -116,42 +116,52 @@ export default function ProjectView() {
   }, [projectDetails]);
 
   const verifyMembership = async (
-    memberusername: string | null,
-    creator: string | null,
-    projectTitle: string | null
-  ) => {
-    if (!memberusername || !creator || !projectTitle) return;
-  
-    try {
-      const response = await fetch("http://localhost:5001/verifyMembership", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          membersusername: memberusername,
-          creatorusername: creator,
-          title: projectTitle,
-        }),
-      });
-  
-      // Parse response JSON
-      const data = await response.json();
-  
-      // Check the "inProject" field to determine the user's role
-      if (data.inProject) {
-        setUserRole("member"); // Set role to member
-      } else {
-        setUserRole("general"); // User is not in the project
-      }
-    } catch (error) {
-      // Only log critical errors (e.g., network issues)
-      console.error("Critical error verifying membership:", error);
-      setUserRole("general"); // Fallback to general on error
-    } finally {
-      setIsLoading(false);
+  memberusername: string | null,
+  creator: string | null,
+  projectTitle: string | null
+) => {
+  if (!memberusername || !creator || !projectTitle) return;
+
+  try {
+    const response = await fetch("http://localhost:5001/verifyMembership", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        membersusername: memberusername,
+        creatorusername: creator,
+        title: projectTitle,
+      }),
+    });
+
+    // Check for HTTP errors
+    if (!response.ok) {
+      console.error("HTTP error:", response.statusText);
+      setUserRole("general");
+      return;
     }
-  };
+
+    const data = await response.json();
+    console.log("Response data:", data);
+
+    // Determine user role based on response message
+    if (data.message.includes("is in the project")) {
+      setUserRole("member"); // Set role to member
+    } else if (data.message.includes("is not in the project")) {
+      setUserRole("general"); // Set role to general
+    } else {
+      console.error("Unexpected response message:", data.message);
+      setUserRole("general");
+    }
+  } catch (error) {
+    console.error("Critical error verifying membership:", error);
+    setUserRole("general"); // Fallback to general on error
+  } finally {
+    setIsLoading(false);
+  }
+};
+
   
 
   const fetchProjectInformation = async (creator: string | null, projectTitle: string | null) => {

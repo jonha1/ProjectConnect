@@ -576,19 +576,27 @@ def verifyMembership():
 
     # Check if any of the required fields are missing
     if not memberusername or not creatorusername or not title:
-        return jsonify({"error": "Missing memberusername, creatorusername, or title"}), 400
+        return jsonify({"status": "failure", "message": "Missing required fields"}), 400
 
     try:
-        # Call the method in the Member model to check if the member is part of the project
+        # Check if the member is part of the project
         in_project = Member.verifyMembership(memberusername, title, creatorusername)
 
+        # Always return a 200 status with success message
         if in_project:
-            return jsonify({"status": "success", "message": f"Member {memberusername} is in the project {title}."}), 200
+            return jsonify({
+                "status": "success",
+                "message": f"Member {memberusername} is in the project {title}."
+            }), 200
         else:
-            return jsonify({"status": "failure", "message": f"Member {memberusername} is not in the project {title}."}), 404
+            return jsonify({
+                "status": "success",
+                "message": f"Member {memberusername} is not in the project {title}."
+            }), 200
     except Exception as e:
-        print(f"Error checking joined project info: {e}")
-        return jsonify({"error": str(e)}), 500
+        print(f"Error checking membership: {e}")
+        return jsonify({"status": "error", "message": str(e)}), 500
+
     
 @app.route('/editProject', methods=['POST'])
 def edit_project():
