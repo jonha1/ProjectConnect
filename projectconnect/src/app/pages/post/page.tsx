@@ -69,11 +69,10 @@ export default function ProjectView() {
   const [isModalVisible, setIsModalVisible] = useState(false); // State for modal visibility
   const [textareaValue, setTextareaValue] = useState(""); // State for textarea value
   const [isLoading, setIsLoading] = useState(true);
-  const [creator, setCreator] = useState("");
-  const [title, setTitle] = useState("");
+  const [creator, setCreator] = useState<string | null>(null);
+  const [title, setTitle] = useState<string | null>(null);
   const [projectDetails, setProjectDetails] = useState<ProjectDetails | null>(null);
-
-  const [userRole, setUserRole] = useState<UserRole>();
+  const [userRole, setUserRole] = useState<UserRole | undefined>(undefined);
   const [requestSent, setRequestSent] = useState(false);
   const [tempProjectDetails, setTempProjectDetails] = useState<ProjectDetails | null>(null);
   const pathname = usePathname(); // Get the current route's pathname
@@ -102,7 +101,7 @@ export default function ProjectView() {
 
   useEffect(() => {
     if (projectDetails) {
-      const currentUsername = getUsernameFromCookie();
+      const currentUsername: string | null = getUsernameFromCookie() || null;
       console.log("Verifying membership for user:", currentUsername);
   
       if(currentUsername == projectDetails.creatorusername){
@@ -179,24 +178,29 @@ export default function ProjectView() {
 
   const verifyBookmark = async (creator: string | null, projectTitle: string | null, user: string | undefined) => {
     try {
-      const response = await fetch("http://localhost:5001/verifyBookmark", {
-        method: "POST",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ 
-          creatorusername: creator, 
-          title: projectTitle.replace("-", " "),
-          username: user
-        }),
-      });
-      const data = await response.json();
-      setIsBookmarked(data.result);
+        // Ensure projectTitle is not null, use a default value if it is
+        const sanitizedTitle = projectTitle ? projectTitle.replace("-", " ") : "";
+
+        const response = await fetch("http://localhost:5001/verifyBookmark", {
+            method: "POST",
+            credentials: "include",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                creatorusername: creator,
+                title: sanitizedTitle,
+                username: user,
+            }),
+        });
+
+        const data = await response.json();
+        setIsBookmarked(data.result);
     } catch (error) {
-      console.error("Error fetching adding bookmark:", error);
+        console.error("Error verifying bookmark:", error);
     }
-  };
+};
+
 
 
   const addBookmark = async (creator: string | null, projectTitle: string | null) => {
@@ -337,29 +341,33 @@ export default function ProjectView() {
 
   const sendNotif = async (toUser: string | null, projectTitle: string | null, messageType: string | null) => {
     const cookieUsername = getUsernameFromCookie();
-    if (!toUser || !messageType) return;
+    if (!toUser || !messageType || !projectTitle) return; // Check for null projectTitle
     try {
-      const response = await fetch("http://localhost:5001/sendNotification", {
-        method: "POST",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ 
-          touserid: toUser, 
-          fromuserid: cookieUsername,
-          messagetype: messageType,
-          projectitle: projectTitle.replace("-", " ")
-        }),
-      });
-      const data = await response.json();
-      if (data.status == 'error') {
-        throw new Error(`HTTP error! status: ${data.error}`);
-      }
+        const sanitizedTitle = projectTitle.replace("-", " "); // Safe to call .replace now
+
+        const response = await fetch("http://localhost:5001/sendNotification", {
+            method: "POST",
+            credentials: "include",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                touserid: toUser,
+                fromuserid: cookieUsername,
+                messagetype: messageType,
+                projectitle: sanitizedTitle,
+            }),
+        });
+
+        const data = await response.json();
+        if (data.status == 'error') {
+            throw new Error(`HTTP error! status: ${data.error}`);
+        }
     } catch (error) {
-      console.error("Error fetching sending notification:", error);
+        console.error("Error fetching sending notification:", error);
     }
-  };
+};
+
 
   const handleInvite = async (username: string | null, title: string | null) => {
     sendNotif(username, title, "Invite");

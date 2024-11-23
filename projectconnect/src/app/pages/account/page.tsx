@@ -1,15 +1,15 @@
 "use client";
-import React, { useEffect } from 'react';
-import { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Navbar from "../../components/navbar";
 import "../../styles/account.page.css";
 import Postcard from "../../components/post_card";
-import styles from "../../styles/searchpage.module.css"; 
-import { useSearchParams } from "next/navigation"; 
-import { getUsernameFromCookie } from "../../lib/cookieUtils"; 
+import styles from "../../styles/searchpage.module.css";
+import { useSearchParams } from "next/navigation";
+import { getUsernameFromCookie } from "../../lib/cookieUtils";
 import { faPencil } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
+// Define types for projects and bookmarks
 interface Project {
   creatorusername: string;
   title: string;
@@ -18,8 +18,14 @@ interface Project {
   memberDescription: string;
   memberLinks: string;
   memberContactInfo: string;
-  dateposted: string; 
+  dateposted: string;
   isarchived: boolean;
+}
+
+interface Bookmark {
+  postName: string;
+  postInfo: string;
+  creatorName: string;
 }
 
 type AutoResizeTextareaProps = {
@@ -31,8 +37,8 @@ type AutoResizeTextareaProps = {
 function AutoResizeTextarea({ placeholder, value, onChange }: AutoResizeTextareaProps) {
   const handleChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
     const textarea = event.target;
-    textarea.style.height = 'auto';  
-    textarea.style.height = `${textarea.scrollHeight}px`;  
+    textarea.style.height = "auto";
+    textarea.style.height = `${textarea.scrollHeight}px`;
     onChange(textarea.value);
   };
 
@@ -43,11 +49,11 @@ function AutoResizeTextarea({ placeholder, value, onChange }: AutoResizeTextarea
       placeholder={placeholder}
       className="inputBox"
       style={{
-        width: '100%',
-        minHeight: '50px',
-        resize: 'none',
-        overflow: 'hidden',
-        color: 'black',
+        width: "100%",
+        minHeight: "50px",
+        resize: "none",
+        overflow: "hidden",
+        color: "black",
       }}
       required
     />
@@ -62,12 +68,12 @@ export default function Account() {
   const [displayName, setDisplayName] = useState("Loading...");
   const [aboutMe, setAboutMe] = useState("Loading...");
   const [contactInfo, setContactInfo] = useState("Loading...");
-  const [postsCreated, setPostsCreated] = useState<Project[]>([]); 
+  const [postsCreated, setPostsCreated] = useState<Project[]>([]);
   const [skills, setSkills] = useState("Loading...");
   const [editComponent, setEditComponent] = useState("");
-  const [textareaValue, setTextareaValue] = useState(""); 
+  const [textareaValue, setTextareaValue] = useState("");
   const [isLoading, setIsLoading] = useState(true);
-  const [bookmarks, setBookmarks] = useState([]);
+  const [bookmarks, setBookmarks] = useState<Bookmark[]>([]);
 
   useEffect(() => {
     const searchParams = new URLSearchParams(window.location.search);
@@ -109,11 +115,11 @@ export default function Account() {
             },
             body: JSON.stringify({ creatorusername: usernameToFetch }),
           });
-          
+
           const postsResult = await postsResponse.json();
-          
+
           if (postsResponse.ok) {
-            setPostsCreated(postsResult.projects || []); 
+            setPostsCreated(postsResult.projects || []);
           } else {
             console.error("Error fetching projects:", postsResult.message);
           }
@@ -171,13 +177,13 @@ export default function Account() {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
         const data = await response.json();
-        // Transform the response data to match Postcard prop structure
-        const transformedData = data.bookmarks.map((item) => ({
-          postName: item.title, // Use `title` for postName
-          postInfo: item.description, // Use `description` for postInfo
-          creatorName: item.creatorusername, // Use `creatorusername` for creatorName
+
+        const transformedData = data.bookmarks.map((item: { title: string; description: string; creatorusername: string }): Bookmark => ({
+          postName: item.title,
+          postInfo: item.description,
+          creatorName: item.creatorusername,
         }));
-        setBookmarks(transformedData); // Update the state with transformed data  
+        setBookmarks(transformedData);
       } catch (error) {
         console.error("Error fetching bookmarks:", error);
       } finally {
@@ -185,44 +191,21 @@ export default function Account() {
       }
     };
     fetchBookmarks();
-
-  }, []);  
-
+  }, []);
 
   if (isLoading) {
     return (
-      <div
-        className="d-flex justify-content-center align-items-center"
-        style={{
-          width: "100vw",
-          height: "100vh",
-        }}
-      >
-        <div
-          className="spinner-border"
-          role="status"
-          style={{ width: "5rem", height: "5rem" , color: "#2D2D2D" }}
-        >
+      <div className="d-flex justify-content-center align-items-center" style={{ width: "100vw", height: "100vh" }}>
+        <div className="spinner-border" role="status" style={{ width: "5rem", height: "5rem", color: "#2D2D2D" }}>
           <span className="sr-only">Loading...</span>
         </div>
       </div>
     );
   }
 
-  {postsCreated.map((post, index) => (
-    <Postcard
-      key={index}
-      postName={post.title || "Untitled"} 
-      postInfo={post.description || "No description available"}
-      creatorName={post.creatorusername || "Unknown creator"}
-      className={styles.postCard}
-    />
-  ))}
-
   const handleEdit = (component: string) => {
     setEditComponent(component);
 
-    // Set the initial value based on the component being edited
     switch (component) {
       case "About Me":
         setTextareaValue(aboutMe);
@@ -238,26 +221,22 @@ export default function Account() {
     }
   };
 
-  const updateProfile = async (
-    username: string,
-    column: string,
-    value: string
-  ): Promise<void> => {
+  const updateProfile = async (username: string, column: string, value: string): Promise<void> => {
     try {
-      const response = await fetch('http://localhost:5001/updateProfileFromEdit', {
-        method: 'POST',
+      const response = await fetch("http://localhost:5001/updateProfileFromEdit", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           username: username,
-          column: column, 
+          column: column,
           value: value,
         }),
       });
-  
+
       const result = await response.json();
-  
+
       if (response.ok) {
         console.log("updated successfully:", result.message);
       } else {
@@ -267,10 +246,8 @@ export default function Account() {
       console.error(`Error updating ${column}:`, error);
     }
   };
-  
 
   const handleSave = () => {
-    // Save the updated value based on the `editComponent`
     let columnToEdit = "";
     switch (editComponent) {
       case "About Me":
@@ -291,7 +268,6 @@ export default function Account() {
 
     updateProfile(username, columnToEdit, textareaValue);
   };
-
 
   return (
     <div className="wrapper">
