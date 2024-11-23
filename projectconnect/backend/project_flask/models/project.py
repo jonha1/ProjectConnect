@@ -63,13 +63,7 @@ class Project:
         # Define required fields
         fields = ["creatorusername", "title", "description", "tag", "links", "contact", "memberdescription", "memberlinks","membercontactinfo"]
         values = [creatorusername, title, description, tag, links, contact, memberDescription, memberLinks, memberContact]
-
-
-        # for key, value in optional_columns.items():
-        #     if value is not None:
-        #         fields.append(key)
-        #         values.append(value)
-
+        
         # Dynamically build the SQL query based on available fields
         field_names = ", ".join(fields)
         placeholders = ", ".join(["%s"] * len(fields))

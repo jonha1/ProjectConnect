@@ -72,3 +72,23 @@ class Creator(Member):
         except Exception as e:
             print(f"Error updating project '{title}' by '{creatorusername}': {e}")
             return {"error": f"An error occurred: {str(e)}"}
+
+
+    def createProject(self, creatorusername, title, description, tag, links, contact, memberDescription, memberLinks, memberContact):
+        try:
+
+            # Delegate project creation to the Project class
+            project_result = Project.buildProject(creatorusername, title, description,tag, links, contact ,memberDescription, memberLinks, memberContact)
+
+            if "error" in project_result:
+                return project_result  # Return any errors from the Project class
+
+            return {
+                "status": "success",
+                "message": f"Project '{title}' created successfully.",
+                "project": project_result.get("project"),
+            }
+
+        except Exception as e:
+            print(f"Error in createProject: {e}")
+            return {"error": f"Failed to create project: {str(e)}"}
