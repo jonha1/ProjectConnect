@@ -71,9 +71,12 @@ export default function Account() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const cookieUsername = getUsernameFromCookie(); 
-    if (cookieUsername) {
-      setUsername(cookieUsername); 
+    const searchParams = new URLSearchParams(window.location.search);
+    const urlUsername = searchParams.get("username");
+    const usernameToFetch = urlUsername || getUsernameFromCookie();
+
+    if (usernameToFetch ) {
+      setUsername(usernameToFetch );
 
       const fetchUserData = async () => {
         try {
@@ -85,7 +88,7 @@ export default function Account() {
             headers: {
               "Content-Type": "application/json",
             },
-            body: JSON.stringify({ username: cookieUsername }),
+            body: JSON.stringify({ username: usernameToFetch }),
           });
 
           const userResult = await userResponse.json();
@@ -105,7 +108,7 @@ export default function Account() {
             headers: {
               "Content-Type": "application/json",
             },
-            body: JSON.stringify({ creatorusername: cookieUsername }),
+            body: JSON.stringify({ creatorusername: usernameToFetch }),
           });
           
           const postsResult = await postsResponse.json();
@@ -130,7 +133,7 @@ export default function Account() {
             headers: {
               "Content-Type": "application/json",
             },
-            body: JSON.stringify({ username: cookieUsername }),
+            body: JSON.stringify({ username: usernameToFetch }),
           });
 
           const result = await response.json();
@@ -302,6 +305,7 @@ export default function Account() {
               </div>
             </div>
           </div>
+          
         </div>
 
         <div className="mainContent">

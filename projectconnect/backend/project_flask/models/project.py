@@ -63,13 +63,7 @@ class Project:
         # Define required fields
         fields = ["creatorusername", "title", "description", "tag", "links", "contact", "memberdescription", "memberlinks","membercontactinfo"]
         values = [creatorusername, title, description, tag, links, contact, memberDescription, memberLinks, memberContact]
-
-
-        # for key, value in optional_columns.items():
-        #     if value is not None:
-        #         fields.append(key)
-        #         values.append(value)
-
+        
         # Dynamically build the SQL query based on available fields
         field_names = ", ".join(fields)
         placeholders = ", ".join(["%s"] * len(fields))
@@ -304,6 +298,36 @@ class Project:
         except Exception as e:
             print(f"Error fetching projects for creator '{creatorusername}': {e}")
             return {"error": f"Failed to fetch projects for creator '{creatorusername}': {str(e)}"}
+        
+    @staticmethod
+    def updateProjectDetails(creatorusername, title, updates):
+        if not updates:
+            return {"status": "error", "message": "No updates provided."}
+        
+        try:
+            # Build the dynamic SQL query based on the updates
+            set_clause = ", ".join([f"{key} = %s" for key in updates.keys()])
+            values = list(updates.values())
+            values.extend([creatorusername, title])  # Add WHERE clause values
+
+            query = f"""
+                UPDATE projects
+                SET {set_clause}
+                WHERE creatorusername = %s AND title = %s
+            """
+
+            with Project.get_db_connection() as conn:
+                with conn.cursor() as cursor:
+                    cursor.execute(query, values)
+                    if cursor.rowcount > 0:
+                        conn.commit()
+                        return {"status": "success", "message": "Project details updated successfully."}
+                    else:
+                        return {"status": "error", "message": "No matching project found or no changes made."}
+        except Exception as e:
+            print(f"Error updating project: {e}")
+            return {"status": "error", "message": f"Database error: {str(e)}"}
+
 
 
 
