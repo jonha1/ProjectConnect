@@ -659,9 +659,9 @@ def sendNotification():
     data = request.json
     touser = data.get('touserid')
     fromuser = data.get('fromuserid')
-    type = data.get('messagetype')
+    messagetype = data.get('messagetype')
     title = data.get('projectitle')
-    result = Notification.sendNotification(touser, fromuser, type, title)
+    result = Notification.sendNotification(touser, fromuser, messagetype, title)
     if result["status"] == "error":
         return jsonify(result), 400  # 400 for bad request (like duplicate entry)
     else:

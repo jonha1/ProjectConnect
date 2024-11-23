@@ -185,7 +185,7 @@ export default function ProjectView() {
         },
         body: JSON.stringify({
           creatorusername: creator,
-          title: projectTitle,
+          title: projectTitle.replace("-", " "),
         }),
       });
       
@@ -389,6 +389,7 @@ export default function ProjectView() {
         if (data.status == 'error') {
             throw new Error(`HTTP error! status: ${data.error}`);
         }
+        alert(data.result);
     } catch (error) {
         console.error("Error fetching sending notification:", error);
     }
