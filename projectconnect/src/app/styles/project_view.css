@@ -123,9 +123,7 @@ h2, h3 {
 .deleteButton,
 .editButton,
 .leaveButton,
-.inviteButton,
-.saveButton,
-.cancelButton {
+.inviteButton {
   padding: 8px 12px;
   border: none;
   border-radius: 5px;
@@ -157,9 +155,7 @@ h2, h3 {
 .deleteButton:hover,
 .editButton:hover,
 .leaveButton:hover,
-.inviteButton:hover,
-.saveButton:hover,
-.cancelButton:hover {
+.inviteButton:hover {
   opacity: 0.8;
 }
 
@@ -176,52 +172,4 @@ h2, h3 {
 
 .bookmark-icon:hover {
   opacity: 0.8;
-}
-
-.modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.modal-content {
-  background: #2d2d2d;
-  padding: 20px;
-  border-radius: 8px;
-  width: 400px;
-  text-align: left;
-}
-
-.modal-content form {
-  display: flex;
-  flex-direction: column;
-}
-
-.modal-content label {
-  margin-bottom: 10px;
-}
-
-.modal-content input,
-.modal-content textarea {
-  width: 100%;
-  margin-bottom: 15px;
-  background-color: #ffffff;
-  padding: 8px 12px;
-  border: none;
-  border-radius: 5px;
-}
-
-.saveButton {
-  background-color: #6c757d;
-}
-
-.cancelButton {
-  margin-top: 10px;
-  background-color: #6c757d;
 }

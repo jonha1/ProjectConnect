@@ -7,7 +7,7 @@ import { faBookmark as emptyBookmark } from "@fortawesome/free-regular-svg-icons
 import Navbar from "../../components/navbar";
 import "../../styles/project_view.css";
 import { getUsernameFromCookie } from "../../lib/cookieUtils";
-import Cookies from "js-cookie";
+
 
 // Define the type for project details
 interface ProjectDetails {
@@ -18,12 +18,13 @@ interface ProjectDetails {
   memberdescription?: string;
   memberlinks?: string;
   membercontactinfo?: string;
-  isarchived: boolean;
+  isarchived: boolean; 
   tag: string;
-  contact: string;
 }
 
-type UserRole = "general" | "member" | "creator";
+interface APIResponse {
+  project: ProjectDetails;
+}
 
 type AutoResizeTextareaProps = {
   placeholder: string;
@@ -34,8 +35,8 @@ type AutoResizeTextareaProps = {
 function AutoResizeTextarea({ placeholder, value, onChange }: AutoResizeTextareaProps) {
   const handleChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
     const textarea = event.target;
-    textarea.style.height = "auto";
-    textarea.style.height = `${textarea.scrollHeight}px`;
+    textarea.style.height = 'auto';  
+    textarea.style.height = `${textarea.scrollHeight}px`;  
     onChange(textarea.value);
   };
 
@@ -46,40 +47,32 @@ function AutoResizeTextarea({ placeholder, value, onChange }: AutoResizeTextarea
       placeholder={placeholder}
       className="inputBox"
       style={{
-        width: "100%",
-        minHeight: "50px",
-        resize: "none",
-        overflow: "hidden",
-        color: "black",
+        width: '100%',
+        minHeight: '50px',
+        resize: 'none',
+        overflow: 'hidden',
+        color: 'black',
       }}
       required
     />
   );
 }
 
-interface APIResponse {
-  project: ProjectDetails;
-}
-
+type UserRole = "general" | "member" | "creator";
 
 
 export default function ProjectView() {
   const [activeTab, setActiveTab] = useState<"everyone" | "members">("everyone");
   const [isBookmarked, setIsBookmarked] = useState();
-  const [isModalVisible, setIsModalVisible] = useState(false); // State for modal visibility
-  const [textareaValue, setTextareaValue] = useState(""); // State for textarea value
   const [isLoading, setIsLoading] = useState(true);
   const [creator, setCreator] = useState("");
   const [title, setTitle] = useState("");
   const [projectDetails, setProjectDetails] = useState<ProjectDetails | null>(null);
-
   const [userRole, setUserRole] = useState<UserRole>();
   const [requestSent, setRequestSent] = useState(false);
-  const [tempProjectDetails, setTempProjectDetails] = useState<ProjectDetails | null>(null);
   const pathname = usePathname(); // Get the current route's pathname
-
-
-
+  const [textareaValue, setTextareaValue] = useState(""); 
+  // const [archived, setArchived] = useState("");
 
   // Extract creatorUsername and title from pathname and fetch project info
   useEffect(() => {
@@ -96,7 +89,6 @@ export default function ProjectView() {
       }
       fetchProjectInformation(creator, projectTitle);
       verifyBookmark(creator, projectTitle, cookieUsername);
-
     }
   }, [pathname]);
 
@@ -114,6 +106,12 @@ export default function ProjectView() {
         // Run verifyMembership with updated projectDetails
         verifyMembership(currentUsername, projectDetails.creatorusername, projectDetails.title);
       }
+      // if (projectDetails.isarchived){
+      //   setArchived("Unarchive");
+      // } else {
+      //   setArchived("Archive");
+      // }
+
     }
   }, [projectDetails]);
 
@@ -365,39 +363,6 @@ export default function ProjectView() {
     sendNotif(username, title, "Invite");
   };
 
-  const handleLeaveProject = async () => {
-    if (!projectDetails) return;
-  
-    const { title } = projectDetails;
-    const currentUsername = Cookies.get("username");
-  
-    try {
-      const response = await fetch("http://localhost:5001/api/leave-project", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          username: currentUsername,
-          project_title: title,
-        }),
-      });
-  
-      const result = await response.json();
-  
-      if (response.ok) {
-        alert(`Successfully left the project: ${title}`);
-        // Redirect user to another page or refresh the project list
-        window.location.href = "/";
-      } else {
-        alert(`Error leaving project: ${result.error}`);
-      }
-    } catch (error) {
-      console.error("Error leaving project:", error);
-      alert("An error occurred while leaving the project.");
-    }
-  };
-
   if (isLoading) {
     return (
       <div
@@ -406,73 +371,6 @@ export default function ProjectView() {
           width: "100vw",
           height: "100vh",
         }}
-      >
-        <div
-          className="spinner-border"
-          role="status"
-          style={{ width: "5rem", height: "5rem", color: "#2D2D2D" }}
-        >
-          <span className="sr-only">Loading...</span>
-        </div>
-      </div>
-    );
-  }
-
-  if (!projectDetails) {
-    return (
-      <div className="d-flex justify-content-center align-items-center" style={{ width: "100vw", height: "100vh" }}>
-        <h2>No project details available.</h2>
-      </div>
-    );
-  }
-
-  const handleSave = async () => {
-    if (!tempProjectDetails) return;
-  
-    try {
-      const { creatorusername, title, ...updates } = tempProjectDetails;
-  
-      const response = await fetch("http://localhost:5001/updateProjectDetails", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          creatorusername,
-          title,
-          updates,
-        }),
-      });
-  
-      const result = await response.json();
-  
-      if (response.ok) {
-        setProjectDetails(tempProjectDetails); // Update the main details
-        setIsModalVisible(false); // Close the modal
-      } else {
-        console.error("Error updating project details:", result.message);
-      }
-    } catch (error) {
-      console.error("Error updating project details:", error);
-    }
-  };
-  
-  const handleClose = () => {
-    setTempProjectDetails(null); // Discard changes
-    setIsModalVisible(false); // Close the modal
-  };
-
-  const handleEditClick = () => {
-    setTempProjectDetails({ ...projectDetails }); // Clone current details
-    setIsModalVisible(true);
-  };
-  
-  
-  if (isLoading) {
-    return (
-      <div
-        className="d-flex justify-content-center align-items-center"
-        style={{ width: "100vw", height: "100vh" }}
       >
         <div
           className="spinner-border"
@@ -509,11 +407,9 @@ export default function ProjectView() {
             <h3>Creator:</h3>
             <p className="creator-name">{projectDetails.creatorusername || "Unknown Creator"}</p>
             <h3>Tag:</h3>
-
-            <p className="creator-name">{projectDetails.tag}</p>
-            <button className="view-profile-button" onClick={() => {
-              window.location.href = `/account?username=${projectDetails.creatorusername}`;
-            }}>View Creator Profile</button>
+            <p className="creator-name"> {projectDetails.tag}</p>
+            {/* <button className="view-profile-button">View Creator Profile</button>
+            <button className="current-members-button">Current Members</button> */}
           </div>
           <div className="right-column">
             <div className="tab-container">
@@ -543,8 +439,6 @@ export default function ProjectView() {
                   <p>{projectDetails.description || "No description"}</p>
                   <h3>Links</h3>
                   <p>{projectDetails.links || "No links provided"}</p>
-                  <h2>Contact Information</h2>
-                  <p>{projectDetails.contact || "No contact information"}</p>
                   <div className="spacer"></div>
                   {userRole === "general" && (
                     <div className="buttonContainer">
@@ -574,18 +468,14 @@ export default function ProjectView() {
           </div>
           {userRole === "creator" && (
             <div className="buttonContainer">
-              <button className="archiveButton" onClick={handleArchive}>
+              <button
+                className="archiveButton"
+                onClick={handleArchive}
+              >
                 {projectDetails.isarchived ? "Unarchive" : "Archive"}
               </button>
-              <button className="deleteButton" onClick={handleDeleteProject}>
-                Delete
-              </button>
-              <button
-                className="editButton"
-                onClick={handleEditClick}
-              >
-                Edit
-              </button>
+              <button className="deleteButton" onClick={handleDeleteProject}>Delete</button>
+              <button className="editButton">Edit</button>
               <button className="inviteButton" type="button" data-bs-toggle="modal" data-bs-target="#InviteModal">
                 Invite
               </button>
@@ -611,86 +501,16 @@ export default function ProjectView() {
                   </div>
                 </div>
               </div>
-            </div>
-          )}
-          {isModalVisible && tempProjectDetails && (
-            <div
-              className="modal fade show"
-              id="editAccountModal"
-              tabIndex={-1}
-              role="dialog"
-              aria-labelledby="editAccountModal"
-              aria-hidden={!isModalVisible}
-              style={{ display: "block" }}
-            >
-              <div className="modal-dialog" role="document">
-                <div className="modal-content">
-                  <div className="modal-header">
-                    <h5 className="modal-title" id="editAccountModal">
-                      Edit Project Details
-                    </h5>
-                  </div>
-                  <div className="modal-body">
-                    {[
-                      { key: "description" as keyof ProjectDetails, label: "Description" },
-                      { key: "links" as keyof ProjectDetails, label: "Links" },
-                      { key: "contact" as keyof ProjectDetails, label: "Contact Info" },
-                      { key: "memberdescription" as keyof ProjectDetails, label: "Member Description" },
-                      { key: "memberlinks" as keyof ProjectDetails, label: "Member Links" },
-                      { key: "membercontactinfo" as keyof ProjectDetails, label: "Member Contact Info" },
-                    ].map(({ key, label }) => (
-                      <div key={key} style={{ marginBottom: "1rem" }}>
-                        <label
-                          htmlFor={`edit-${key}`}
-                          style={{
-                            fontWeight: "bold",
-                            display: "block",
-                            marginBottom: "0.5rem",
-                          }}
-                        >
-                          {label}:
-                        </label>
-                        <AutoResizeTextarea
-                          placeholder={`Edit ${label}`}
-                          value={tempProjectDetails[key] !== undefined ? String(tempProjectDetails[key]) : ""}
-                          onChange={(value) =>
-                            setTempProjectDetails((prev) =>
-                              prev ? { ...prev, [key]: value } : prev
-                            )
-                          }
-                        />
-                      </div>
-                    ))}
-                  </div>
-                  <div className="modal-footer">
-                    <button
-                      type="button"
-                      className="btn btn-secondary"
-                      onClick={handleClose}
-                    >
-                      Close
-                    </button>
-                    <button
-                      type="button"
-                      className="btn btn-primary"
-                      onClick={handleSave}
-                    >
-                      Save
-                    </button>
-                  </div>
-                </div>
-              </div>
+
             </div>
           )}
           {userRole === "member" && (
             <div className="buttonContainer">
-              <button className="leaveButton" onClick={handleLeaveProject}>
-                Leave Project
-              </button>
+              <button className="leaveButton">Leave</button>
             </div>
           )}
         </div>
       </div>
     </>
-  );  
+  );
 }

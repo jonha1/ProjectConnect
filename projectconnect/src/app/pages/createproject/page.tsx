@@ -94,27 +94,9 @@ export default function Createpost() {
         },
         tag: selectedTag,
       };
-
-      const response = await fetch('http://127.0.0.1:5001/buildProject', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(payload),
-      });
-
-
-      const result = await response.json();
-
-      if (response.ok) {
-        router.push('/');
-      } else {
-        setError(result.error || 'Failed to create project.');
-      }
-    } catch (err) {
-      console.error('Error submitting project:', err);
-      setError('An unexpected error occurred.');
-    }
+      
+      console.log("string to pass to api", payload);
+      router.push("/");
   };
   return (
     <>
