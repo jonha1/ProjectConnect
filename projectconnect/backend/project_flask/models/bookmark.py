@@ -57,32 +57,43 @@ class Bookmark:
         try:
             with Bookmark.get_db_connection() as conn:
                 with conn.cursor() as cursor:
+                    # Retrieve all bookmarks for the user
                     cursor.execute("""
-                        SELECT * FROM bookmarks 
+                        SELECT creatorusername, title FROM bookmarks 
                         WHERE username = %s
                     """, (self.username,))
                     result = cursor.fetchall()
-                    return {"status": "success", "bookmarks": result or []};
-        #             all_bookmarks = []
-        #             for row in result:
-        #                 creator = row['creatorusername']
-        #                 title = row['title']
-        #                 cursor.execute("""
-        #                 SELECT * FROM projects 
-        #                 WHERE creatorusername = %s
-        #                 and title = %s
-        #                  """, (creator, title))
-        #                 project_row = cursor.fetchone()
-        #                 description = project_row['description']
-        #                 bookmark_dict = {"title": title, "description": description, "creatorusername": creator}
-        #                 print(bookmark_dict)
-        #                 all_bookmarks.append(bookmark_dict)
-        #                 if len(all_bookmarks)>0:
-        #                     return {"status":"success", "bookmarks": all_bookmarks }
-        #                 else:
-        #                     return {"status":"success", "bookmarks": [] }
+
+                    all_bookmarks = []
+                    for row in result:
+                        creator = row['creatorusername']
+                        title = row['title']
+
+                        # Retrieve the description of the project
+                        cursor.execute("""
+                            SELECT description FROM projects 
+                            WHERE creatorusername = %s AND title = %s
+                        """, (creator, title))
+                        project_row = cursor.fetchone()
+
+                        # Handle cases where project description might be missing
+                        description = project_row['description'] if project_row else "No description available"
+
+                        # Build the bookmark dictionary
+                        bookmark_dict = {
+                            "title": title,
+                            "description": description,
+                            "creatorusername": creator,
+                        }
+                        print("bookmark dict: ", bookmark_dict)  # Log each bookmark for debugging
+                        all_bookmarks.append(bookmark_dict)
+
+                    # Return all bookmarks
+                    return {"status": "success", "bookmarks": all_bookmarks}
+
         except Exception as e:
-            print(f"Error checking bookmarks existence: {e}")
+            print(f"Error retrieving bookmarks: {e}")
+            return {"status": "error", "message": "Failed to retrieve bookmarks"}
 
     def deleteBookmark(self, title, creatorUsername):
         print("deleting the bookmark now")

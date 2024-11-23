@@ -65,7 +65,7 @@ interface APIResponse {
 
 export default function ProjectView() {
   const [activeTab, setActiveTab] = useState<"everyone" | "members">("everyone");
-  const [isBookmarked, setIsBookmarked] = useState();
+  const [isBookmarked, setIsBookmarked] = useState<boolean | null>(null);
   const [isModalVisible, setIsModalVisible] = useState(false); // State for modal visibility
   const [isLoading, setIsLoading] = useState(true);
   const [creator, setCreator] = useState<string | null>(null);
@@ -121,6 +121,7 @@ export default function ProjectView() {
     projectTitle: string | null
   ) => {
     if (!memberusername || !creator || !projectTitle) return;
+  
     try {
       const response = await fetch("http://localhost:5001/verifyMembership", {
         method: "POST",
@@ -133,18 +134,25 @@ export default function ProjectView() {
           title: projectTitle,
         }),
       });
-      if (response.ok) {
+  
+      // Parse response JSON
+      const data = await response.json();
+  
+      // Check the "inProject" field to determine the user's role
+      if (data.inProject) {
         setUserRole("member"); // Set role to member
       } else {
-        setUserRole("general"); // Fallback to general
+        setUserRole("general"); // User is not in the project
       }
     } catch (error) {
-      console.log("error: ", error);
+      // Only log critical errors (e.g., network issues)
+      console.error("Critical error verifying membership:", error);
       setUserRole("general"); // Fallback to general on error
-    }finally {
+    } finally {
       setIsLoading(false);
     }
   };
+  
 
   const fetchProjectInformation = async (creator: string | null, projectTitle: string | null) => {
     if (!creator || !projectTitle) return;
@@ -367,11 +375,6 @@ export default function ProjectView() {
     }
 };
 
-
-  const handleInvite = async (username: string | null, title: string | null) => {
-    sendNotif(username, title, "Invite");
-  };
-
   const handleLeaveProject = async () => {
     if (!projectDetails) return;
   
@@ -544,8 +547,6 @@ export default function ProjectView() {
                 <div className="everyone-content">
                   <h2>Title</h2>
                   <p>{projectDetails.title || "Untitled Project"}</p>
-                  <h2>Archived</h2>
-                  <p>{projectDetails.isarchived ? "Yes" : "No"}</p>
                   <h3>Description</h3>
                   <p>{projectDetails.description || "No description"}</p>
                   <h3>Links</h3>
@@ -596,28 +597,6 @@ export default function ProjectView() {
               <button className="inviteButton" type="button" data-bs-toggle="modal" data-bs-target="#InviteModal">
                 Invite
               </button>
-
-              <div className="modal fade" id="InviteModal" tabIndex={-1} role="dialog" aria-labelledby="editAccountModal" aria-hidden="true">
-                <div className="modal-dialog" role="document">
-                  <div className="modal-content">
-                    <div className="modal-body">
-                    <AutoResizeTextarea
-                    placeholder={`Username`}
-                    value={textareaValue}
-                    onChange={(value) => setTextareaValue(value)}
-                  />
-                    </div>
-                    <div className="modal-footer">
-                      <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                      <button type="button" className="btn btn-primary" data-bs-dismiss="modal" 
-                      onClick={(event)=>{
-                        event.preventDefault();
-                        handleInvite(textareaValue, projectDetails.title);
-                      }}>Invite</button>
-                    </div>
-                  </div>
-                </div>
-              </div>
             </div>
           )}
           {isModalVisible && tempProjectDetails && (

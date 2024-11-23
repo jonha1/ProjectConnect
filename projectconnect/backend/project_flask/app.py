@@ -136,21 +136,6 @@ def delete_project():
     else:
         return jsonify(result), 201  # 201 for successful creation
         
-
-@app.route('/updateProfileFromEdit', methods=['POST'])
-def updateProfileFromEdit():
-    data = request.json
-    username = data.get("username")
-    column = data.get("column")
-    value = data.get("value")
-    
-    result = User.updateProfileFromEdit(username, column, value)
-
-    # Check if the result is an error
-    if "error" in result:
-        return jsonify(result), 400  # 400 for bad request (like duplicate entry)
-    else:
-        return jsonify(result), 201  # 201 for successful creation
 @app.route('/getEmailByUser', methods=['POST'])
 def getEmailByUser():
     data = request.json
@@ -458,6 +443,16 @@ def buildProject():
         "memberlinks": data.get('memberlinks'),
         "membercontactinfo": data.get('membercontactinfo'),
     }
+    
+    creator = Creator(
+        username=creatorusername,
+        displayName=data.get('displayName', ""),
+        loginEmail=data.get('loginEmail', ""),
+        password = data.get('password', ""),
+        aboutMe=data.get('aboutMe', ""),
+        contactInfo=data.get('contactInfo', ""),
+        skills=data.get('skills', "")
+    )
 
     # Call the buildProject method, passing required and optional parameters
     result = creator.createProject(creatorusername, title, description, tag, links , contact, memberDescription, memberLinks, memberContact)
@@ -578,7 +573,6 @@ def verifyMembership():
     memberusername = data.get('membersusername')
     creatorusername = data.get('creatorusername')
     title = data.get('title')
-
 
     # Check if any of the required fields are missing
     if not memberusername or not creatorusername or not title:
