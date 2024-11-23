@@ -667,6 +667,17 @@ def sendNotification():
     else:
         return jsonify(result), 201  # 201 for successful creation
 
+@app.route('/verifyNotif', methods=['POST'])
+def verifyNotif():
+    data = request.json
+    touser = data.get('touserid')
+    fromuser = data.get('fromuserid')
+    messagetype = data.get('messagetype')
+    title = data.get('projectitle')
+    result = Notification.verifyNotifExists(touser, fromuser, messagetype, title)
+    return jsonify({"status": "success", "result": result}), 201  # 400 for bad request (like duplicate entry)
+
+
 '''
     Bookmark()
 

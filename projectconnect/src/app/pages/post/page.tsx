@@ -103,7 +103,7 @@ export default function ProjectView() {
       }
       fetchProjectInformation(creator, projectTitle);
       verifyBookmark(creator, projectTitle, cookieUsername);
-
+      verifyNotif(creator, cookieUsername, projectTitle, "Join");
     }
   }, [pathname]);
 
@@ -225,7 +225,7 @@ export default function ProjectView() {
     } catch (error) {
         console.error("Error verifying bookmark:", error);
     }
-};
+  };
 
 
 
@@ -365,6 +365,31 @@ export default function ProjectView() {
     }
   };
 
+  const verifyNotif = async (toUser: string | null, fromUser: string | null, projectTitle: string | null, messageType: string | null) => {
+    try {
+        // Ensure projectTitle is not null, use a default value if it is
+        const sanitizedTitle = projectTitle ? projectTitle.replace("-", " ") : "";
+
+        const response = await fetch("http://localhost:5001/verifyNotif", {
+            method: "POST",
+            credentials: "include",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                touserid: toUser,
+                fromuserid: fromUser,
+                messagetype: messageType,
+                projectitle: sanitizedTitle,
+            }),
+        });
+        const data = await response.json();
+        setRequestSent(data.result);
+    } catch (error) {
+        console.error("Error verifying bookmark:", error);
+    }
+  };
+
   const sendNotif = async (toUser: string | null, projectTitle: string | null, messageType: string | null) => {
     const cookieUsername = getUsernameFromCookie();
     if (!toUser || !messageType || !projectTitle) return; // Check for null projectTitle
@@ -393,7 +418,7 @@ export default function ProjectView() {
     } catch (error) {
         console.error("Error fetching sending notification:", error);
     }
-};
+  };
 
   const handleLeaveProject = async () => {
     if (!projectDetails) return;
