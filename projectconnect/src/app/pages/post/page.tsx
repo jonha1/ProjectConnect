@@ -65,7 +65,7 @@ export default function ProjectView() {
   const [activeTab, setActiveTab] = useState<"everyone" | "members">("everyone");
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(false); // State for modal visibility
-  const [textareaValue, setTextareaValue] = useState(""); // State for textarea value
+  // const [textareaValue, setTextareaValue] = useState(""); // State for textarea value
   const [isLoading, setIsLoading] = useState(true);
   const [projectDetails, setProjectDetails] = useState<ProjectDetails | null>(null);
   const [tempProjectDetails, setTempProjectDetails] = useState<ProjectDetails | null>(null);

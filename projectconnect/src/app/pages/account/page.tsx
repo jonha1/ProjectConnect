@@ -75,7 +75,7 @@ export default function Account() {
     const urlUsername = searchParams.get("username");
     const usernameToFetch = urlUsername || getUsernameFromCookie();
 
-    if (usernameToFetch ) {
+    if (usernameToFetch) {
       setUsername(usernameToFetch );
 
       const fetchUserData = async () => {
