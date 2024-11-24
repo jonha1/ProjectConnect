@@ -71,7 +71,21 @@
     background-color: #2D2D2D;
 }
   
+.small-button {
+    padding: 4px 8px;
+    font-size: 12px;
+}
 
+.custom-logout-btn {
+    background-color: #2D2D2D;
+    color: white; 
+  }
+  
+  .custom-logout-btn:hover {
+    background-color: white; /* Slightly darker shade on hover */
+    color: #2D2D2D;
+  }
+  
 
 /* .buttonContainer{
     display: flex;

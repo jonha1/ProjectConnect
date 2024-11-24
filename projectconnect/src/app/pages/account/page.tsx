@@ -4,11 +4,12 @@ import { useState } from "react";
 import Navbar from "../../components/navbar";
 import "../../styles/account.page.css";
 import Postcard from "../../components/post_card";
-import styles from "../../styles/searchpage.module.css"; 
-import { useSearchParams } from "next/navigation"; 
-import { getUsernameFromCookie } from "../../lib/cookieUtils"; 
+import styles from "../../styles/searchpage.module.css";
+import { useSearchParams } from "next/navigation";
+import { getUsernameFromCookie } from "../../lib/cookieUtils";
 import { faPencil } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { useRouter } from "next/navigation";
 
 interface Project {
   creatorusername: string;
@@ -18,7 +19,7 @@ interface Project {
   memberDescription: string;
   memberLinks: string;
   memberContactInfo: string;
-  dateposted: string; 
+  dateposted: string;
   isarchived: boolean;
 }
 
@@ -31,8 +32,8 @@ type AutoResizeTextareaProps = {
 function AutoResizeTextarea({ placeholder, value, onChange }: AutoResizeTextareaProps) {
   const handleChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
     const textarea = event.target;
-    textarea.style.height = 'auto';  
-    textarea.style.height = `${textarea.scrollHeight}px`;  
+    textarea.style.height = 'auto';
+    textarea.style.height = `${textarea.scrollHeight}px`;
     onChange(textarea.value);
   };
 
@@ -55,6 +56,7 @@ function AutoResizeTextarea({ placeholder, value, onChange }: AutoResizeTextarea
 }
 
 export default function Account() {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const initialTab = searchParams.get("query") === "bookmark" ? "bookmarks" : "created";
   const [activeTab, setActiveTab] = useState(initialTab);
@@ -62,18 +64,18 @@ export default function Account() {
   const [displayName, setDisplayName] = useState("Loading...");
   const [aboutMe, setAboutMe] = useState("Loading...");
   const [contactInfo, setContactInfo] = useState("Loading...");
-  const [postsCreated, setPostsCreated] = useState<Project[]>([]); 
-  const [joinedProjects,  setJoinedProjects] = useState<Project[]>([]);
+  const [postsCreated, setPostsCreated] = useState<Project[]>([]);
+  const [joinedProjects, setJoinedProjects] = useState<Project[]>([]);
   const [skills, setSkills] = useState("Loading...");
   const [editComponent, setEditComponent] = useState("");
-  const [textareaValue, setTextareaValue] = useState(""); 
+  const [textareaValue, setTextareaValue] = useState("");
 
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const cookieUsername = getUsernameFromCookie(); 
+    const cookieUsername = getUsernameFromCookie();
     if (cookieUsername) {
-      setUsername(cookieUsername); 
+      setUsername(cookieUsername);
 
       const fetchUserData = async () => {
         try {
@@ -107,11 +109,11 @@ export default function Account() {
             },
             body: JSON.stringify({ creatorusername: cookieUsername }),
           });
-          
+
           const postsResult = await postsResponse.json();
-          
+
           if (postsResponse.ok) {
-            setPostsCreated(postsResult.projects || []); 
+            setPostsCreated(postsResult.projects || []);
           } else {
             console.error("Error fetching projects:", postsResult.message);
           }
@@ -124,7 +126,7 @@ export default function Account() {
 
 
       const fetchJoinedProjects = async () => {
-        try{
+        try {
           const response = await fetch("http://127.0.0.1:5001/projects/by_member", {
             method: "POST",
             headers: {
@@ -155,7 +157,7 @@ export default function Account() {
       setSkills("Username not found.");
     }
   }, []);
-  
+
   if (isLoading) {
     return (
       <div
@@ -168,7 +170,7 @@ export default function Account() {
         <div
           className="spinner-border"
           role="status"
-          style={{ width: "5rem", height: "5rem" , color: "#2D2D2D" }}
+          style={{ width: "5rem", height: "5rem", color: "#2D2D2D" }}
         >
           <span className="sr-only">Loading...</span>
         </div>
@@ -176,15 +178,17 @@ export default function Account() {
     );
   }
 
-  {postsCreated.map((post, index) => (
-    <Postcard
-      key={index}
-      postName={post.title || "Untitled"} 
-      postInfo={post.description || "No description available"}
-      creatorName={post.creatorusername || "Unknown creator"}
-      className={styles.postCard}
-    />
-  ))}
+  {
+    postsCreated.map((post, index) => (
+      <Postcard
+        key={index}
+        postName={post.title || "Untitled"}
+        postInfo={post.description || "No description available"}
+        creatorName={post.creatorusername || "Unknown creator"}
+        className={styles.postCard}
+      />
+    ))
+  }
 
   const handleEdit = (component: string) => {
     setEditComponent(component);
@@ -218,13 +222,13 @@ export default function Account() {
         },
         body: JSON.stringify({
           username: username,
-          column: column, 
+          column: column,
           value: value,
         }),
       });
-  
+
       const result = await response.json();
-  
+
       if (response.ok) {
         console.log("updated successfully:", result.message);
       } else {
@@ -234,7 +238,7 @@ export default function Account() {
       console.error(`Error updating ${column}:`, error);
     }
   };
-  
+
 
   const handleSave = () => {
     // Save the updated value based on the `editComponent`
@@ -259,6 +263,9 @@ export default function Account() {
     updateProfile(username, columnToEdit, textareaValue);
   };
 
+  const login = () => {
+    router.push("/login");
+  };
 
   return (
     <div className="wrapper">
@@ -271,15 +278,15 @@ export default function Account() {
             {username}</div>
           <div className="profileCard">
             About Me: {aboutMe}
-            <FontAwesomeIcon onClick={() => handleEdit("About Me")} icon={faPencil} role='button' className="editIcon" data-bs-toggle="modal" data-bs-target="#editAccountModal"/>
+            <FontAwesomeIcon onClick={() => handleEdit("About Me")} icon={faPencil} role='button' className="editIcon" data-bs-toggle="modal" data-bs-target="#editAccountModal" />
           </div>
           <div className="profileCard">
             <p>Contact Information: {contactInfo}</p>
-            <FontAwesomeIcon onClick={() => handleEdit("Contact Information")} icon={faPencil} role='button' className="editIcon" data-bs-toggle="modal" data-bs-target="#editAccountModal"/>
+            <FontAwesomeIcon onClick={() => handleEdit("Contact Information")} icon={faPencil} role='button' className="editIcon" data-bs-toggle="modal" data-bs-target="#editAccountModal" />
           </div>
           <div className="profileCard">
-            Skills: {skills} 
-            <FontAwesomeIcon onClick={() => handleEdit("Skills")} icon={faPencil} role='button' className="editIcon" data-bs-toggle="modal" data-bs-target="#editAccountModal"/>
+            Skills: {skills}
+            <FontAwesomeIcon onClick={() => handleEdit("Skills")} icon={faPencil} role='button' className="editIcon" data-bs-toggle="modal" data-bs-target="#editAccountModal" />
           </div>
 
           <div className="modal fade" id="editAccountModal" tabIndex={-1} role="dialog" aria-labelledby="editAccountModal" aria-hidden="true">
@@ -289,7 +296,7 @@ export default function Account() {
                   <h5 className="modal-title" id="editAccountModal">Edit {editComponent}</h5>
                 </div>
                 <div className="modal-body">
-                <AutoResizeTextarea
+                  <AutoResizeTextarea
                     placeholder={`Edit ${editComponent}`}
                     value={textareaValue}
                     onChange={(value) => setTextareaValue(value)}
@@ -302,7 +309,57 @@ export default function Account() {
               </div>
             </div>
           </div>
+
+          <button
+            type="button"
+            className="btn custom-logout-btn btn-sm"
+            data-bs-toggle="modal"
+            data-bs-target="#logoutbtn"
+          >
+            Log Out Account
+          </button>
+
+          <div
+            className="modal fade"
+            id="logoutbtn"
+            tabIndex={-1}
+            aria-labelledby="logoutbtnLabel"
+            aria-hidden="true"
+          >
+            <div className="modal-dialog" role="document">
+              <div className="modal-content">
+                <div className="modal-header">
+                  <h5 className="modal-title" id="logoutbtnLabel">Confirm Logout</h5>
+                  <button
+                    type="button"
+                    className="btn-close"
+                    data-bs-dismiss="modal"
+                    aria-label="Close"
+                  ></button>
+                </div>
+                <div className="modal-body">Are you sure you want to log out?</div>
+                <div className="modal-footer">
+                  <button
+                    type="button"
+                    className="btn btn-secondary btn-sm"
+                    data-bs-dismiss="modal"
+                  >
+                    Close
+                  </button>
+                  <button
+                    type="button"
+                    className="btn btn-primary btn-sm"
+                    data-bs-dismiss="modal"
+                    onClick={login}
+                  >
+                    Logout
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
+
 
         <div className="mainContent">
           <div className={`tabs`}>
