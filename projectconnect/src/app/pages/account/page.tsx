@@ -10,6 +10,7 @@ import { getUsernameFromCookie } from "../../lib/cookieUtils";
 import { faPencil } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useRouter } from "next/navigation";
+import Cookies from 'js-cookie';
 
 interface Project {
   creatorusername: string;
@@ -122,7 +123,7 @@ export default function Account() {
         } finally {
           setIsLoading(false);
         }
-      };
+      };  
 
 
       const fetchJoinedProjects = async () => {
@@ -264,6 +265,8 @@ export default function Account() {
   };
 
   const login = () => {
+    Cookies.remove('username');
+    Cookies.remove('email');
     router.push("/login");
   };
 
