@@ -4,9 +4,9 @@ import { useState } from "react";
 import Navbar from "../../components/navbar";
 import "../../styles/account.page.css";
 import Postcard from "../../components/post_card";
-import styles from "../../styles/searchpage.module.css";
-import { useSearchParams } from "next/navigation";
-import { getUsernameFromCookie } from "../../lib/cookieUtils";
+import styles from "../../styles/searchpage.module.css"; 
+import { useSearchParams } from "next/navigation"; 
+import { getUsernameFromCookie } from "../../lib/cookieUtils"; 
 import { faPencil } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useRouter } from "next/navigation";
@@ -20,7 +20,7 @@ interface Project {
   memberDescription: string;
   memberLinks: string;
   memberContactInfo: string;
-  dateposted: string;
+  dateposted: string; 
   isarchived: boolean;
 }
 
@@ -33,8 +33,8 @@ type AutoResizeTextareaProps = {
 function AutoResizeTextarea({ placeholder, value, onChange }: AutoResizeTextareaProps) {
   const handleChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
     const textarea = event.target;
-    textarea.style.height = 'auto';
-    textarea.style.height = `${textarea.scrollHeight}px`;
+    textarea.style.height = 'auto';  
+    textarea.style.height = `${textarea.scrollHeight}px`;  
     onChange(textarea.value);
   };
 
@@ -65,100 +65,107 @@ export default function Account() {
   const [displayName, setDisplayName] = useState("Loading...");
   const [aboutMe, setAboutMe] = useState("Loading...");
   const [contactInfo, setContactInfo] = useState("Loading...");
-  const [postsCreated, setPostsCreated] = useState<Project[]>([]);
-  const [joinedProjects, setJoinedProjects] = useState<Project[]>([]);
+  const [postsCreated, setPostsCreated] = useState<Project[]>([]); 
+  const [joinedProjects,  setJoinedProjects] = useState<Project[]>([]);
   const [skills, setSkills] = useState("Loading...");
   const [editComponent, setEditComponent] = useState("");
-  const [textareaValue, setTextareaValue] = useState("");
+  const [textareaValue, setTextareaValue] = useState(""); 
 
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const cookieUsername = getUsernameFromCookie();
     if (cookieUsername) {
-      setUsername(cookieUsername);
+    setUsername(cookieUsername);
+    const searchParams = new URLSearchParams(window.location.search);
+    const urlUsername = searchParams.get("username");
+    const usernameToFetch = urlUsername || getUsernameFromCookie();
 
-      const fetchUserData = async () => {
-        try {
-          setIsLoading(true);
+    
+      if (usernameToFetch ) {
+        setUsername(usernameToFetch );
 
-          // Fetch user details
-          const userResponse = await fetch("http://127.0.0.1:5001/api/getUserDetails", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ username: cookieUsername }),
-          });
+        const fetchUserData = async () => {
+          try {
+            setIsLoading(true);
 
-          const userResult = await userResponse.json();
+            // Fetch user details
+            const userResponse = await fetch("http://127.0.0.1:5001/api/getUserDetails", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({ username: usernameToFetch }),
+            });
 
-          if (userResponse.ok) {
-            setDisplayName(userResult.displayname || "No displayName found");
-            setAboutMe(userResult.aboutme || "No About Me information found.");
-            setContactInfo(userResult.contactinfo || "No Contact information found.");
-            setSkills(userResult.skills || "No skills found.");
-          } else {
-            console.error("Error fetching user details:", userResult.message);
+            const userResult = await userResponse.json();
+
+            if (userResponse.ok) {
+              setDisplayName(userResult.displayname || "No displayName found");
+              setAboutMe(userResult.aboutme || "No About Me information found.");
+              setContactInfo(userResult.contactinfo || "No Contact information found.");
+              setSkills(userResult.skills || "No skills found.");
+            } else {
+              console.error("Error fetching user details:", userResult.message);
+            }
+
+            // Fetch user's created posts
+            const postsResponse = await fetch("http://127.0.0.1:5001/projects/by_creator", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({ creatorusername: usernameToFetch }),
+            });
+            
+            const postsResult = await postsResponse.json();
+            
+            if (postsResponse.ok) {
+              setPostsCreated(postsResult.projects || []); 
+            } else {
+              console.error("Error fetching projects:", postsResult.message);
+            }
+          } catch (error) {
+            console.error("Error fetching data:", error);
+          } finally {
+            setIsLoading(false);
           }
+        };
 
-          // Fetch user's created posts
-          const postsResponse = await fetch("http://127.0.0.1:5001/projects/by_creator", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ creatorusername: cookieUsername }),
-          });
 
-          const postsResult = await postsResponse.json();
+        const fetchJoinedProjects = async () => {
+          try{
+            const response = await fetch("http://127.0.0.1:5001/projects/by_member", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({ username: usernameToFetch }),
+            });
 
-          if (postsResponse.ok) {
-            setPostsCreated(postsResult.projects || []);
-          } else {
-            console.error("Error fetching projects:", postsResult.message);
+            const result = await response.json();
+            if (response.ok) {
+              setJoinedProjects(result.projects || []);
+            } else {
+              console.error("Error fetching joined projects:", result.message);
+            }
           }
-        } catch (error) {
-          console.error("Error fetching data:", error);
-        } finally {
-          setIsLoading(false);
-        }
-      };  
-
-
-      const fetchJoinedProjects = async () => {
-        try {
-          const response = await fetch("http://127.0.0.1:5001/projects/by_member", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ username: cookieUsername }),
-          });
-
-          const result = await response.json();
-          if (response.ok) {
-            setJoinedProjects(result.projects || []);
-          } else {
-            console.error("Error fetching joined projects:", result.message);
+          catch (error) {
+            console.error("Error fetching joined projects:", error);
           }
-        }
-        catch (error) {
-          console.error("Error fetching joined projects:", error);
-        }
-      };
+        };
 
-      fetchUserData();
-      fetchJoinedProjects();
-    } else {
-      console.error("Username not found in cookies.");
-      setAboutMe("Username not found.");
-      setDisplayName("DisplayName not found");
-      setContactInfo("Username not found.");
-      setSkills("Username not found.");
-    }
-  }, []);
-
+        fetchUserData();
+        fetchJoinedProjects();
+      } else {
+        console.error("Username not found in cookies.");
+        setAboutMe("Username not found.");
+        setDisplayName("DisplayName not found");
+        setContactInfo("Username not found.");
+        setSkills("Username not found.");
+      }
+  }}, []);
+  
   if (isLoading) {
     return (
       <div
@@ -171,7 +178,7 @@ export default function Account() {
         <div
           className="spinner-border"
           role="status"
-          style={{ width: "5rem", height: "5rem", color: "#2D2D2D" }}
+          style={{ width: "5rem", height: "5rem" , color: "#2D2D2D" }}
         >
           <span className="sr-only">Loading...</span>
         </div>
@@ -179,17 +186,15 @@ export default function Account() {
     );
   }
 
-  {
-    postsCreated.map((post, index) => (
-      <Postcard
-        key={index}
-        postName={post.title || "Untitled"}
-        postInfo={post.description || "No description available"}
-        creatorName={post.creatorusername || "Unknown creator"}
-        className={styles.postCard}
-      />
-    ))
-  }
+  {postsCreated.map((post, index) => (
+    <Postcard
+      key={index}
+      postName={post.title || "Untitled"} 
+      postInfo={post.description || "No description available"}
+      creatorName={post.creatorusername || "Unknown creator"}
+      className={styles.postCard}
+    />
+  ))}
 
   const handleEdit = (component: string) => {
     setEditComponent(component);
@@ -223,13 +228,13 @@ export default function Account() {
         },
         body: JSON.stringify({
           username: username,
-          column: column,
+          column: column, 
           value: value,
         }),
       });
-
+  
       const result = await response.json();
-
+  
       if (response.ok) {
         console.log("updated successfully:", result.message);
       } else {
@@ -239,7 +244,7 @@ export default function Account() {
       console.error(`Error updating ${column}:`, error);
     }
   };
-
+  
 
   const handleSave = () => {
     // Save the updated value based on the `editComponent`
@@ -263,12 +268,13 @@ export default function Account() {
 
     updateProfile(username, columnToEdit, textareaValue);
   };
-
   const login = () => {
+    //logs out of account completly with cookie , and reroute to login page
     Cookies.remove('username');
     Cookies.remove('email');
     router.push("/login");
   };
+
 
   return (
     <div className="wrapper">
