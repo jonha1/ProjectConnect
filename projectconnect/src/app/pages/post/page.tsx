@@ -205,8 +205,7 @@ export default function ProjectView() {
   const verifyBookmark = async (creator: string | null, projectTitle: string | null, user: string | undefined) => {
     try {
         // Ensure projectTitle is not null, use a default value if it is
-        const sanitizedTitle = projectTitle ? projectTitle.replace("-", " ") : "";
-
+        const sanitizedTitle = projectTitle ? projectTitle.replace(/-/g, " ") : "";
         const response = await fetch("http://localhost:5001/verifyBookmark", {
             method: "POST",
             credentials: "include",
@@ -233,6 +232,7 @@ export default function ProjectView() {
     const cookieUsername = getUsernameFromCookie();
     if (!creator || !projectTitle) return;
     try {
+      const sanitizedTitle = projectTitle ? projectTitle.replace(/-/g, " ") : "";
       const response = await fetch("http://localhost:5001/addBookmark", {
         method: "POST",
         credentials: "include",
@@ -241,7 +241,7 @@ export default function ProjectView() {
         },
         body: JSON.stringify({ 
           creatorusername: creator, 
-          title: projectTitle.replace("-", " "),
+          title: sanitizedTitle,
           username: cookieUsername
         }),
       });
@@ -258,6 +258,7 @@ export default function ProjectView() {
     const cookieUsername = getUsernameFromCookie();
     if (!creator || !projectTitle) return;
     try {
+      const sanitizedTitle = projectTitle ? projectTitle.replace(/-/g, " ") : "";
       const response = await fetch("http://localhost:5001/deleteBookmark", {
         method: "POST",
         credentials: "include",
@@ -266,7 +267,7 @@ export default function ProjectView() {
         },
         body: JSON.stringify({ 
           creatorusername: creator, 
-          title: projectTitle.replace("-", " "),
+          title: sanitizedTitle,
           username: cookieUsername
         }),
       });
@@ -368,7 +369,7 @@ export default function ProjectView() {
   const verifyNotif = async (toUser: string | null, fromUser: string | null, projectTitle: string | null, messageType: string | null) => {
     try {
         // Ensure projectTitle is not null, use a default value if it is
-        const sanitizedTitle = projectTitle ? projectTitle.replace("-", " ") : "";
+        const sanitizedTitle = projectTitle ? projectTitle.replace(/-/g, " ") : "";
 
         const response = await fetch("http://localhost:5001/verifyNotif", {
             method: "POST",
@@ -394,7 +395,7 @@ export default function ProjectView() {
     const cookieUsername = getUsernameFromCookie();
     if (!toUser || !messageType || !projectTitle) return; // Check for null projectTitle
     try {
-        const sanitizedTitle = projectTitle.replace("-", " "); // Safe to call .replace now
+        const sanitizedTitle = projectTitle.replace(/-/g, " "); // Safe to call .replace now
 
         const response = await fetch("http://localhost:5001/sendNotification", {
             method: "POST",
