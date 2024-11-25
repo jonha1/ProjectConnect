@@ -146,7 +146,7 @@ export default function Account() {
       setContactInfo("Username not found.");
       setSkills("Username not found.");
     }
-  }, []);
+  }}, []);
   if (isLoading) {
     return (
       <div
