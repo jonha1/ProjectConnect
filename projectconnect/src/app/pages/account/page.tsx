@@ -295,7 +295,7 @@ export default function Account() {
             data-bs-toggle="modal"
             data-bs-target="#logoutbtn"
           >
-            Log Out Account
+            Logout 
           </button>
           <div
             className="modal fade"
