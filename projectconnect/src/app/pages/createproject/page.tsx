@@ -106,8 +106,6 @@ export default function Createpost() {
         tag: selectedTag,
       };
 
-      console.log('current payload:', payload);
-
       const response = await fetch('http://127.0.0.1:5001/buildProject', {
         method: 'POST',
         headers: {
@@ -118,10 +116,8 @@ export default function Createpost() {
 
 
       const result = await response.json();
-      console.log('Raw response', result);
 
       if (response.ok) {
-        console.log('Project Created:', result);
         router.push('/');
       } else {
         setError(result.error || 'Failed to create project.');

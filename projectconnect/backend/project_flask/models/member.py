@@ -14,14 +14,14 @@ class Member(User):
             cursor_factory=RealDictCursor
         )
     
-    def inProject(username, project_title):
+    def verifyMembership(username, project_title, creator):
         try:
             with Member.get_db_connection() as conn:
                 with conn.cursor() as cursor:
                     cursor.execute("""
-                        SELECT 1 FROM member 
-                        WHERE username = %s AND project_title = %s
-                    """, (username, project_title))
+                        SELECT 1 FROM joinedProjects 
+                        WHERE membersusername = %s AND projecttitle = %s AND creatorusername = %s
+                    """, (username, project_title, creator))
                     return cursor.fetchone() is not None
         except Exception as e:
             print(f"Error checking membership: {e}")

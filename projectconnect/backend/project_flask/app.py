@@ -5,8 +5,6 @@ from flask import Flask, request, jsonify, make_response
 from project_flask.models.account import Account
 from project_flask.models.member import Member
 from project_flask.models.creator import Creator
-# from project_flask.models.user import User
-
 from project_flask.models.project import Project
 from project_flask.models.user import User
 
@@ -108,26 +106,17 @@ def join_project():
     else:
         return jsonify(result), 201
 
-@app.route('/api/delete-project', methods=['DELETE'])
+@app.route('/delete-project', methods=['POST'])
 def delete_project():
     data = request.json
     creatorusername = data.get("creatorusername")
     title = data.get("title")
-
-    if not creatorusername or not title:
-        return jsonify({"error": "Missing creatorusername or title"}), 400
-
-    # Instantiate the Creator object
-    creator = Creator(username=creatorusername, displayName=None, loginEmail=None, password=None, aboutMe=None, contactInfo=None, skills=None)
-    
-    # Call the deleteProject method
-    result = creator.deleteProject(creatorusername, title)
-
-    # Return the appropriate response
+    print(title, creatorusername)
+    result = Creator.deleteProject(creatorusername, title)
     if "error" in result:
-        return jsonify(result), 400
+        return jsonify(result), 400  # 400 for bad request (like duplicate entry)
     else:
-        return jsonify(result), 200
+        return jsonify(result), 201  # 201 for successful creation
         
 
 @app.route('/updateProfileFromEdit', methods=['POST'])
@@ -398,27 +387,16 @@ def getProjectInfo():
     else:
         return jsonify(result), 201  # 201 for successful creation
     
-@app.route('/deleteProject', methods=['POST'])
-def deleteProject():
-    data = request.json
-    creatorusername = data.get('creatorusername')
-    title = data.get('title')
-
-    result = Project.deleteProject(creatorusername, title)
-
-    # Check if the result is an error
-    if "error" in result:
-        return jsonify(result), 400  # 400 for bad request (like duplicate entry)
-    else:
-        return jsonify(result), 201  # 201 for successful creation
-    
 @app.route('/archiveProject', methods=['POST'])
 def archiveProject():
     data = request.json
     creatorusername = data.get('creatorusername')
     title = data.get('title')
 
-    result = Project.archiveProject(creatorusername, title)
+    if not creatorusername or not title:
+        return jsonify({"error": "Missing creatorusername or title"}), 400
+
+    result = Creator.archiveProject(creatorusername, title)
 
     # Check if the result is an error
     if "error" in result:
@@ -432,7 +410,7 @@ def unarchiveProject():
     creatorusername = data.get('creatorusername')
     title = data.get('title')
 
-    result = Project.unarchiveProject(creatorusername, title)
+    result = Creator.unarchiveProject(creatorusername, title)
 
     # Check if the result is an error
     if "error" in result:
@@ -482,7 +460,54 @@ def get_projects_by_creator():
     except Exception as e:
         print(f"Error in /projects/by_creator: {e}")
         return jsonify({"status": "error", "message": "Internal server error"}), 500
+    
+@app.route('/verifyMembership', methods=['POST', 'OPTIONS'])
+def verifyMembership():
+    if request.method == "OPTIONS":
+        response = make_response()
+        response.headers.add("Access-Control-Allow-Origin", "http://localhost:3000")
+        response.headers.add("Access-Control-Allow-Methods", "POST, OPTIONS")
+        response.headers.add("Access-Control-Allow-Headers", "Content-Type, Authorization")
+        response.headers.add("Access-Control-Allow-Credentials", "true")
+        return response
+    
+    data = request.json
+    memberusername = data.get('membersusername')
+    creatorusername = data.get('creatorusername')
+    title = data.get('title')
 
+    # Check if any of the required fields are missing
+    if not memberusername or not creatorusername or not title:
+        return jsonify({"error": "Missing memberusername, creatorusername, or title"}), 400
+
+    try:
+        # Call the method in the Member model to check if the member is part of the project
+        in_project = Member.verifyMembership(memberusername, title, creatorusername)
+
+        if in_project:
+            return jsonify({"status": "success", "message": f"Member {memberusername} is in the project {title}."}), 200
+        else:
+            return jsonify({"status": "failure", "message": f"Member {memberusername} is not in the project {title}."}), 404
+    except Exception as e:
+        print(f"Error checking joined project info: {e}")
+        return jsonify({"error": str(e)}), 500
+    
+@app.route('/editProject', methods=['POST'])
+def edit_project():
+    data = request.json
+    creatorusername = data.get('creatorusername')
+    title = data.get('title')
+    new_details = data.get('new_details') 
+
+    if not creatorusername or not title or not new_details:
+        return jsonify({"error": "Missing required fields"}), 400
+
+    result = Creator.editPost(creatorusername, title, new_details)
+
+    if "error" in result:
+        return jsonify(result), 400
+    else:
+        return jsonify(result), 200
 @app.route('/projects/by_member', methods=['POST'])
 def get_projects_by_member():
     data = request.json
@@ -495,6 +520,35 @@ def get_projects_by_member():
     if "error" in result:
         return jsonify(result), 404
     return jsonify(result), 200
+
+@app.route('/updateProjectDetails', methods=['POST', 'OPTIONS'])
+def updateProjectDetails():
+    if request.method == "OPTIONS":
+        response = make_response()
+        response.headers.add("Access-Control-Allow-Origin", "http://localhost:3000")
+        response.headers.add("Access-Control-Allow-Methods", "POST, OPTIONS")
+        response.headers.add("Access-Control-Allow-Headers", "Content-Type, Authorization")
+        response.headers.add("Access-Control-Allow-Credentials", "true")
+        return response
+    
+    # Parse JSON data from the request body
+    data = request.json
+    creatorusername = data.get('creatorusername', "")
+    title = data.get('title', "")
+    updates = data.get('updates', {})
+
+    if not creatorusername or not title:
+        return jsonify({"status": "error", "message": "Missing required fields: creatorusername or title."}), 400
+
+    # Call the Project.updateProjectDetails method to update the project details
+    result = Project.updateProjectDetails(creatorusername, title, updates)
+
+    # Check if the result is an error
+    if "error" in result:
+        return jsonify(result), 400  # Bad request if there's an error
+    else:
+        return jsonify(result), 200  # Return success message with 200 OK
+
 
 
 if __name__ == "__main__":

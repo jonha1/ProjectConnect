@@ -4,14 +4,13 @@ import { useState } from "react";
 import Navbar from "../../components/navbar";
 import "../../styles/account.page.css";
 import Postcard from "../../components/post_card";
-import styles from "../../styles/searchpage.module.css"; 
-import { useSearchParams } from "next/navigation"; 
-import { getUsernameFromCookie } from "../../lib/cookieUtils"; 
+import styles from "../../styles/searchpage.module.css";
+import { useSearchParams } from "next/navigation";
+import { getUsernameFromCookie } from "../../lib/cookieUtils";
 import { faPencil } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useRouter } from "next/navigation";
 import Cookies from 'js-cookie';
-
 interface Project {
   creatorusername: string;
   title: string;
@@ -20,24 +19,21 @@ interface Project {
   memberDescription: string;
   memberLinks: string;
   memberContactInfo: string;
-  dateposted: string; 
+  dateposted: string;
   isarchived: boolean;
 }
-
 type AutoResizeTextareaProps = {
   placeholder: string;
   value: string;
   onChange: (value: string) => void;
 };
-
 function AutoResizeTextarea({ placeholder, value, onChange }: AutoResizeTextareaProps) {
   const handleChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
     const textarea = event.target;
-    textarea.style.height = 'auto';  
-    textarea.style.height = `${textarea.scrollHeight}px`;  
+    textarea.style.height = 'auto';
+    textarea.style.height = `${textarea.scrollHeight}px`;
     onChange(textarea.value);
   };
-
   return (
     <textarea
       value={value}
@@ -55,7 +51,6 @@ function AutoResizeTextarea({ placeholder, value, onChange }: AutoResizeTextarea
     />
   );
 }
-
 export default function Account() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -65,107 +60,93 @@ export default function Account() {
   const [displayName, setDisplayName] = useState("Loading...");
   const [aboutMe, setAboutMe] = useState("Loading...");
   const [contactInfo, setContactInfo] = useState("Loading...");
-  const [postsCreated, setPostsCreated] = useState<Project[]>([]); 
-  const [joinedProjects,  setJoinedProjects] = useState<Project[]>([]);
+  const [postsCreated, setPostsCreated] = useState<Project[]>([]);
+  const [joinedProjects, setJoinedProjects] = useState<Project[]>([]);
   const [skills, setSkills] = useState("Loading...");
   const [editComponent, setEditComponent] = useState("");
-  const [textareaValue, setTextareaValue] = useState(""); 
-
+  const [textareaValue, setTextareaValue] = useState("");
   const [isLoading, setIsLoading] = useState(true);
-
   useEffect(() => {
     const cookieUsername = getUsernameFromCookie();
     if (cookieUsername) {
-    setUsername(cookieUsername);
+      setUsername(cookieUsername);
     const searchParams = new URLSearchParams(window.location.search);
     const urlUsername = searchParams.get("username");
     const usernameToFetch = urlUsername || getUsernameFromCookie();
 
-    
-      if (usernameToFetch ) {
-        setUsername(usernameToFetch );
+    if (usernameToFetch ) {
+      setUsername(usernameToFetch );
 
-        const fetchUserData = async () => {
-          try {
-            setIsLoading(true);
-
-            // Fetch user details
-            const userResponse = await fetch("http://127.0.0.1:5001/api/getUserDetails", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({ username: usernameToFetch }),
-            });
-
-            const userResult = await userResponse.json();
-
-            if (userResponse.ok) {
-              setDisplayName(userResult.displayname || "No displayName found");
-              setAboutMe(userResult.aboutme || "No About Me information found.");
-              setContactInfo(userResult.contactinfo || "No Contact information found.");
-              setSkills(userResult.skills || "No skills found.");
-            } else {
-              console.error("Error fetching user details:", userResult.message);
-            }
-
-            // Fetch user's created posts
-            const postsResponse = await fetch("http://127.0.0.1:5001/projects/by_creator", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({ creatorusername: usernameToFetch }),
-            });
-            
-            const postsResult = await postsResponse.json();
-            
-            if (postsResponse.ok) {
-              setPostsCreated(postsResult.projects || []); 
-            } else {
-              console.error("Error fetching projects:", postsResult.message);
-            }
-          } catch (error) {
-            console.error("Error fetching data:", error);
-          } finally {
-            setIsLoading(false);
+      const fetchUserData = async () => {
+        try {
+          setIsLoading(true);
+          // Fetch user details
+          const userResponse = await fetch("http://127.0.0.1:5001/api/getUserDetails", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ username: usernameToFetch }),
+          });
+          const userResult = await userResponse.json();
+          if (userResponse.ok) {
+            setDisplayName(userResult.displayname || "No displayName found");
+            setAboutMe(userResult.aboutme || "No About Me information found.");
+            setContactInfo(userResult.contactinfo || "No Contact information found.");
+            setSkills(userResult.skills || "No skills found.");
+          } else {
+            console.error("Error fetching user details:", userResult.message);
           }
-        };
-
-
-        const fetchJoinedProjects = async () => {
-          try{
-            const response = await fetch("http://127.0.0.1:5001/projects/by_member", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({ username: usernameToFetch }),
-            });
-
-            const result = await response.json();
-            if (response.ok) {
-              setJoinedProjects(result.projects || []);
-            } else {
-              console.error("Error fetching joined projects:", result.message);
-            }
+          // Fetch user's created posts
+          const postsResponse = await fetch("http://127.0.0.1:5001/projects/by_creator", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ creatorusername: usernameToFetch }),
+          });
+          const postsResult = await postsResponse.json();
+          if (postsResponse.ok) {
+            setPostsCreated(postsResult.projects || []);
+          } else {
+            console.error("Error fetching projects:", postsResult.message);
           }
-          catch (error) {
-            console.error("Error fetching joined projects:", error);
+        } catch (error) {
+          console.error("Error fetching data:", error);
+        } finally {
+          setIsLoading(false);
+        }
+      };  
+      const fetchJoinedProjects = async () => {
+        try {
+          const response = await fetch("http://127.0.0.1:5001/projects/by_member", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ username: usernameToFetch }),
+          });
+          const result = await response.json();
+          if (response.ok) {
+            setJoinedProjects(result.projects || []);
+          } else {
+            console.error("Error fetching joined projects:", result.message);
           }
-        };
-
-        fetchUserData();
-        fetchJoinedProjects();
-      } else {
-        console.error("Username not found in cookies.");
-        setAboutMe("Username not found.");
-        setDisplayName("DisplayName not found");
-        setContactInfo("Username not found.");
-        setSkills("Username not found.");
-      }
-  }}, []);
-  
+        }
+        catch (error) {
+          console.error("Error fetching joined projects:", error);
+        }
+      };
+      fetchUserData();
+      fetchJoinedProjects();
+    } else {
+      console.error("Username not found in cookies.");
+      setAboutMe("Username not found.");
+      setDisplayName("DisplayName not found");
+      setContactInfo("Username not found.");
+      setSkills("Username not found.");
+    }
+  }, []);
   if (isLoading) {
     return (
       <div
@@ -178,27 +159,26 @@ export default function Account() {
         <div
           className="spinner-border"
           role="status"
-          style={{ width: "5rem", height: "5rem" , color: "#2D2D2D" }}
+          style={{ width: "5rem", height: "5rem", color: "#2D2D2D" }}
         >
           <span className="sr-only">Loading...</span>
         </div>
       </div>
     );
   }
-
-  {postsCreated.map((post, index) => (
-    <Postcard
-      key={index}
-      postName={post.title || "Untitled"} 
-      postInfo={post.description || "No description available"}
-      creatorName={post.creatorusername || "Unknown creator"}
-      className={styles.postCard}
-    />
-  ))}
-
+  {
+    postsCreated.map((post, index) => (
+      <Postcard
+        key={index}
+        postName={post.title || "Untitled"}
+        postInfo={post.description || "No description available"}
+        creatorName={post.creatorusername || "Unknown creator"}
+        className={styles.postCard}
+      />
+    ))
+  }
   const handleEdit = (component: string) => {
     setEditComponent(component);
-
     // Set the initial value based on the component being edited
     switch (component) {
       case "About Me":
@@ -214,7 +194,6 @@ export default function Account() {
         setTextareaValue("");
     }
   };
-
   const updateProfile = async (
     username: string,
     column: string,
@@ -228,13 +207,11 @@ export default function Account() {
         },
         body: JSON.stringify({
           username: username,
-          column: column, 
+          column: column,
           value: value,
         }),
       });
-  
       const result = await response.json();
-  
       if (response.ok) {
         console.log("updated successfully:", result.message);
       } else {
@@ -244,8 +221,6 @@ export default function Account() {
       console.error(`Error updating ${column}:`, error);
     }
   };
-  
-
   const handleSave = () => {
     // Save the updated value based on the `editComponent`
     let columnToEdit = "";
@@ -265,21 +240,18 @@ export default function Account() {
       default:
         break;
     }
-
     updateProfile(username, columnToEdit, textareaValue);
   };
+
   const login = () => {
     //logs out of account completly with cookie , and reroute to login page
     Cookies.remove('username');
     Cookies.remove('email');
     router.push("/login");
   };
-
-
   return (
     <div className="wrapper">
       <Navbar />
-
       <div className="contentContainer">
         <div className="sidePanel">
           <div className="displayName">{displayName}</div>
@@ -297,7 +269,6 @@ export default function Account() {
             Skills: {skills}
             <FontAwesomeIcon onClick={() => handleEdit("Skills")} icon={faPencil} role='button' className="editIcon" data-bs-toggle="modal" data-bs-target="#editAccountModal" />
           </div>
-
           <div className="modal fade" id="editAccountModal" tabIndex={-1} role="dialog" aria-labelledby="editAccountModal" aria-hidden="true">
             <div className="modal-dialog" role="document">
               <div className="modal-content">
@@ -318,7 +289,6 @@ export default function Account() {
               </div>
             </div>
           </div>
-
           <button
             type="button"
             className="btn custom-logout-btn btn-sm"
@@ -327,7 +297,6 @@ export default function Account() {
           >
             Log Out Account
           </button>
-
           <div
             className="modal fade"
             id="logoutbtn"
@@ -368,8 +337,6 @@ export default function Account() {
             </div>
           </div>
         </div>
-
-
         <div className="mainContent">
           <div className={`tabs`}>
             <div
@@ -391,7 +358,6 @@ export default function Account() {
               Bookmarks
             </div>
           </div>
-
           <div className="projects">
             {activeTab === "created" && (
               <div className="createdProjects">
