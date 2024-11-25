@@ -262,9 +262,7 @@ export default function Account() {
 
       const result = await response.json();
 
-      if (response.ok) {
-        // console.log("updated successfully:", result.message);
-      } else {
+      if (!response.ok) {
         console.error(`Failed to update ${column}:`, result.error || result.message);
       }
     } catch (error) {
