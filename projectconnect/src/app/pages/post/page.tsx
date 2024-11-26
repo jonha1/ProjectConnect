@@ -103,7 +103,7 @@ export default function ProjectView() {
       }
       fetchProjectInformation(creator, projectTitle);
       verifyBookmark(creator, projectTitle, cookieUsername);
-
+      verifyNotif(creator, cookieUsername, projectTitle, "Join");
     }
   }, [pathname]);
 
@@ -185,7 +185,7 @@ export default function ProjectView() {
         },
         body: JSON.stringify({
           creatorusername: creator,
-          title: projectTitle,
+          title: projectTitle.replace("-", " "),
         }),
       });
       
@@ -205,8 +205,7 @@ export default function ProjectView() {
   const verifyBookmark = async (creator: string | null, projectTitle: string | null, user: string | undefined) => {
     try {
         // Ensure projectTitle is not null, use a default value if it is
-        const sanitizedTitle = projectTitle ? projectTitle.replace("-", " ") : "";
-
+        const sanitizedTitle = projectTitle ? projectTitle.replace(/-/g, " ") : "";
         const response = await fetch("http://localhost:5001/verifyBookmark", {
             method: "POST",
             credentials: "include",
@@ -225,7 +224,7 @@ export default function ProjectView() {
     } catch (error) {
         console.error("Error verifying bookmark:", error);
     }
-};
+  };
 
 
 
@@ -233,6 +232,7 @@ export default function ProjectView() {
     const cookieUsername = getUsernameFromCookie();
     if (!creator || !projectTitle) return;
     try {
+      const sanitizedTitle = projectTitle ? projectTitle.replace(/-/g, " ") : "";
       const response = await fetch("http://localhost:5001/addBookmark", {
         method: "POST",
         credentials: "include",
@@ -241,7 +241,7 @@ export default function ProjectView() {
         },
         body: JSON.stringify({ 
           creatorusername: creator, 
-          title: projectTitle.replace("-", " "),
+          title: sanitizedTitle,
           username: cookieUsername
         }),
       });
@@ -258,6 +258,7 @@ export default function ProjectView() {
     const cookieUsername = getUsernameFromCookie();
     if (!creator || !projectTitle) return;
     try {
+      const sanitizedTitle = projectTitle ? projectTitle.replace(/-/g, " ") : "";
       const response = await fetch("http://localhost:5001/deleteBookmark", {
         method: "POST",
         credentials: "include",
@@ -266,7 +267,7 @@ export default function ProjectView() {
         },
         body: JSON.stringify({ 
           creatorusername: creator, 
-          title: projectTitle.replace("-", " "),
+          title: sanitizedTitle,
           username: cookieUsername
         }),
       });
@@ -365,11 +366,36 @@ export default function ProjectView() {
     }
   };
 
+  const verifyNotif = async (toUser: string | null, fromUser: string | null, projectTitle: string | null, messageType: string | null) => {
+    try {
+        // Ensure projectTitle is not null, use a default value if it is
+        const sanitizedTitle = projectTitle ? projectTitle.replace(/-/g, " ") : "";
+
+        const response = await fetch("http://localhost:5001/verifyNotif", {
+            method: "POST",
+            credentials: "include",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                touserid: toUser,
+                fromuserid: fromUser,
+                messagetype: messageType,
+                projectitle: sanitizedTitle,
+            }),
+        });
+        const data = await response.json();
+        setRequestSent(data.result);
+    } catch (error) {
+        console.error("Error verifying bookmark:", error);
+    }
+  };
+
   const sendNotif = async (toUser: string | null, projectTitle: string | null, messageType: string | null) => {
     const cookieUsername = getUsernameFromCookie();
     if (!toUser || !messageType || !projectTitle) return; // Check for null projectTitle
     try {
-        const sanitizedTitle = projectTitle.replace("-", " "); // Safe to call .replace now
+        const sanitizedTitle = projectTitle.replace(/-/g, " "); // Safe to call .replace now
 
         const response = await fetch("http://localhost:5001/sendNotification", {
             method: "POST",
@@ -389,10 +415,11 @@ export default function ProjectView() {
         if (data.status == 'error') {
             throw new Error(`HTTP error! status: ${data.error}`);
         }
+        alert(data.result);
     } catch (error) {
         console.error("Error fetching sending notification:", error);
     }
-};
+  };
 
   const handleLeaveProject = async () => {
     if (!projectDetails) return;
