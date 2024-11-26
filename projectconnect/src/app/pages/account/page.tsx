@@ -1,5 +1,5 @@
 "use client";
-import React, { use, useEffect, useReducer } from 'react';
+import React, { useEffect } from 'react';
 import { useState } from "react";
 import Navbar from "../../components/navbar";
 import "../../styles/account.page.css";
