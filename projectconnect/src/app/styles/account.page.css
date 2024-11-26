@@ -70,7 +70,18 @@
 .modal-content{
     background-color: #2D2D2D;
 }
+.custom-logout-btn {
+    background-color: #2D2D2D;
+    color: white; 
+    padding: 10px 18px;
+    font-size: 17px;
+    border-radius: 8px;
+  }
   
+  .custom-logout-btn:hover {
+    background-color: white; /* Slightly darker shade on hover */
+    color: #2D2D2D;
+  }
 
 
 /* .buttonContainer{
@@ -109,3 +120,5 @@
     margin: 3%;
     overflow-y: auto; 
 }
+
+
