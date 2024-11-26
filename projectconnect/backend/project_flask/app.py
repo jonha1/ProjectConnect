@@ -49,6 +49,7 @@ def register_account():
 
     result = Account.register(
         username=data.get('username'),
+        displayname=data.get('displayname'),
         loginEmail=data.get('loginEmail'),
         password=data.get('password')  
     )
