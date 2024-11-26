@@ -439,12 +439,14 @@ export default function Account() {
           >
             Joined Projects
           </div>
-          <div
-            className={activeTab === "bookmarks" ? "activeTab" : ""}
-            onClick={() => setActiveTab("bookmarks")}
-          >
-            Bookmarks
-          </div>
+          {isOwner && 
+            <div
+              className={activeTab === "bookmarks" ? "activeTab" : ""}
+              onClick={() => setActiveTab("bookmarks")}
+            >
+              Bookmarks
+            </div>
+          }   
         </div>
 
         <div className="projects">
