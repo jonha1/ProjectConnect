@@ -18,6 +18,15 @@ export default function Searchbar({ onSearchChange, searchText = "", onKeyDown }
   const [inputValue, setInputValue] = useState(searchText);
 
   useEffect(() => {
+    const dropdown = document.querySelector('.dropdown');
+    if (dropdown) {
+      dropdown.classList.remove('active');
+      setTimeout(() => dropdown.classList.add('active'), 0);
+    }
+  }, []);
+  
+
+  useEffect(() => {
     // Update inputValue if searchText prop changes
     setInputValue(searchText);
   }, [searchText]);

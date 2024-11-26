@@ -4,7 +4,6 @@ from psycopg2.extras import RealDictCursor
 from project_flask.models.member import Member
 from project_flask.models.project import Project
 
-
 class Creator(Member):
     def __init__(self, username, displayName, loginEmail, password, aboutMe, contactInfo, skills):
         super().__init__(username, displayName, loginEmail, password, aboutMe, contactInfo, skills)
@@ -27,6 +26,9 @@ class Creator(Member):
     @staticmethod
     def unarchiveProject(creatorusername, title):
         return Project.unarchiveProject(creatorusername, title)
+
+    def inviteUser(self, username):
+        pass
 
     @staticmethod
     def editPost(creatorusername, title, new_details):
@@ -89,6 +91,4 @@ class Creator(Member):
 
         except Exception as e:
             print(f"Error in createProject: {e}")
-
             return {"error": f"Failed to create project: {str(e)}"}
-
