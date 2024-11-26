@@ -57,6 +57,27 @@ class User:
             print(f"Error checking user existence for username '{username}': {e}")
             return False
 
+    @staticmethod
+    def updateUserInfo(username, contact_info, skills, about_me):
+        if not username:
+            return {"status": "error", "message": "Username is required"}
+        
+        try:
+            with User.get_db_connection() as conn:
+                with conn.cursor() as cursor:
+                    cursor.execute(
+                        """
+                        UPDATE users 
+                        SET contactinfo = %s, skills = %s, aboutme = %s 
+                        WHERE username = %s
+                        """,
+                        (contact_info, skills, about_me, username)
+                    )
+                    conn.commit()
+            return {"status": "success", "message": "User info updated successfully"}
+        except Exception as e:
+            print(f"Error updating user info for {username}: {e}")
+            return {"status": "error", "message": str(e)}
     
     @staticmethod
     def updateProfileFromEdit(username, column, value):
