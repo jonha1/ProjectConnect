@@ -408,6 +408,21 @@ def get_user_details():
         print(f"Error fetching user details: {e}")
         return jsonify({"status": "error", "message": str(e)}), 500
     
+@app.route('/api/updateUserInfo', methods=['POST'])
+def update_user_info():
+    data = request.json
+    username = data.get("username")
+    contact_info = data.get("contactInfo")
+    skills = data.get("skills")
+    about_me = data.get("aboutMe")
+
+    result = User.updateUserInfo(username, contact_info, skills, about_me)
+
+    if result["status"] == "success":
+        return jsonify(result), 200
+    else:
+        return jsonify(result), 400 if result.get("message") == "Username is required" else 500
+    
 # Project API's
     
 @app.route('/project_exists', methods=['GET'])
