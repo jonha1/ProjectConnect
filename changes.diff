@@ -1,0 +1,3048 @@
+diff --git a/projectconnect/backend/project_flask/__pycache__/__init__.cpython-310.pyc b/projectconnect/backend/project_flask/__pycache__/__init__.cpython-310.pyc
+deleted file mode 100644
+index 3860dc8..0000000
+Binary files a/projectconnect/backend/project_flask/__pycache__/__init__.cpython-310.pyc and /dev/null differ
+diff --git a/projectconnect/backend/project_flask/__pycache__/__init__.cpython-312.pyc b/projectconnect/backend/project_flask/__pycache__/__init__.cpython-312.pyc
+index f6c787d..ea194d5 100644
+Binary files a/projectconnect/backend/project_flask/__pycache__/__init__.cpython-312.pyc and b/projectconnect/backend/project_flask/__pycache__/__init__.cpython-312.pyc differ
+diff --git a/projectconnect/backend/project_flask/__pycache__/__init__.cpython-39.pyc b/projectconnect/backend/project_flask/__pycache__/__init__.cpython-39.pyc
+deleted file mode 100644
+index 7538327..0000000
+Binary files a/projectconnect/backend/project_flask/__pycache__/__init__.cpython-39.pyc and /dev/null differ
+diff --git a/projectconnect/backend/project_flask/__pycache__/app.cpython-310.pyc b/projectconnect/backend/project_flask/__pycache__/app.cpython-310.pyc
+deleted file mode 100644
+index 802f960..0000000
+Binary files a/projectconnect/backend/project_flask/__pycache__/app.cpython-310.pyc and /dev/null differ
+diff --git a/projectconnect/backend/project_flask/__pycache__/app.cpython-312.pyc b/projectconnect/backend/project_flask/__pycache__/app.cpython-312.pyc
+index a91dc48..511ec39 100644
+Binary files a/projectconnect/backend/project_flask/__pycache__/app.cpython-312.pyc and b/projectconnect/backend/project_flask/__pycache__/app.cpython-312.pyc differ
+diff --git a/projectconnect/backend/project_flask/__pycache__/app.cpython-39.pyc b/projectconnect/backend/project_flask/__pycache__/app.cpython-39.pyc
+deleted file mode 100644
+index 9ffc719..0000000
+Binary files a/projectconnect/backend/project_flask/__pycache__/app.cpython-39.pyc and /dev/null differ
+diff --git a/projectconnect/backend/project_flask/app.py b/projectconnect/backend/project_flask/app.py
+index 9f96d69..cf2c17f 100644
+--- a/projectconnect/backend/project_flask/app.py
++++ b/projectconnect/backend/project_flask/app.py
+@@ -3,12 +3,11 @@ from psycopg2.extras import RealDictCursor
+ from dotenv import load_dotenv
+ from flask import Flask, request, jsonify, make_response
+ from project_flask.models.account import Account
+-from project_flask.models.member import Member
+-from project_flask.models.creator import Creator
+ from project_flask.models.project import Project
+ from project_flask.models.user import User
+ 
+ load_dotenv()
++
+ app = Flask(__name__)
+ CORS(app)
+ # CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}}, supports_credentials=True)
+@@ -77,48 +76,7 @@ def login():
+         return jsonify({"message": "Login successful", "user": account['username']}), 200
+     else:
+         return jsonify({"error": "Invalid credentials"}), 401
+-
+-@app.route('/api/leave-project', methods=['POST'])
+-def leave_project():
+-    data = request.json
+-    username = data.get("username")
+-    project_title = data.get("project_title")
+-    result = Member.leaveProject(username, project_title)
+-
+-    if "error" in result:
+-        return jsonify(result), 400
+-    else:
+-        return jsonify(result), 200
+     
+-@app.route('/api/join-project', methods=['POST'])
+-def join_project():
+-    data = request.json
+-    username = data.get("username")
+-    project_title = data.get("project_title")
+-
+-    if not username or not project_title:
+-        return jsonify({"error": "Missing username or project title"}), 400
+-
+-    result = User.join_project(username, project_title)
+-
+-    if "error" in result:
+-        return jsonify(result), 400
+-    else:
+-        return jsonify(result), 201
+-
+-@app.route('/delete-project', methods=['POST'])
+-def delete_project():
+-    data = request.json
+-    creatorusername = data.get("creatorusername")
+-    title = data.get("title")
+-    print(title, creatorusername)
+-    result = Creator.deleteProject(creatorusername, title)
+-    if "error" in result:
+-        return jsonify(result), 400  # 400 for bad request (like duplicate entry)
+-    else:
+-        return jsonify(result), 201  # 201 for successful creation
+-        
+-
+ @app.route('/updateProfileFromEdit', methods=['POST'])
+ def updateProfileFromEdit():
+     data = request.json
+@@ -327,38 +285,28 @@ def project_exists():
+         return {"exists": True}
+     else:
+         return {"exists": False}
+-    
++
+ @app.route('/buildProject', methods=['POST'])
+ def buildProject():
+     data = request.json
+-    print('Received Data:', data)  # Log the incoming request
+-    
+     creatorusername = data.get('creatorusername')
+     title = data.get('title')
+     description = data.get('description')
+     tag = data.get('tag')
+-    contact = data.get('contact')
+-
+-    links= data.get('links', '')
+-    memberDescription= data.get('memberDescription', '')
+-    memberLinks= data.get('memberLinks', '')
+-    memberContact= data.get('memberContact', '')
+-
++    
+     if not all([creatorusername, title, description, tag]):
+         return jsonify({"error": "Missing required fields: 'creatorusername', 'title', 'description', or 'tag'"}), 400
+ 
+-    creator = Creator(
+-        username=creatorusername,
+-        displayName=data.get('displayName', ""),
+-        loginEmail=data.get('loginEmail', ""),
+-        password = data.get('password', ""),
+-        aboutMe=data.get('aboutMe', ""),
+-        contactInfo=data.get('contactInfo', ""),
+-        skills=data.get('skills', "")
+-    )
++    # Extract optional fields, using None if they are not provided
++    optional_fields = {
++        "links": data.get('links'),
++        "memberdescription": data.get('memberdescription'),
++        "memberlinks": data.get('memberlinks'),
++        "membercontactinfo": data.get('membercontactinfo'),
++    }
+ 
+     # Call the buildProject method, passing required and optional parameters
+-    result = creator.createProject(creatorusername, title, description, tag, links , contact, memberDescription, memberLinks, memberContact)
++    result = Project.buildProject(creatorusername, title, description, tag, **optional_fields)
+ 
+     # Check if the result is an error
+     if "error" in result:
+@@ -387,16 +335,27 @@ def getProjectInfo():
+     else:
+         return jsonify(result), 201  # 201 for successful creation
+     
++@app.route('/deleteProject', methods=['POST'])
++def deleteProject():
++    data = request.json
++    creatorusername = data.get('creatorusername')
++    title = data.get('title')
++
++    result = Project.deleteProject(creatorusername, title)
++
++    # Check if the result is an error
++    if "error" in result:
++        return jsonify(result), 400  # 400 for bad request (like duplicate entry)
++    else:
++        return jsonify(result), 201  # 201 for successful creation
++    
+ @app.route('/archiveProject', methods=['POST'])
+ def archiveProject():
+     data = request.json
+     creatorusername = data.get('creatorusername')
+     title = data.get('title')
+ 
+-    if not creatorusername or not title:
+-        return jsonify({"error": "Missing creatorusername or title"}), 400
+-
+-    result = Creator.archiveProject(creatorusername, title)
++    result = Project.archiveProject(creatorusername, title)
+ 
+     # Check if the result is an error
+     if "error" in result:
+@@ -410,7 +369,7 @@ def unarchiveProject():
+     creatorusername = data.get('creatorusername')
+     title = data.get('title')
+ 
+-    result = Creator.unarchiveProject(creatorusername, title)
++    result = Project.unarchiveProject(creatorusername, title)
+ 
+     # Check if the result is an error
+     if "error" in result:
+@@ -460,95 +419,6 @@ def get_projects_by_creator():
+     except Exception as e:
+         print(f"Error in /projects/by_creator: {e}")
+         return jsonify({"status": "error", "message": "Internal server error"}), 500
+-    
+-@app.route('/verifyMembership', methods=['POST', 'OPTIONS'])
+-def verifyMembership():
+-    if request.method == "OPTIONS":
+-        response = make_response()
+-        response.headers.add("Access-Control-Allow-Origin", "http://localhost:3000")
+-        response.headers.add("Access-Control-Allow-Methods", "POST, OPTIONS")
+-        response.headers.add("Access-Control-Allow-Headers", "Content-Type, Authorization")
+-        response.headers.add("Access-Control-Allow-Credentials", "true")
+-        return response
+-    
+-    data = request.json
+-    memberusername = data.get('membersusername')
+-    creatorusername = data.get('creatorusername')
+-    title = data.get('title')
+-
+-    # Check if any of the required fields are missing
+-    if not memberusername or not creatorusername or not title:
+-        return jsonify({"error": "Missing memberusername, creatorusername, or title"}), 400
+-
+-    try:
+-        # Call the method in the Member model to check if the member is part of the project
+-        in_project = Member.verifyMembership(memberusername, title, creatorusername)
+-
+-        if in_project:
+-            return jsonify({"status": "success", "message": f"Member {memberusername} is in the project {title}."}), 200
+-        else:
+-            return jsonify({"status": "failure", "message": f"Member {memberusername} is not in the project {title}."}), 404
+-    except Exception as e:
+-        print(f"Error checking joined project info: {e}")
+-        return jsonify({"error": str(e)}), 500
+-    
+-@app.route('/editProject', methods=['POST'])
+-def edit_project():
+-    data = request.json
+-    creatorusername = data.get('creatorusername')
+-    title = data.get('title')
+-    new_details = data.get('new_details') 
+-
+-    if not creatorusername or not title or not new_details:
+-        return jsonify({"error": "Missing required fields"}), 400
+-
+-    result = Creator.editPost(creatorusername, title, new_details)
+-
+-    if "error" in result:
+-        return jsonify(result), 400
+-    else:
+-        return jsonify(result), 200
+-@app.route('/projects/by_member', methods=['POST'])
+-def get_projects_by_member():
+-    data = request.json
+-    username = data.get('username')
+-    
+-    if not username:
+-        return jsonify({"error": "Username is required"}), 400
+-
+-    result = Member.get_projects_by_member(username)
+-    if "error" in result:
+-        return jsonify(result), 404
+-    return jsonify(result), 200
+-
+-@app.route('/updateProjectDetails', methods=['POST', 'OPTIONS'])
+-def updateProjectDetails():
+-    if request.method == "OPTIONS":
+-        response = make_response()
+-        response.headers.add("Access-Control-Allow-Origin", "http://localhost:3000")
+-        response.headers.add("Access-Control-Allow-Methods", "POST, OPTIONS")
+-        response.headers.add("Access-Control-Allow-Headers", "Content-Type, Authorization")
+-        response.headers.add("Access-Control-Allow-Credentials", "true")
+-        return response
+-    
+-    # Parse JSON data from the request body
+-    data = request.json
+-    creatorusername = data.get('creatorusername', "")
+-    title = data.get('title', "")
+-    updates = data.get('updates', {})
+-
+-    if not creatorusername or not title:
+-        return jsonify({"status": "error", "message": "Missing required fields: creatorusername or title."}), 400
+-
+-    # Call the Project.updateProjectDetails method to update the project details
+-    result = Project.updateProjectDetails(creatorusername, title, updates)
+-
+-    # Check if the result is an error
+-    if "error" in result:
+-        return jsonify(result), 400  # Bad request if there's an error
+-    else:
+-        return jsonify(result), 200  # Return success message with 200 OK
+-
+ 
+ 
+ if __name__ == "__main__":
+diff --git a/projectconnect/backend/project_flask/models/__pycache__/__init__.cpython-310.pyc b/projectconnect/backend/project_flask/models/__pycache__/__init__.cpython-310.pyc
+deleted file mode 100644
+index 4d30cdd..0000000
+Binary files a/projectconnect/backend/project_flask/models/__pycache__/__init__.cpython-310.pyc and /dev/null differ
+diff --git a/projectconnect/backend/project_flask/models/__pycache__/__init__.cpython-312.pyc b/projectconnect/backend/project_flask/models/__pycache__/__init__.cpython-312.pyc
+index 06881c9..7ab88a4 100644
+Binary files a/projectconnect/backend/project_flask/models/__pycache__/__init__.cpython-312.pyc and b/projectconnect/backend/project_flask/models/__pycache__/__init__.cpython-312.pyc differ
+diff --git a/projectconnect/backend/project_flask/models/__pycache__/__init__.cpython-39.pyc b/projectconnect/backend/project_flask/models/__pycache__/__init__.cpython-39.pyc
+deleted file mode 100644
+index 59038a3..0000000
+Binary files a/projectconnect/backend/project_flask/models/__pycache__/__init__.cpython-39.pyc and /dev/null differ
+diff --git a/projectconnect/backend/project_flask/models/__pycache__/account.cpython-310.pyc b/projectconnect/backend/project_flask/models/__pycache__/account.cpython-310.pyc
+deleted file mode 100644
+index 2679424..0000000
+Binary files a/projectconnect/backend/project_flask/models/__pycache__/account.cpython-310.pyc and /dev/null differ
+diff --git a/projectconnect/backend/project_flask/models/__pycache__/account.cpython-312.pyc b/projectconnect/backend/project_flask/models/__pycache__/account.cpython-312.pyc
+index 5183478..89c4457 100644
+Binary files a/projectconnect/backend/project_flask/models/__pycache__/account.cpython-312.pyc and b/projectconnect/backend/project_flask/models/__pycache__/account.cpython-312.pyc differ
+diff --git a/projectconnect/backend/project_flask/models/__pycache__/account.cpython-39.pyc b/projectconnect/backend/project_flask/models/__pycache__/account.cpython-39.pyc
+deleted file mode 100644
+index 2778ca9..0000000
+Binary files a/projectconnect/backend/project_flask/models/__pycache__/account.cpython-39.pyc and /dev/null differ
+diff --git a/projectconnect/backend/project_flask/models/__pycache__/creator.cpython-310.pyc b/projectconnect/backend/project_flask/models/__pycache__/creator.cpython-310.pyc
+deleted file mode 100644
+index cade40d..0000000
+Binary files a/projectconnect/backend/project_flask/models/__pycache__/creator.cpython-310.pyc and /dev/null differ
+diff --git a/projectconnect/backend/project_flask/models/__pycache__/creator.cpython-312.pyc b/projectconnect/backend/project_flask/models/__pycache__/creator.cpython-312.pyc
+deleted file mode 100644
+index 4faaa4d..0000000
+Binary files a/projectconnect/backend/project_flask/models/__pycache__/creator.cpython-312.pyc and /dev/null differ
+diff --git a/projectconnect/backend/project_flask/models/__pycache__/member.cpython-310.pyc b/projectconnect/backend/project_flask/models/__pycache__/member.cpython-310.pyc
+deleted file mode 100644
+index 3d7002b..0000000
+Binary files a/projectconnect/backend/project_flask/models/__pycache__/member.cpython-310.pyc and /dev/null differ
+diff --git a/projectconnect/backend/project_flask/models/__pycache__/member.cpython-312.pyc b/projectconnect/backend/project_flask/models/__pycache__/member.cpython-312.pyc
+deleted file mode 100644
+index dfeafed..0000000
+Binary files a/projectconnect/backend/project_flask/models/__pycache__/member.cpython-312.pyc and /dev/null differ
+diff --git a/projectconnect/backend/project_flask/models/__pycache__/project.cpython-312.pyc b/projectconnect/backend/project_flask/models/__pycache__/project.cpython-312.pyc
+index 8e73d5c..bacb492 100644
+Binary files a/projectconnect/backend/project_flask/models/__pycache__/project.cpython-312.pyc and b/projectconnect/backend/project_flask/models/__pycache__/project.cpython-312.pyc differ
+diff --git a/projectconnect/backend/project_flask/models/__pycache__/user.cpython-310.pyc b/projectconnect/backend/project_flask/models/__pycache__/user.cpython-310.pyc
+deleted file mode 100644
+index cb2501f..0000000
+Binary files a/projectconnect/backend/project_flask/models/__pycache__/user.cpython-310.pyc and /dev/null differ
+diff --git a/projectconnect/backend/project_flask/models/__pycache__/user.cpython-312.pyc b/projectconnect/backend/project_flask/models/__pycache__/user.cpython-312.pyc
+deleted file mode 100644
+index 08d9e48..0000000
+Binary files a/projectconnect/backend/project_flask/models/__pycache__/user.cpython-312.pyc and /dev/null differ
+diff --git a/projectconnect/backend/project_flask/models/creator.py b/projectconnect/backend/project_flask/models/creator.py
+deleted file mode 100644
+index 65c3fe7..0000000
+--- a/projectconnect/backend/project_flask/models/creator.py
++++ /dev/null
+@@ -1,94 +0,0 @@
+-import os
+-import psycopg2
+-from psycopg2.extras import RealDictCursor
+-from project_flask.models.member import Member
+-from project_flask.models.project import Project
+-
+-class Creator(Member):
+-    def __init__(self, username, displayName, loginEmail, password, aboutMe, contactInfo, skills):
+-        super().__init__(username, displayName, loginEmail, password, aboutMe, contactInfo, skills)
+-
+-    @staticmethod
+-    def get_db_connection():
+-        return psycopg2.connect(
+-            os.getenv("DATABASE_URL"),
+-            cursor_factory=RealDictCursor
+-        )
+-    
+-    @staticmethod
+-    def deleteProject(creatorusername, title):
+-        return Project.deleteProject(creatorusername, title)
+-
+-    @staticmethod
+-    def archiveProject(creatorusername, title):
+-        return Project.archiveProject(creatorusername, title)
+-    
+-    @staticmethod
+-    def unarchiveProject(creatorusername, title):
+-        return Project.unarchiveProject(creatorusername, title)
+-
+-    def inviteUser(self, username):
+-        pass
+-
+-    @staticmethod
+-    def editPost(creatorusername, title, new_details):
+-        try:
+-            with Creator.get_db_connection() as conn:
+-                with conn.cursor() as cursor:
+-                    # Check if the project exists and is owned by the creator
+-                    cursor.execute("""
+-                        SELECT * FROM projects
+-                        WHERE creatorusername = %s AND title = %s;
+-                    """, (creatorusername, title))
+-                    project = cursor.fetchone()
+-
+-                    if not project:
+-                        return {"error": f"Project '{title}' by '{creatorusername}' does not exist."}
+-
+-                    # Update the project with new details
+-                    update_fields = []
+-                    update_values = []
+-
+-                    for key, value in new_details.items():
+-                        if value is not None:  # Only update fields with new values
+-                            update_fields.append(f"{key} = %s")
+-                            update_values.append(value)
+-
+-                    if update_fields:
+-                        query = f"""
+-                            UPDATE projects
+-                            SET {', '.join(update_fields)}
+-                            WHERE creatorusername = %s AND title = %s
+-                            RETURNING *;
+-                        """
+-                        cursor.execute(query, update_values + [creatorusername, title])
+-                        updated_project = cursor.fetchone()
+-                        conn.commit()
+-
+-                        return {"status": "success", "project": updated_project}
+-                    else:
+-                        return {"error": "No new details provided to update."}
+-
+-        except Exception as e:
+-            print(f"Error updating project '{title}' by '{creatorusername}': {e}")
+-            return {"error": f"An error occurred: {str(e)}"}
+-
+-
+-    def createProject(self, creatorusername, title, description, tag, links, contact, memberDescription, memberLinks, memberContact):
+-        try:
+-
+-            # Delegate project creation to the Project class
+-            project_result = Project.buildProject(creatorusername, title, description,tag, links, contact ,memberDescription, memberLinks, memberContact)
+-
+-            if "error" in project_result:
+-                return project_result  # Return any errors from the Project class
+-
+-            return {
+-                "status": "success",
+-                "message": f"Project '{title}' created successfully.",
+-                "project": project_result.get("project"),
+-            }
+-
+-        except Exception as e:
+-            print(f"Error in createProject: {e}")
+-            return {"error": f"Failed to create project: {str(e)}"}
+\ No newline at end of file
+diff --git a/projectconnect/backend/project_flask/models/member.py b/projectconnect/backend/project_flask/models/member.py
+index 3ca394d..d8c50ca 100644
+--- a/projectconnect/backend/project_flask/models/member.py
++++ b/projectconnect/backend/project_flask/models/member.py
+@@ -1,64 +1,20 @@
+ import os
+ import psycopg2
+ from psycopg2.extras import RealDictCursor
+-from project_flask.models.user import User
+ 
+-class Member(User):
++class Member:
+     def __init__(self, username, displayName, loginEmail, password, aboutMe, contactInfo, skills):
+-        super().__init__(username, displayName, loginEmail, password, aboutMe, contactInfo, skills)
++        self.username = username
++        self.displayName = displayName
++        self.loginEmail = loginEmail
++        self.password = password  
++        self.aboutMe = aboutMe
++        self.contactInfo = contactInfo
++        self.skills = skills
+ 
+     @staticmethod
+     def get_db_connection():
+         return psycopg2.connect(
+             os.getenv("DATABASE_URL"),  
+             cursor_factory=RealDictCursor
+-        )
+-    
+-    def verifyMembership(username, project_title, creator):
+-        try:
+-            with Member.get_db_connection() as conn:
+-                with conn.cursor() as cursor:
+-                    cursor.execute("""
+-                        SELECT 1 FROM joinedProjects 
+-                        WHERE membersusername = %s AND projecttitle = %s AND creatorusername = %s
+-                    """, (username, project_title, creator))
+-                    return cursor.fetchone() is not None
+-        except Exception as e:
+-            print(f"Error checking membership: {e}")
+-            return False
+-        
+-    @staticmethod
+-    def leaveProject(username, project_title):
+-        # Remove the user from a project
+-        try:
+-            with Member.get_db_connection() as conn:
+-                with conn.cursor() as cursor:
+-                    cursor.execute("""
+-                        DELETE FROM joinedprojects
+-                        WHERE membersusername  = %s AND projecttitle = %s
+-                    """, (username, project_title))
+-                    conn.commit()
+-                    return {"message": f"User {username} left project {project_title} successfully."}
+-        except Exception as e:
+-            print(f"Error leaving project: {e}")
+-            return {"error": str(e)}
+-    
+-    @staticmethod
+-    def get_projects_by_member(username):
+-        try:
+-            with Member.get_db_connection() as conn:
+-                with conn.cursor() as cursor:
+-                    cursor.execute("""
+-                        SELECT p.*
+-                        FROM joinedprojects jp
+-                        JOIN projects p ON jp.projecttitle = p.title
+-                        WHERE jp.membersusername = %s
+-                        ORDER BY p.dateposted DESC;
+-                    """, (username,))
+-                    
+-                    projects = cursor.fetchall()
+-                return {"status": "success", "projects": projects or []}
+-        except Exception as e:
+-            print(f"Error fetching joined projects for member '{username}': {e}")
+-            return {"status": "error", "message": f"Failed to fetch joined projects for member '{username}': {str(e)}"}
+-        
+\ No newline at end of file
++        )
+\ No newline at end of file
+diff --git a/projectconnect/backend/project_flask/models/project.py b/projectconnect/backend/project_flask/models/project.py
+index db52637..bb1c6ed 100644
+--- a/projectconnect/backend/project_flask/models/project.py
++++ b/projectconnect/backend/project_flask/models/project.py
+@@ -3,12 +3,11 @@ import psycopg2
+ from psycopg2.extras import RealDictCursor
+ 
+ class Project:
+-    def __init__(self, creatorusername, title, description, links, contact, memberDescription, memberLinks, memberContactInfo, dateposted, isarchived):
++    def __init__(self, creatorusername, title, description, links, memberDescription, memberLinks, memberContactInfo, dateposted, isarchived):
+         self.creatorusername = creatorusername
+         self.title = title
+         self.description = description
+         self.links = links
+-        self.contact = contact 
+         self.memberDescription = memberDescription
+         self.memberLinks = memberLinks
+         self.memberContactInfo = memberContactInfo
+@@ -55,15 +54,28 @@ class Project:
+ 
+ 
+     @staticmethod
+-    def buildProject(creatorusername, title, description, tag, links, contact, memberDescription, memberLinks, memberContact):
++    def buildProject(creatorusername, title, description, tag, **optional_fields):
+         # Check if a project with the same creatorusername and title already exists
+         if Project.project_exists(creatorusername, title):
+             return {"error": "A project with this creatorusername and title already exists."}
+ 
+         # Define required fields
+-        fields = ["creatorusername", "title", "description", "tag", "links", "contact", "memberdescription", "memberlinks","membercontactinfo"]
+-        values = [creatorusername, title, description, tag, links, contact, memberDescription, memberLinks, memberContact]
+-        
++        fields = ["creatorusername", "title", "description", "tag"]
++        values = [creatorusername, title, description, tag]
++
++        # Add optional fields if they are provided
++        optional_columns = {
++            "links": optional_fields.get("links"),
++            "memberdescription": optional_fields.get("memberdescription"),
++            "memberlinks": optional_fields.get("memberlinks"),
++            "membercontactinfo": optional_fields.get("membercontactinfo"),
++        }
++
++        for key, value in optional_columns.items():
++            if value is not None:
++                fields.append(key)
++                values.append(value)
++
+         # Dynamically build the SQL query based on available fields
+         field_names = ", ".join(fields)
+         placeholders = ", ".join(["%s"] * len(fields))
+@@ -294,40 +306,13 @@ class Project:
+                     
+                     projects = cursor.fetchall()  
+                     
+-                    return {"status": "success", "projects": projects or []}
++                    if projects:
++                        return {"status": "success", "projects": projects}
++                    else:
++                        return {"status": "error", "message": "No projects found for the specified username"}
+         except Exception as e:
+             print(f"Error fetching projects for creator '{creatorusername}': {e}")
+             return {"error": f"Failed to fetch projects for creator '{creatorusername}': {str(e)}"}
+-        
+-    @staticmethod
+-    def updateProjectDetails(creatorusername, title, updates):
+-        if not updates:
+-            return {"status": "error", "message": "No updates provided."}
+-        
+-        try:
+-            # Build the dynamic SQL query based on the updates
+-            set_clause = ", ".join([f"{key} = %s" for key in updates.keys()])
+-            values = list(updates.values())
+-            values.extend([creatorusername, title])  # Add WHERE clause values
+-
+-            query = f"""
+-                UPDATE projects
+-                SET {set_clause}
+-                WHERE creatorusername = %s AND title = %s
+-            """
+-
+-            with Project.get_db_connection() as conn:
+-                with conn.cursor() as cursor:
+-                    cursor.execute(query, values)
+-                    if cursor.rowcount > 0:
+-                        conn.commit()
+-                        return {"status": "success", "message": "Project details updated successfully."}
+-                    else:
+-                        return {"status": "error", "message": "No matching project found or no changes made."}
+-        except Exception as e:
+-            print(f"Error updating project: {e}")
+-            return {"status": "error", "message": f"Database error: {str(e)}"}
+-
+ 
+ 
+ 
+diff --git a/projectconnect/backend/project_flask/models/user.py b/projectconnect/backend/project_flask/models/user.py
+index 53c08e6..808d11c 100644
+--- a/projectconnect/backend/project_flask/models/user.py
++++ b/projectconnect/backend/project_flask/models/user.py
+@@ -178,6 +178,8 @@ class User:
+             print(f"Error fetching details for user {username}: {e}")
+             return {"status": "error", "message": str(e)}
+ 
++
++    
+     @staticmethod
+     def user_exists(username):
+         try:
+@@ -251,4 +253,4 @@ class User:
+ 
+ 
+     
+-        
+\ No newline at end of file
++        
+diff --git a/projectconnect/package-lock.json b/projectconnect/package-lock.json
+index 2b43b83..00b7d44 100644
+--- a/projectconnect/package-lock.json
++++ b/projectconnect/package-lock.json
+@@ -17,14 +17,11 @@
+         "@supabase/ssr": "^0.5.1",
+         "@supabase/supabase-js": "^2.46.1",
+         "bootstrap": "^5.3.3",
+-        "js-cookie": "^3.0.5",
+         "next": "14.2.15",
+         "react": "^18",
+-        "react-bootstrap": "^2.10.5",
+         "react-dom": "^18"
+       },
+       "devDependencies": {
+-        "@types/js-cookie": "^3.0.6",
+         "@types/node": "^20",
+         "@types/react": "^18.3.11",
+         "@types/react-dom": "^18.3.1",
+@@ -35,28 +32,6 @@
+         "typescript": "^5"
+       }
+     },
+-    "node_modules/@babel/runtime": {
+-      "version": "7.26.0",
+-      "resolved": "https://registry.npmjs.org/@babel/runtime/-/runtime-7.26.0.tgz",
+-      "integrity": "sha512-FDSOghenHTiToteC/QRlv2q3DhPZ/oOXTBoirfWNx1Cx3TMVcGWQtMMmQcSvb/JjpNeGzx8Pq/b4fKEJuWm1sw==",
+-      "license": "MIT",
+-      "dependencies": {
+-        "regenerator-runtime": "^0.14.0"
+-      },
+-      "engines": {
+-        "node": ">=6.9.0"
+-      }
+-    },
+-    "node_modules/@emnapi/runtime": {
+-      "version": "1.3.1",
+-      "resolved": "https://registry.npmjs.org/@emnapi/runtime/-/runtime-1.3.1.tgz",
+-      "integrity": "sha512-kEBmG8KyqtxJZv+ygbEim+KCGtIq1fC22Ms3S4ziXmYKm8uyoLX0MHONVKwp+9opg390VaKRNt4a7A9NwmpNhw==",
+-      "license": "MIT",
+-      "optional": true,
+-      "dependencies": {
+-        "tslib": "^2.4.0"
+-      }
+-    },
+     "node_modules/@eslint-community/eslint-utils": {
+       "version": "4.4.0",
+       "resolved": "https://registry.npmjs.org/@eslint-community/eslint-utils/-/eslint-utils-4.4.0.tgz",
+@@ -204,367 +179,6 @@
+       "deprecated": "Use @eslint/object-schema instead",
+       "dev": true
+     },
+-    "node_modules/@img/sharp-darwin-arm64": {
+-      "version": "0.33.5",
+-      "resolved": "https://registry.npmjs.org/@img/sharp-darwin-arm64/-/sharp-darwin-arm64-0.33.5.tgz",
+-      "integrity": "sha512-UT4p+iz/2H4twwAoLCqfA9UH5pI6DggwKEGuaPy7nCVQ8ZsiY5PIcrRvD1DzuY3qYL07NtIQcWnBSY/heikIFQ==",
+-      "cpu": [
+-        "arm64"
+-      ],
+-      "license": "Apache-2.0",
+-      "optional": true,
+-      "os": [
+-        "darwin"
+-      ],
+-      "engines": {
+-        "node": "^18.17.0 || ^20.3.0 || >=21.0.0"
+-      },
+-      "funding": {
+-        "url": "https://opencollective.com/libvips"
+-      },
+-      "optionalDependencies": {
+-        "@img/sharp-libvips-darwin-arm64": "1.0.4"
+-      }
+-    },
+-    "node_modules/@img/sharp-darwin-x64": {
+-      "version": "0.33.5",
+-      "resolved": "https://registry.npmjs.org/@img/sharp-darwin-x64/-/sharp-darwin-x64-0.33.5.tgz",
+-      "integrity": "sha512-fyHac4jIc1ANYGRDxtiqelIbdWkIuQaI84Mv45KvGRRxSAa7o7d1ZKAOBaYbnepLC1WqxfpimdeWfvqqSGwR2Q==",
+-      "cpu": [
+-        "x64"
+-      ],
+-      "license": "Apache-2.0",
+-      "optional": true,
+-      "os": [
+-        "darwin"
+-      ],
+-      "engines": {
+-        "node": "^18.17.0 || ^20.3.0 || >=21.0.0"
+-      },
+-      "funding": {
+-        "url": "https://opencollective.com/libvips"
+-      },
+-      "optionalDependencies": {
+-        "@img/sharp-libvips-darwin-x64": "1.0.4"
+-      }
+-    },
+-    "node_modules/@img/sharp-libvips-darwin-arm64": {
+-      "version": "1.0.4",
+-      "resolved": "https://registry.npmjs.org/@img/sharp-libvips-darwin-arm64/-/sharp-libvips-darwin-arm64-1.0.4.tgz",
+-      "integrity": "sha512-XblONe153h0O2zuFfTAbQYAX2JhYmDHeWikp1LM9Hul9gVPjFY427k6dFEcOL72O01QxQsWi761svJ/ev9xEDg==",
+-      "cpu": [
+-        "arm64"
+-      ],
+-      "license": "LGPL-3.0-or-later",
+-      "optional": true,
+-      "os": [
+-        "darwin"
+-      ],
+-      "funding": {
+-        "url": "https://opencollective.com/libvips"
+-      }
+-    },
+-    "node_modules/@img/sharp-libvips-darwin-x64": {
+-      "version": "1.0.4",
+-      "resolved": "https://registry.npmjs.org/@img/sharp-libvips-darwin-x64/-/sharp-libvips-darwin-x64-1.0.4.tgz",
+-      "integrity": "sha512-xnGR8YuZYfJGmWPvmlunFaWJsb9T/AO2ykoP3Fz/0X5XV2aoYBPkX6xqCQvUTKKiLddarLaxpzNe+b1hjeWHAQ==",
+-      "cpu": [
+-        "x64"
+-      ],
+-      "license": "LGPL-3.0-or-later",
+-      "optional": true,
+-      "os": [
+-        "darwin"
+-      ],
+-      "funding": {
+-        "url": "https://opencollective.com/libvips"
+-      }
+-    },
+-    "node_modules/@img/sharp-libvips-linux-arm": {
+-      "version": "1.0.5",
+-      "resolved": "https://registry.npmjs.org/@img/sharp-libvips-linux-arm/-/sharp-libvips-linux-arm-1.0.5.tgz",
+-      "integrity": "sha512-gvcC4ACAOPRNATg/ov8/MnbxFDJqf/pDePbBnuBDcjsI8PssmjoKMAz4LtLaVi+OnSb5FK/yIOamqDwGmXW32g==",
+-      "cpu": [
+-        "arm"
+-      ],
+-      "license": "LGPL-3.0-or-later",
+-      "optional": true,
+-      "os": [
+-        "linux"
+-      ],
+-      "funding": {
+-        "url": "https://opencollective.com/libvips"
+-      }
+-    },
+-    "node_modules/@img/sharp-libvips-linux-arm64": {
+-      "version": "1.0.4",
+-      "resolved": "https://registry.npmjs.org/@img/sharp-libvips-linux-arm64/-/sharp-libvips-linux-arm64-1.0.4.tgz",
+-      "integrity": "sha512-9B+taZ8DlyyqzZQnoeIvDVR/2F4EbMepXMc/NdVbkzsJbzkUjhXv/70GQJ7tdLA4YJgNP25zukcxpX2/SueNrA==",
+-      "cpu": [
+-        "arm64"
+-      ],
+-      "license": "LGPL-3.0-or-later",
+-      "optional": true,
+-      "os": [
+-        "linux"
+-      ],
+-      "funding": {
+-        "url": "https://opencollective.com/libvips"
+-      }
+-    },
+-    "node_modules/@img/sharp-libvips-linux-s390x": {
+-      "version": "1.0.4",
+-      "resolved": "https://registry.npmjs.org/@img/sharp-libvips-linux-s390x/-/sharp-libvips-linux-s390x-1.0.4.tgz",
+-      "integrity": "sha512-u7Wz6ntiSSgGSGcjZ55im6uvTrOxSIS8/dgoVMoiGE9I6JAfU50yH5BoDlYA1tcuGS7g/QNtetJnxA6QEsCVTA==",
+-      "cpu": [
+-        "s390x"
+-      ],
+-      "license": "LGPL-3.0-or-later",
+-      "optional": true,
+-      "os": [
+-        "linux"
+-      ],
+-      "funding": {
+-        "url": "https://opencollective.com/libvips"
+-      }
+-    },
+-    "node_modules/@img/sharp-libvips-linux-x64": {
+-      "version": "1.0.4",
+-      "resolved": "https://registry.npmjs.org/@img/sharp-libvips-linux-x64/-/sharp-libvips-linux-x64-1.0.4.tgz",
+-      "integrity": "sha512-MmWmQ3iPFZr0Iev+BAgVMb3ZyC4KeFc3jFxnNbEPas60e1cIfevbtuyf9nDGIzOaW9PdnDciJm+wFFaTlj5xYw==",
+-      "cpu": [
+-        "x64"
+-      ],
+-      "license": "LGPL-3.0-or-later",
+-      "optional": true,
+-      "os": [
+-        "linux"
+-      ],
+-      "funding": {
+-        "url": "https://opencollective.com/libvips"
+-      }
+-    },
+-    "node_modules/@img/sharp-libvips-linuxmusl-arm64": {
+-      "version": "1.0.4",
+-      "resolved": "https://registry.npmjs.org/@img/sharp-libvips-linuxmusl-arm64/-/sharp-libvips-linuxmusl-arm64-1.0.4.tgz",
+-      "integrity": "sha512-9Ti+BbTYDcsbp4wfYib8Ctm1ilkugkA/uscUn6UXK1ldpC1JjiXbLfFZtRlBhjPZ5o1NCLiDbg8fhUPKStHoTA==",
+-      "cpu": [
+-        "arm64"
+-      ],
+-      "license": "LGPL-3.0-or-later",
+-      "optional": true,
+-      "os": [
+-        "linux"
+-      ],
+-      "funding": {
+-        "url": "https://opencollective.com/libvips"
+-      }
+-    },
+-    "node_modules/@img/sharp-libvips-linuxmusl-x64": {
+-      "version": "1.0.4",
+-      "resolved": "https://registry.npmjs.org/@img/sharp-libvips-linuxmusl-x64/-/sharp-libvips-linuxmusl-x64-1.0.4.tgz",
+-      "integrity": "sha512-viYN1KX9m+/hGkJtvYYp+CCLgnJXwiQB39damAO7WMdKWlIhmYTfHjwSbQeUK/20vY154mwezd9HflVFM1wVSw==",
+-      "cpu": [
+-        "x64"
+-      ],
+-      "license": "LGPL-3.0-or-later",
+-      "optional": true,
+-      "os": [
+-        "linux"
+-      ],
+-      "funding": {
+-        "url": "https://opencollective.com/libvips"
+-      }
+-    },
+-    "node_modules/@img/sharp-linux-arm": {
+-      "version": "0.33.5",
+-      "resolved": "https://registry.npmjs.org/@img/sharp-linux-arm/-/sharp-linux-arm-0.33.5.tgz",
+-      "integrity": "sha512-JTS1eldqZbJxjvKaAkxhZmBqPRGmxgu+qFKSInv8moZ2AmT5Yib3EQ1c6gp493HvrvV8QgdOXdyaIBrhvFhBMQ==",
+-      "cpu": [
+-        "arm"
+-      ],
+-      "license": "Apache-2.0",
+-      "optional": true,
+-      "os": [
+-        "linux"
+-      ],
+-      "engines": {
+-        "node": "^18.17.0 || ^20.3.0 || >=21.0.0"
+-      },
+-      "funding": {
+-        "url": "https://opencollective.com/libvips"
+-      },
+-      "optionalDependencies": {
+-        "@img/sharp-libvips-linux-arm": "1.0.5"
+-      }
+-    },
+-    "node_modules/@img/sharp-linux-arm64": {
+-      "version": "0.33.5",
+-      "resolved": "https://registry.npmjs.org/@img/sharp-linux-arm64/-/sharp-linux-arm64-0.33.5.tgz",
+-      "integrity": "sha512-JMVv+AMRyGOHtO1RFBiJy/MBsgz0x4AWrT6QoEVVTyh1E39TrCUpTRI7mx9VksGX4awWASxqCYLCV4wBZHAYxA==",
+-      "cpu": [
+-        "arm64"
+-      ],
+-      "license": "Apache-2.0",
+-      "optional": true,
+-      "os": [
+-        "linux"
+-      ],
+-      "engines": {
+-        "node": "^18.17.0 || ^20.3.0 || >=21.0.0"
+-      },
+-      "funding": {
+-        "url": "https://opencollective.com/libvips"
+-      },
+-      "optionalDependencies": {
+-        "@img/sharp-libvips-linux-arm64": "1.0.4"
+-      }
+-    },
+-    "node_modules/@img/sharp-linux-s390x": {
+-      "version": "0.33.5",
+-      "resolved": "https://registry.npmjs.org/@img/sharp-linux-s390x/-/sharp-linux-s390x-0.33.5.tgz",
+-      "integrity": "sha512-y/5PCd+mP4CA/sPDKl2961b+C9d+vPAveS33s6Z3zfASk2j5upL6fXVPZi7ztePZ5CuH+1kW8JtvxgbuXHRa4Q==",
+-      "cpu": [
+-        "s390x"
+-      ],
+-      "license": "Apache-2.0",
+-      "optional": true,
+-      "os": [
+-        "linux"
+-      ],
+-      "engines": {
+-        "node": "^18.17.0 || ^20.3.0 || >=21.0.0"
+-      },
+-      "funding": {
+-        "url": "https://opencollective.com/libvips"
+-      },
+-      "optionalDependencies": {
+-        "@img/sharp-libvips-linux-s390x": "1.0.4"
+-      }
+-    },
+-    "node_modules/@img/sharp-linux-x64": {
+-      "version": "0.33.5",
+-      "resolved": "https://registry.npmjs.org/@img/sharp-linux-x64/-/sharp-linux-x64-0.33.5.tgz",
+-      "integrity": "sha512-opC+Ok5pRNAzuvq1AG0ar+1owsu842/Ab+4qvU879ippJBHvyY5n2mxF1izXqkPYlGuP/M556uh53jRLJmzTWA==",
+-      "cpu": [
+-        "x64"
+-      ],
+-      "license": "Apache-2.0",
+-      "optional": true,
+-      "os": [
+-        "linux"
+-      ],
+-      "engines": {
+-        "node": "^18.17.0 || ^20.3.0 || >=21.0.0"
+-      },
+-      "funding": {
+-        "url": "https://opencollective.com/libvips"
+-      },
+-      "optionalDependencies": {
+-        "@img/sharp-libvips-linux-x64": "1.0.4"
+-      }
+-    },
+-    "node_modules/@img/sharp-linuxmusl-arm64": {
+-      "version": "0.33.5",
+-      "resolved": "https://registry.npmjs.org/@img/sharp-linuxmusl-arm64/-/sharp-linuxmusl-arm64-0.33.5.tgz",
+-      "integrity": "sha512-XrHMZwGQGvJg2V/oRSUfSAfjfPxO+4DkiRh6p2AFjLQztWUuY/o8Mq0eMQVIY7HJ1CDQUJlxGGZRw1a5bqmd1g==",
+-      "cpu": [
+-        "arm64"
+-      ],
+-      "license": "Apache-2.0",
+-      "optional": true,
+-      "os": [
+-        "linux"
+-      ],
+-      "engines": {
+-        "node": "^18.17.0 || ^20.3.0 || >=21.0.0"
+-      },
+-      "funding": {
+-        "url": "https://opencollective.com/libvips"
+-      },
+-      "optionalDependencies": {
+-        "@img/sharp-libvips-linuxmusl-arm64": "1.0.4"
+-      }
+-    },
+-    "node_modules/@img/sharp-linuxmusl-x64": {
+-      "version": "0.33.5",
+-      "resolved": "https://registry.npmjs.org/@img/sharp-linuxmusl-x64/-/sharp-linuxmusl-x64-0.33.5.tgz",
+-      "integrity": "sha512-WT+d/cgqKkkKySYmqoZ8y3pxx7lx9vVejxW/W4DOFMYVSkErR+w7mf2u8m/y4+xHe7yY9DAXQMWQhpnMuFfScw==",
+-      "cpu": [
+-        "x64"
+-      ],
+-      "license": "Apache-2.0",
+-      "optional": true,
+-      "os": [
+-        "linux"
+-      ],
+-      "engines": {
+-        "node": "^18.17.0 || ^20.3.0 || >=21.0.0"
+-      },
+-      "funding": {
+-        "url": "https://opencollective.com/libvips"
+-      },
+-      "optionalDependencies": {
+-        "@img/sharp-libvips-linuxmusl-x64": "1.0.4"
+-      }
+-    },
+-    "node_modules/@img/sharp-wasm32": {
+-      "version": "0.33.5",
+-      "resolved": "https://registry.npmjs.org/@img/sharp-wasm32/-/sharp-wasm32-0.33.5.tgz",
+-      "integrity": "sha512-ykUW4LVGaMcU9lu9thv85CbRMAwfeadCJHRsg2GmeRa/cJxsVY9Rbd57JcMxBkKHag5U/x7TSBpScF4U8ElVzg==",
+-      "cpu": [
+-        "wasm32"
+-      ],
+-      "license": "Apache-2.0 AND LGPL-3.0-or-later AND MIT",
+-      "optional": true,
+-      "dependencies": {
+-        "@emnapi/runtime": "^1.2.0"
+-      },
+-      "engines": {
+-        "node": "^18.17.0 || ^20.3.0 || >=21.0.0"
+-      },
+-      "funding": {
+-        "url": "https://opencollective.com/libvips"
+-      }
+-    },
+-    "node_modules/@img/sharp-win32-ia32": {
+-      "version": "0.33.5",
+-      "resolved": "https://registry.npmjs.org/@img/sharp-win32-ia32/-/sharp-win32-ia32-0.33.5.tgz",
+-      "integrity": "sha512-T36PblLaTwuVJ/zw/LaH0PdZkRz5rd3SmMHX8GSmR7vtNSP5Z6bQkExdSK7xGWyxLw4sUknBuugTelgw2faBbQ==",
+-      "cpu": [
+-        "ia32"
+-      ],
+-      "license": "Apache-2.0 AND LGPL-3.0-or-later",
+-      "optional": true,
+-      "os": [
+-        "win32"
+-      ],
+-      "engines": {
+-        "node": "^18.17.0 || ^20.3.0 || >=21.0.0"
+-      },
+-      "funding": {
+-        "url": "https://opencollective.com/libvips"
+-      }
+-    },
+-    "node_modules/@img/sharp-win32-x64": {
+-      "version": "0.33.5",
+-      "resolved": "https://registry.npmjs.org/@img/sharp-win32-x64/-/sharp-win32-x64-0.33.5.tgz",
+-      "integrity": "sha512-MpY/o8/8kj+EcnxwvrP4aTJSWw/aZ7JIGR4aBeZkZw5B7/Jn+tY9/VNwtcoGmdT7GfggGIU4kygOMSbYnOrAbg==",
+-      "cpu": [
+-        "x64"
+-      ],
+-      "license": "Apache-2.0 AND LGPL-3.0-or-later",
+-      "optional": true,
+-      "os": [
+-        "win32"
+-      ],
+-      "engines": {
+-        "node": "^18.17.0 || ^20.3.0 || >=21.0.0"
+-      },
+-      "funding": {
+-        "url": "https://opencollective.com/libvips"
+-      }
+-    },
+     "node_modules/@isaacs/cliui": {
+       "version": "8.0.2",
+       "resolved": "https://registry.npmjs.org/@isaacs/cliui/-/cliui-8.0.2.tgz",
+@@ -610,10 +224,9 @@
+       }
+     },
+     "node_modules/@next/env": {
+-      "version": "15.0.4-canary.20",
+-      "resolved": "https://registry.npmjs.org/@next/env/-/env-15.0.4-canary.20.tgz",
+-      "integrity": "sha512-0gxXJoDer+xbTm8ffgha1cwvmMyLltQXrlvnQLR2RoufehgNDbL2vxTEPY97qF3lQ/zrtUB6kIuAiNK7Z+CUkg==",
+-      "license": "MIT"
++      "version": "14.2.15",
++      "resolved": "https://registry.npmjs.org/@next/env/-/env-14.2.15.tgz",
++      "integrity": "sha512-S1qaj25Wru2dUpcIZMjxeMVSwkt8BK4dmWHHiBuRstcIyOsMapqT4A4jSB6onvqeygkSSmOkyny9VVx8JIGamQ=="
+     },
+     "node_modules/@next/eslint-plugin-next": {
+       "version": "14.2.15",
+@@ -625,13 +238,12 @@
+       }
+     },
+     "node_modules/@next/swc-darwin-arm64": {
+-      "version": "15.0.4-canary.20",
+-      "resolved": "https://registry.npmjs.org/@next/swc-darwin-arm64/-/swc-darwin-arm64-15.0.4-canary.20.tgz",
+-      "integrity": "sha512-ABITn7jKwKiqMMtv6u5bdgZ7zq/uzVk7URwhTSI19YDquT41MFeGQgUwGoEF4Vm00R2TVXDFZjyuHlkaAX6y9g==",
++      "version": "14.2.15",
++      "resolved": "https://registry.npmjs.org/@next/swc-darwin-arm64/-/swc-darwin-arm64-14.2.15.tgz",
++      "integrity": "sha512-Rvh7KU9hOUBnZ9TJ28n2Oa7dD9cvDBKua9IKx7cfQQ0GoYUwg9ig31O2oMwH3wm+pE3IkAQ67ZobPfEgurPZIA==",
+       "cpu": [
+         "arm64"
+       ],
+-      "license": "MIT",
+       "optional": true,
+       "os": [
+         "darwin"
+@@ -641,13 +253,12 @@
+       }
+     },
+     "node_modules/@next/swc-darwin-x64": {
+-      "version": "15.0.4-canary.20",
+-      "resolved": "https://registry.npmjs.org/@next/swc-darwin-x64/-/swc-darwin-x64-15.0.4-canary.20.tgz",
+-      "integrity": "sha512-HmiOHejzoh2F96WPwPHDadKBdmS0kCfW/CIvevHlCFJB7MoEHgne70YlHmwnIIjQZ+xEJgQkxJd3+A6wgP5nqA==",
++      "version": "14.2.15",
++      "resolved": "https://registry.npmjs.org/@next/swc-darwin-x64/-/swc-darwin-x64-14.2.15.tgz",
++      "integrity": "sha512-5TGyjFcf8ampZP3e+FyCax5zFVHi+Oe7sZyaKOngsqyaNEpOgkKB3sqmymkZfowy3ufGA/tUgDPPxpQx931lHg==",
+       "cpu": [
+         "x64"
+       ],
+-      "license": "MIT",
+       "optional": true,
+       "os": [
+         "darwin"
+@@ -657,13 +268,12 @@
+       }
+     },
+     "node_modules/@next/swc-linux-arm64-gnu": {
+-      "version": "15.0.4-canary.20",
+-      "resolved": "https://registry.npmjs.org/@next/swc-linux-arm64-gnu/-/swc-linux-arm64-gnu-15.0.4-canary.20.tgz",
+-      "integrity": "sha512-+AZChfg9o9EewHNa5odG2hekWUIj8UT0Sjh1xR+xrGnJP3xY4vRuWzDUNqXYVDLgPt3swiX9zKIZsEBWU+7xeg==",
++      "version": "14.2.15",
++      "resolved": "https://registry.npmjs.org/@next/swc-linux-arm64-gnu/-/swc-linux-arm64-gnu-14.2.15.tgz",
++      "integrity": "sha512-3Bwv4oc08ONiQ3FiOLKT72Q+ndEMyLNsc/D3qnLMbtUYTQAmkx9E/JRu0DBpHxNddBmNT5hxz1mYBphJ3mfrrw==",
+       "cpu": [
+         "arm64"
+       ],
+-      "license": "MIT",
+       "optional": true,
+       "os": [
+         "linux"
+@@ -673,13 +283,12 @@
+       }
+     },
+     "node_modules/@next/swc-linux-arm64-musl": {
+-      "version": "15.0.4-canary.20",
+-      "resolved": "https://registry.npmjs.org/@next/swc-linux-arm64-musl/-/swc-linux-arm64-musl-15.0.4-canary.20.tgz",
+-      "integrity": "sha512-AxMITAEYYKssZd2Vj9xjpBN8mG1GTs1+IU82mXBl+gOF/zmW6ncmqkp+7coNGNiW6M5HXBGUH5yLym8j36swtw==",
++      "version": "14.2.15",
++      "resolved": "https://registry.npmjs.org/@next/swc-linux-arm64-musl/-/swc-linux-arm64-musl-14.2.15.tgz",
++      "integrity": "sha512-k5xf/tg1FBv/M4CMd8S+JL3uV9BnnRmoe7F+GWC3DxkTCD9aewFRH1s5rJ1zkzDa+Do4zyN8qD0N8c84Hu96FQ==",
+       "cpu": [
+         "arm64"
+       ],
+-      "license": "MIT",
+       "optional": true,
+       "os": [
+         "linux"
+@@ -689,13 +298,12 @@
+       }
+     },
+     "node_modules/@next/swc-linux-x64-gnu": {
+-      "version": "15.0.4-canary.20",
+-      "resolved": "https://registry.npmjs.org/@next/swc-linux-x64-gnu/-/swc-linux-x64-gnu-15.0.4-canary.20.tgz",
+-      "integrity": "sha512-X4xs1z8DHHZMNXz8HozYBCEPlkv2QWbMsGeBZYQOjO7FhPGXQBJ2XNSp18mLkNdavsxQlC4AeMF/gdrVYIhfrg==",
++      "version": "14.2.15",
++      "resolved": "https://registry.npmjs.org/@next/swc-linux-x64-gnu/-/swc-linux-x64-gnu-14.2.15.tgz",
++      "integrity": "sha512-kE6q38hbrRbKEkkVn62reLXhThLRh6/TvgSP56GkFNhU22TbIrQDEMrO7j0IcQHcew2wfykq8lZyHFabz0oBrA==",
+       "cpu": [
+         "x64"
+       ],
+-      "license": "MIT",
+       "optional": true,
+       "os": [
+         "linux"
+@@ -705,13 +313,12 @@
+       }
+     },
+     "node_modules/@next/swc-linux-x64-musl": {
+-      "version": "15.0.4-canary.20",
+-      "resolved": "https://registry.npmjs.org/@next/swc-linux-x64-musl/-/swc-linux-x64-musl-15.0.4-canary.20.tgz",
+-      "integrity": "sha512-6gdMN4kc1hqybgZUKlMNCgt8CI2rUlGqmP54IFelJRJIVUmaGYDAt4OI8lEf2pZCOzMo2n0OSbO2YwOy7ZETsQ==",
++      "version": "14.2.15",
++      "resolved": "https://registry.npmjs.org/@next/swc-linux-x64-musl/-/swc-linux-x64-musl-14.2.15.tgz",
++      "integrity": "sha512-PZ5YE9ouy/IdO7QVJeIcyLn/Rc4ml9M2G4y3kCM9MNf1YKvFY4heg3pVa/jQbMro+tP6yc4G2o9LjAz1zxD7tQ==",
+       "cpu": [
+         "x64"
+       ],
+-      "license": "MIT",
+       "optional": true,
+       "os": [
+         "linux"
+@@ -721,13 +328,27 @@
+       }
+     },
+     "node_modules/@next/swc-win32-arm64-msvc": {
+-      "version": "15.0.4-canary.20",
+-      "resolved": "https://registry.npmjs.org/@next/swc-win32-arm64-msvc/-/swc-win32-arm64-msvc-15.0.4-canary.20.tgz",
+-      "integrity": "sha512-H7LUxO6T4F9YJQk9dp2LgFexl0HwMGayPa91SgkwCfAGflHy8LDJSDfbDgIN99J89ZRy+WYAsfqhOkGZgFEE9g==",
++      "version": "14.2.15",
++      "resolved": "https://registry.npmjs.org/@next/swc-win32-arm64-msvc/-/swc-win32-arm64-msvc-14.2.15.tgz",
++      "integrity": "sha512-2raR16703kBvYEQD9HNLyb0/394yfqzmIeyp2nDzcPV4yPjqNUG3ohX6jX00WryXz6s1FXpVhsCo3i+g4RUX+g==",
+       "cpu": [
+         "arm64"
+       ],
+-      "license": "MIT",
++      "optional": true,
++      "os": [
++        "win32"
++      ],
++      "engines": {
++        "node": ">= 10"
++      }
++    },
++    "node_modules/@next/swc-win32-ia32-msvc": {
++      "version": "14.2.15",
++      "resolved": "https://registry.npmjs.org/@next/swc-win32-ia32-msvc/-/swc-win32-ia32-msvc-14.2.15.tgz",
++      "integrity": "sha512-fyTE8cklgkyR1p03kJa5zXEaZ9El+kDNM5A+66+8evQS5e/6v0Gk28LqA0Jet8gKSOyP+OTm/tJHzMlGdQerdQ==",
++      "cpu": [
++        "ia32"
++      ],
+       "optional": true,
+       "os": [
+         "win32"
+@@ -737,13 +358,12 @@
+       }
+     },
+     "node_modules/@next/swc-win32-x64-msvc": {
+-      "version": "15.0.4-canary.20",
+-      "resolved": "https://registry.npmjs.org/@next/swc-win32-x64-msvc/-/swc-win32-x64-msvc-15.0.4-canary.20.tgz",
+-      "integrity": "sha512-/0RCXmohjv2tifKSswl94/Pbu8Zrre4o7M80E3UzZLfPFgDQP6jEJQwIG5zSpHcLBbX4rMTFDrswOxpX9F5Veg==",
++      "version": "14.2.15",
++      "resolved": "https://registry.npmjs.org/@next/swc-win32-x64-msvc/-/swc-win32-x64-msvc-14.2.15.tgz",
++      "integrity": "sha512-SzqGbsLsP9OwKNUG9nekShTwhj6JSB9ZLMWQ8g1gG6hdE5gQLncbnbymrwy2yVmH9nikSLYRYxYMFu78Ggp7/g==",
+       "cpu": [
+         "x64"
+       ],
+-      "license": "MIT",
+       "optional": true,
+       "os": [
+         "win32"
+@@ -810,68 +430,12 @@
+       "version": "2.11.8",
+       "resolved": "https://registry.npmjs.org/@popperjs/core/-/core-2.11.8.tgz",
+       "integrity": "sha512-P1st0aksCrn9sGZhp8GMYwBnQsbvAWsZAX44oXNNvLHGqAOcoVxmjZiohstwQ7SqKnbR47akdNi+uleWD8+g6A==",
++      "peer": true,
+       "funding": {
+         "type": "opencollective",
+         "url": "https://opencollective.com/popperjs"
+       }
+     },
+-    "node_modules/@react-aria/ssr": {
+-      "version": "3.9.7",
+-      "resolved": "https://registry.npmjs.org/@react-aria/ssr/-/ssr-3.9.7.tgz",
+-      "integrity": "sha512-GQygZaGlmYjmYM+tiNBA5C6acmiDWF52Nqd40bBp0Znk4M4hP+LTmI0lpI1BuKMw45T8RIhrAsICIfKwZvi2Gg==",
+-      "license": "Apache-2.0",
+-      "dependencies": {
+-        "@swc/helpers": "^0.5.0"
+-      },
+-      "engines": {
+-        "node": ">= 12"
+-      },
+-      "peerDependencies": {
+-        "react": "^16.8.0 || ^17.0.0-rc.1 || ^18.0.0 || ^19.0.0-rc.1"
+-      }
+-    },
+-    "node_modules/@restart/hooks": {
+-      "version": "0.4.16",
+-      "resolved": "https://registry.npmjs.org/@restart/hooks/-/hooks-0.4.16.tgz",
+-      "integrity": "sha512-f7aCv7c+nU/3mF7NWLtVVr0Ra80RqsO89hO72r+Y/nvQr5+q0UFGkocElTH6MJApvReVh6JHUFYn2cw1WdHF3w==",
+-      "license": "MIT",
+-      "dependencies": {
+-        "dequal": "^2.0.3"
+-      },
+-      "peerDependencies": {
+-        "react": ">=16.8.0"
+-      }
+-    },
+-    "node_modules/@restart/ui": {
+-      "version": "1.9.0",
+-      "resolved": "https://registry.npmjs.org/@restart/ui/-/ui-1.9.0.tgz",
+-      "integrity": "sha512-M/k/ILBXbEIFn0wSGuJYqscih7gwMcnVwv44kgHZ344sjLoO2vFK8AtkMGXx2sEANDwxEPoDhjhfIDDvrvCBCA==",
+-      "license": "MIT",
+-      "dependencies": {
+-        "@babel/runtime": "^7.21.0",
+-        "@popperjs/core": "^2.11.6",
+-        "@react-aria/ssr": "^3.5.0",
+-        "@restart/hooks": "^0.4.9",
+-        "@types/warning": "^3.0.0",
+-        "dequal": "^2.0.3",
+-        "dom-helpers": "^5.2.0",
+-        "uncontrollable": "^8.0.1",
+-        "warning": "^4.0.3"
+-      },
+-      "peerDependencies": {
+-        "react": ">=16.14.0",
+-        "react-dom": ">=16.14.0"
+-      }
+-    },
+-    "node_modules/@restart/ui/node_modules/uncontrollable": {
+-      "version": "8.0.4",
+-      "resolved": "https://registry.npmjs.org/uncontrollable/-/uncontrollable-8.0.4.tgz",
+-      "integrity": "sha512-ulRWYWHvscPFc0QQXvyJjY6LIXU56f0h8pQFvhxiKk5V1fcI8gp9Ht9leVAhrVjzqMw0BgjspBINx9r6oyJUvQ==",
+-      "license": "MIT",
+-      "peerDependencies": {
+-        "react": ">=16.14.0"
+-      }
+-    },
+     "node_modules/@rtsao/scc": {
+       "version": "1.1.0",
+       "resolved": "https://registry.npmjs.org/@rtsao/scc/-/scc-1.1.0.tgz",
+@@ -955,13 +519,12 @@
+       }
+     },
+     "node_modules/@supabase/ssr": {
+-      "version": "0.5.2",
+-      "resolved": "https://registry.npmjs.org/@supabase/ssr/-/ssr-0.5.2.tgz",
+-      "integrity": "sha512-n3plRhr2Bs8Xun1o4S3k1CDv17iH5QY9YcoEvXX3bxV1/5XSasA0mNXYycFmADIdtdE6BG9MRjP5CGIs8qxC8A==",
++      "version": "0.5.1",
++      "resolved": "https://registry.npmjs.org/@supabase/ssr/-/ssr-0.5.1.tgz",
++      "integrity": "sha512-+G94H/GZG0nErZ3FQV9yJmsC5Rj7dmcfCAwOt37hxeR1La+QTl8cE9whzYwPUrTJjMLGNXoO+1BMvVxwBAbz4g==",
+       "license": "MIT",
+       "dependencies": {
+-        "@types/cookie": "^0.6.0",
+-        "cookie": "^0.7.0"
++        "cookie": "^0.6.0"
+       },
+       "peerDependencies": {
+         "@supabase/supabase-js": "^2.43.4"
+@@ -992,24 +555,17 @@
+     "node_modules/@swc/counter": {
+       "version": "0.1.3",
+       "resolved": "https://registry.npmjs.org/@swc/counter/-/counter-0.1.3.tgz",
+-      "integrity": "sha512-e2BR4lsJkkRlKZ/qCHPw9ZaSxc0MVUd7gtbtaB7aMvHeJVYe8sOB8DBZkP2DtISHGSku9sCK6T6cnY0CtXrOCQ==",
+-      "license": "Apache-2.0"
++      "integrity": "sha512-e2BR4lsJkkRlKZ/qCHPw9ZaSxc0MVUd7gtbtaB7aMvHeJVYe8sOB8DBZkP2DtISHGSku9sCK6T6cnY0CtXrOCQ=="
+     },
+     "node_modules/@swc/helpers": {
+-      "version": "0.5.13",
+-      "resolved": "https://registry.npmjs.org/@swc/helpers/-/helpers-0.5.13.tgz",
+-      "integrity": "sha512-UoKGxQ3r5kYI9dALKJapMmuK+1zWM/H17Z1+iwnNmzcJRnfFuevZs375TA5rW31pu4BS4NoSy1fRsexDXfWn5w==",
+-      "license": "Apache-2.0",
++      "version": "0.5.5",
++      "resolved": "https://registry.npmjs.org/@swc/helpers/-/helpers-0.5.5.tgz",
++      "integrity": "sha512-KGYxvIOXcceOAbEk4bi/dVLEK9z8sZ0uBB3Il5b1rhfClSpcX0yfRO0KmTkqR2cnQDymwLB+25ZyMzICg/cm/A==",
+       "dependencies": {
++        "@swc/counter": "^0.1.3",
+         "tslib": "^2.4.0"
+       }
+     },
+-    "node_modules/@types/cookie": {
+-      "version": "0.6.0",
+-      "resolved": "https://registry.npmjs.org/@types/cookie/-/cookie-0.6.0.tgz",
+-      "integrity": "sha512-4Kh9a6B2bQciAhf7FSuMRRkUWecJgJu9nPnx3yzpsfXX/c50REIqpHY4C82bXP90qrLtXtkDxTZosYO3UpOwlA==",
+-      "license": "MIT"
+-    },
+     "node_modules/@types/json5": {
+       "version": "0.0.29",
+       "resolved": "https://registry.npmjs.org/@types/json5/-/json5-0.0.29.tgz",
+@@ -1032,12 +588,14 @@
+     "node_modules/@types/prop-types": {
+       "version": "15.7.13",
+       "resolved": "https://registry.npmjs.org/@types/prop-types/-/prop-types-15.7.13.tgz",
+-      "integrity": "sha512-hCZTSvwbzWGvhqxp/RqVqwU999pBf2vp7hzIjiYOsl8wqOmUxkQ6ddw1cV3l8811+kdUFus/q4d1Y3E3SyEifA=="
++      "integrity": "sha512-hCZTSvwbzWGvhqxp/RqVqwU999pBf2vp7hzIjiYOsl8wqOmUxkQ6ddw1cV3l8811+kdUFus/q4d1Y3E3SyEifA==",
++      "dev": true
+     },
+     "node_modules/@types/react": {
+       "version": "18.3.11",
+       "resolved": "https://registry.npmjs.org/@types/react/-/react-18.3.11.tgz",
+       "integrity": "sha512-r6QZ069rFTjrEYgFdOck1gK7FLVsgJE7tTz0pQBczlBNUhBNk0MQH4UbnFSwjpQLMkLzgqvBBa+qGpLje16eTQ==",
++      "dev": true,
+       "dependencies": {
+         "@types/prop-types": "*",
+         "csstype": "^3.0.2"
+@@ -1052,21 +610,6 @@
+         "@types/react": "*"
+       }
+     },
+-    "node_modules/@types/react-transition-group": {
+-      "version": "4.4.11",
+-      "resolved": "https://registry.npmjs.org/@types/react-transition-group/-/react-transition-group-4.4.11.tgz",
+-      "integrity": "sha512-RM05tAniPZ5DZPzzNFP+DmrcOdD0efDUxMy3145oljWSl3x9ZV5vhme98gTxFrj2lhXvmGNnUiuDyJgY9IKkNA==",
+-      "license": "MIT",
+-      "dependencies": {
+-        "@types/react": "*"
+-      }
+-    },
+-    "node_modules/@types/warning": {
+-      "version": "3.0.3",
+-      "resolved": "https://registry.npmjs.org/@types/warning/-/warning-3.0.3.tgz",
+-      "integrity": "sha512-D1XC7WK8K+zZEveUPY+cf4+kgauk8N4eHr/XIHXGlGYkHLud6hK9lYfZk1ry1TNh798cZUCgb6MqGEG8DkJt6Q==",
+-      "license": "MIT"
+-    },
+     "node_modules/@types/ws": {
+       "version": "8.5.12",
+       "resolved": "https://registry.npmjs.org/@types/ws/-/ws-8.5.12.tgz",
+@@ -1592,7 +1135,6 @@
+           "url": "https://opencollective.com/bootstrap"
+         }
+       ],
+-      "license": "MIT",
+       "peerDependencies": {
+         "@popperjs/core": "^2.11.8"
+       }
+@@ -1693,37 +1235,16 @@
+         "url": "https://github.com/chalk/chalk?sponsor=1"
+       }
+     },
+-    "node_modules/classnames": {
+-      "version": "2.5.1",
+-      "resolved": "https://registry.npmjs.org/classnames/-/classnames-2.5.1.tgz",
+-      "integrity": "sha512-saHYOzhIQs6wy2sVxTM6bUDsQO4F50V9RQ22qBpEdCW+I+/Wmke2HOl6lS6dTpdxVhb88/I6+Hs+438c3lfUow==",
+-      "license": "MIT"
+-    },
+     "node_modules/client-only": {
+       "version": "0.0.1",
+       "resolved": "https://registry.npmjs.org/client-only/-/client-only-0.0.1.tgz",
+-      "integrity": "sha512-IV3Ou0jSMzZrd3pZ48nLkT9DA7Ag1pnPzaiQhpW7c3RbcqqzvzzVu+L8gfqMp/8IM2MQtSiqaCxrrcfu8I8rMA==",
+-      "license": "MIT"
+-    },
+-    "node_modules/color": {
+-      "version": "4.2.3",
+-      "resolved": "https://registry.npmjs.org/color/-/color-4.2.3.tgz",
+-      "integrity": "sha512-1rXeuUUiGGrykh+CeBdu5Ie7OJwinCgQY0bc7GCRxy5xVHy+moaqkpL/jqQq0MtQOeYcrqEz4abc5f0KtU7W4A==",
+-      "license": "MIT",
+-      "optional": true,
+-      "dependencies": {
+-        "color-convert": "^2.0.1",
+-        "color-string": "^1.9.0"
+-      },
+-      "engines": {
+-        "node": ">=12.5.0"
+-      }
++      "integrity": "sha512-IV3Ou0jSMzZrd3pZ48nLkT9DA7Ag1pnPzaiQhpW7c3RbcqqzvzzVu+L8gfqMp/8IM2MQtSiqaCxrrcfu8I8rMA=="
+     },
+     "node_modules/color-convert": {
+       "version": "2.0.1",
+       "resolved": "https://registry.npmjs.org/color-convert/-/color-convert-2.0.1.tgz",
+       "integrity": "sha512-RRECPsj7iu/xb5oKYcsFHSppFNnsj/52OVTRKb4zP5onXwVF3zVmmToNcOfGC+CRDpfK/U584fMg38ZHCaElKQ==",
+-      "devOptional": true,
++      "dev": true,
+       "dependencies": {
+         "color-name": "~1.1.4"
+       },
+@@ -1735,18 +1256,7 @@
+       "version": "1.1.4",
+       "resolved": "https://registry.npmjs.org/color-name/-/color-name-1.1.4.tgz",
+       "integrity": "sha512-dOy+3AuW3a2wNbZHIuMZpTcgjGuLU/uBL/ubcZF9OXbDo8ff4O8yVp5Bf0efS8uEoYo5q4Fx7dY9OgQGXgAsQA==",
+-      "devOptional": true
+-    },
+-    "node_modules/color-string": {
+-      "version": "1.9.1",
+-      "resolved": "https://registry.npmjs.org/color-string/-/color-string-1.9.1.tgz",
+-      "integrity": "sha512-shrVawQFojnZv6xM40anx4CkoDP+fZsw/ZerEMsW/pyzsRbElpsL/DBVW7q3ExxwusdNXI3lXpuhEZkzs8p5Eg==",
+-      "license": "MIT",
+-      "optional": true,
+-      "dependencies": {
+-        "color-name": "^1.0.0",
+-        "simple-swizzle": "^0.2.2"
+-      }
++      "dev": true
+     },
+     "node_modules/concat-map": {
+       "version": "0.0.1",
+@@ -1755,20 +1265,18 @@
+       "dev": true
+     },
+     "node_modules/cookie": {
+-      "version": "0.7.2",
+-      "resolved": "https://registry.npmjs.org/cookie/-/cookie-0.7.2.tgz",
+-      "integrity": "sha512-yki5XnKuf750l50uGTllt6kKILY4nQ1eNIQatoXEByZ5dWgnKqbnqmTrBE5B4N7lrMJKQ2ytWMiTO2o0v6Ew/w==",
+-      "license": "MIT",
++      "version": "0.6.0",
++      "resolved": "https://registry.npmjs.org/cookie/-/cookie-0.6.0.tgz",
++      "integrity": "sha512-U71cyTamuh1CRNCfpGY6to28lxvNwPG4Guz/EVjgf3Jmzv0vlDp1atT9eS5dDjMYHucpHbWns6Lwf3BKz6svdw==",
+       "engines": {
+         "node": ">= 0.6"
+       }
+     },
+     "node_modules/cross-spawn": {
+-      "version": "7.0.6",
+-      "resolved": "https://registry.npmjs.org/cross-spawn/-/cross-spawn-7.0.6.tgz",
+-      "integrity": "sha512-uV2QOWP2nWzsy2aMp8aRibhi9dlzF5Hgh5SHaB9OiTGEyDTiJJyx0uy51QXdyWbtAHNua4XJzUKca3OzKUd3vA==",
++      "version": "7.0.3",
++      "resolved": "https://registry.npmjs.org/cross-spawn/-/cross-spawn-7.0.3.tgz",
++      "integrity": "sha512-iRDPJKUPVEND7dHPO8rkbOnPpyDygcDFtWjpeWNCgy8WP2rXcxXL8TskReQl6OrB2G7+UJrags1q15Fudc7G6w==",
+       "dev": true,
+-      "license": "MIT",
+       "dependencies": {
+         "path-key": "^3.1.0",
+         "shebang-command": "^2.0.0",
+@@ -1781,7 +1289,8 @@
+     "node_modules/csstype": {
+       "version": "3.1.3",
+       "resolved": "https://registry.npmjs.org/csstype/-/csstype-3.1.3.tgz",
+-      "integrity": "sha512-M1uQkMl8rQK/szD0LNhtqxIPLpimGm8sOBwU7lLnCpSbTyY3yeU1Vc7l4KT5zT4s/yOxHH5O7tIuuLOCnLADRw=="
++      "integrity": "sha512-M1uQkMl8rQK/szD0LNhtqxIPLpimGm8sOBwU7lLnCpSbTyY3yeU1Vc7l4KT5zT4s/yOxHH5O7tIuuLOCnLADRw==",
++      "dev": true
+     },
+     "node_modules/damerau-levenshtein": {
+       "version": "1.0.8",
+@@ -1929,25 +1438,6 @@
+         "url": "https://github.com/sponsors/ljharb"
+       }
+     },
+-    "node_modules/dequal": {
+-      "version": "2.0.3",
+-      "resolved": "https://registry.npmjs.org/dequal/-/dequal-2.0.3.tgz",
+-      "integrity": "sha512-0je+qPKHEMohvfRTCEo3CrPG6cAzAYgmzKyxRiYSSDkS6eGJdyVJm7WaYA5ECaAD9wLB2T4EEeymA5aFVcYXCA==",
+-      "license": "MIT",
+-      "engines": {
+-        "node": ">=6"
+-      }
+-    },
+-    "node_modules/detect-libc": {
+-      "version": "2.0.3",
+-      "resolved": "https://registry.npmjs.org/detect-libc/-/detect-libc-2.0.3.tgz",
+-      "integrity": "sha512-bwy0MGW55bG41VqxxypOsdSdGqLwXPI/focwgTYCFMbdUiBAxLg9CFzG08sz2aqzknwiX7Hkl0bQENjg8iLByw==",
+-      "license": "Apache-2.0",
+-      "optional": true,
+-      "engines": {
+-        "node": ">=8"
+-      }
+-    },
+     "node_modules/doctrine": {
+       "version": "3.0.0",
+       "resolved": "https://registry.npmjs.org/doctrine/-/doctrine-3.0.0.tgz",
+@@ -1960,16 +1450,6 @@
+         "node": ">=6.0.0"
+       }
+     },
+-    "node_modules/dom-helpers": {
+-      "version": "5.2.1",
+-      "resolved": "https://registry.npmjs.org/dom-helpers/-/dom-helpers-5.2.1.tgz",
+-      "integrity": "sha512-nRCa7CK3VTrM2NmGkIy4cbK7IZlgBE/PYMn55rrXefr5xXDP0LdtfPnblFDoVdcAfslJ7or6iqAUnx0CCGIWQA==",
+-      "license": "MIT",
+-      "dependencies": {
+-        "@babel/runtime": "^7.8.7",
+-        "csstype": "^3.0.2"
+-      }
+-    },
+     "node_modules/eastasianwidth": {
+       "version": "0.2.0",
+       "resolved": "https://registry.npmjs.org/eastasianwidth/-/eastasianwidth-0.2.0.tgz",
+@@ -2946,8 +2426,7 @@
+     "node_modules/graceful-fs": {
+       "version": "4.2.11",
+       "resolved": "https://registry.npmjs.org/graceful-fs/-/graceful-fs-4.2.11.tgz",
+-      "integrity": "sha512-RbJ5/jmFcNNCcDV5o9eTnBLJ/HszWV0P73bc+Ff4nS/rJj+YaS6IGyiOL0VoBYX+l1Wrl3k63h/KrH+nhJ0XvQ==",
+-      "dev": true
++      "integrity": "sha512-RbJ5/jmFcNNCcDV5o9eTnBLJ/HszWV0P73bc+Ff4nS/rJj+YaS6IGyiOL0VoBYX+l1Wrl3k63h/KrH+nhJ0XvQ=="
+     },
+     "node_modules/graphemer": {
+       "version": "1.4.0",
+@@ -3101,15 +2580,6 @@
+         "node": ">= 0.4"
+       }
+     },
+-    "node_modules/invariant": {
+-      "version": "2.2.4",
+-      "resolved": "https://registry.npmjs.org/invariant/-/invariant-2.2.4.tgz",
+-      "integrity": "sha512-phJfQVBuaJM5raOpJjSfkiD6BpbCE4Ns//LaXl6wGYtUBY83nWS6Rf9tXm2e8VaK60JEjYldbPif/A2B1C2gNA==",
+-      "license": "MIT",
+-      "dependencies": {
+-        "loose-envify": "^1.0.0"
+-      }
+-    },
+     "node_modules/is-arguments": {
+       "version": "1.1.1",
+       "resolved": "https://registry.npmjs.org/is-arguments/-/is-arguments-1.1.1.tgz",
+@@ -3142,13 +2612,6 @@
+         "url": "https://github.com/sponsors/ljharb"
+       }
+     },
+-    "node_modules/is-arrayish": {
+-      "version": "0.3.2",
+-      "resolved": "https://registry.npmjs.org/is-arrayish/-/is-arrayish-0.3.2.tgz",
+-      "integrity": "sha512-eVRqCvVlZbuw3GrM63ovNSNAeA1K16kaR/LRY/92w0zxQ5/1YzwblUX652i4Xs9RwAGjW9d9y6X88t8OaAJfWQ==",
+-      "license": "MIT",
+-      "optional": true
+-    },
+     "node_modules/is-async-function": {
+       "version": "2.0.0",
+       "resolved": "https://registry.npmjs.org/is-async-function/-/is-async-function-2.0.0.tgz",
+@@ -3554,15 +3017,6 @@
+         "url": "https://github.com/sponsors/panva"
+       }
+     },
+-    "node_modules/js-cookie": {
+-      "version": "3.0.5",
+-      "resolved": "https://registry.npmjs.org/js-cookie/-/js-cookie-3.0.5.tgz",
+-      "integrity": "sha512-cEiJEAEoIbWfCZYKWhVwFuvPX1gETRYPw6LlaTKoxD3s2AkXzkCjnp6h0V77ozyqj0jakteJ4YqDJT830+lVGw==",
+-      "license": "MIT",
+-      "engines": {
+-        "node": ">=14"
+-      }
+-    },
+     "node_modules/js-tokens": {
+       "version": "4.0.0",
+       "resolved": "https://registry.npmjs.org/js-tokens/-/js-tokens-4.0.0.tgz",
+@@ -3785,42 +3239,40 @@
+       "dev": true
+     },
+     "node_modules/next": {
+-      "version": "15.0.4-canary.20",
+-      "resolved": "https://registry.npmjs.org/next/-/next-15.0.4-canary.20.tgz",
+-      "integrity": "sha512-+1OeBMDyPwRL545bsPvIY+KAeFFmaLarnSu36HpO6gZD3eh53DvBH0dxGtooewDzpEvdUmWoq4bm7de2/XrpiQ==",
+-      "license": "MIT",
++      "version": "14.2.15",
++      "resolved": "https://registry.npmjs.org/next/-/next-14.2.15.tgz",
++      "integrity": "sha512-h9ctmOokpoDphRvMGnwOJAedT6zKhwqyZML9mDtspgf4Rh3Pn7UTYKqePNoDvhsWBAO5GoPNYshnAUGIazVGmw==",
+       "dependencies": {
+-        "@next/env": "15.0.4-canary.20",
+-        "@swc/counter": "0.1.3",
+-        "@swc/helpers": "0.5.13",
++        "@next/env": "14.2.15",
++        "@swc/helpers": "0.5.5",
+         "busboy": "1.6.0",
+         "caniuse-lite": "^1.0.30001579",
++        "graceful-fs": "^4.2.11",
+         "postcss": "8.4.31",
+-        "styled-jsx": "5.1.6"
++        "styled-jsx": "5.1.1"
+       },
+       "bin": {
+         "next": "dist/bin/next"
+       },
+       "engines": {
+-        "node": "^18.18.0 || ^19.8.0 || >= 20.0.0"
++        "node": ">=18.17.0"
+       },
+       "optionalDependencies": {
+-        "@next/swc-darwin-arm64": "15.0.4-canary.20",
+-        "@next/swc-darwin-x64": "15.0.4-canary.20",
+-        "@next/swc-linux-arm64-gnu": "15.0.4-canary.20",
+-        "@next/swc-linux-arm64-musl": "15.0.4-canary.20",
+-        "@next/swc-linux-x64-gnu": "15.0.4-canary.20",
+-        "@next/swc-linux-x64-musl": "15.0.4-canary.20",
+-        "@next/swc-win32-arm64-msvc": "15.0.4-canary.20",
+-        "@next/swc-win32-x64-msvc": "15.0.4-canary.20",
+-        "sharp": "^0.33.5"
++        "@next/swc-darwin-arm64": "14.2.15",
++        "@next/swc-darwin-x64": "14.2.15",
++        "@next/swc-linux-arm64-gnu": "14.2.15",
++        "@next/swc-linux-arm64-musl": "14.2.15",
++        "@next/swc-linux-x64-gnu": "14.2.15",
++        "@next/swc-linux-x64-musl": "14.2.15",
++        "@next/swc-win32-arm64-msvc": "14.2.15",
++        "@next/swc-win32-ia32-msvc": "14.2.15",
++        "@next/swc-win32-x64-msvc": "14.2.15"
+       },
+       "peerDependencies": {
+         "@opentelemetry/api": "^1.1.0",
+         "@playwright/test": "^1.41.2",
+-        "babel-plugin-react-compiler": "*",
+-        "react": "^18.2.0 || 19.0.0-rc-380f5d67-20241113",
+-        "react-dom": "^18.2.0 || 19.0.0-rc-380f5d67-20241113",
++        "react": "^18.2.0",
++        "react-dom": "^18.2.0",
+         "sass": "^1.3.0"
+       },
+       "peerDependenciesMeta": {
+@@ -3830,9 +3282,6 @@
+         "@playwright/test": {
+           "optional": true
+         },
+-        "babel-plugin-react-compiler": {
+-          "optional": true
+-        },
+         "sass": {
+           "optional": true
+         }
+@@ -4153,19 +3602,6 @@
+         "react-is": "^16.13.1"
+       }
+     },
+-    "node_modules/prop-types-extra": {
+-      "version": "1.1.1",
+-      "resolved": "https://registry.npmjs.org/prop-types-extra/-/prop-types-extra-1.1.1.tgz",
+-      "integrity": "sha512-59+AHNnHYCdiC+vMwY52WmvP5dM3QLeoumYuEyceQDi9aEhtwN9zIQ2ZNo25sMyXnbh32h+P1ezDsUpUH3JAew==",
+-      "license": "MIT",
+-      "dependencies": {
+-        "react-is": "^16.3.2",
+-        "warning": "^4.0.0"
+-      },
+-      "peerDependencies": {
+-        "react": ">=0.14.0"
+-      }
+-    },
+     "node_modules/punycode": {
+       "version": "2.3.1",
+       "resolved": "https://registry.npmjs.org/punycode/-/punycode-2.3.1.tgz",
+@@ -4206,36 +3642,6 @@
+         "node": ">=0.10.0"
+       }
+     },
+-    "node_modules/react-bootstrap": {
+-      "version": "2.10.5",
+-      "resolved": "https://registry.npmjs.org/react-bootstrap/-/react-bootstrap-2.10.5.tgz",
+-      "integrity": "sha512-XueAOEn64RRkZ0s6yzUTdpFtdUXs5L5491QU//8ZcODKJNDLt/r01tNyriZccjgRImH1REynUc9pqjiRMpDLWQ==",
+-      "license": "MIT",
+-      "dependencies": {
+-        "@babel/runtime": "^7.24.7",
+-        "@restart/hooks": "^0.4.9",
+-        "@restart/ui": "^1.6.9",
+-        "@types/react-transition-group": "^4.4.6",
+-        "classnames": "^2.3.2",
+-        "dom-helpers": "^5.2.1",
+-        "invariant": "^2.2.4",
+-        "prop-types": "^15.8.1",
+-        "prop-types-extra": "^1.1.0",
+-        "react-transition-group": "^4.4.5",
+-        "uncontrollable": "^7.2.1",
+-        "warning": "^4.0.3"
+-      },
+-      "peerDependencies": {
+-        "@types/react": ">=16.14.8",
+-        "react": ">=16.14.0",
+-        "react-dom": ">=16.14.0"
+-      },
+-      "peerDependenciesMeta": {
+-        "@types/react": {
+-          "optional": true
+-        }
+-      }
+-    },
+     "node_modules/react-dom": {
+       "version": "18.3.1",
+       "resolved": "https://registry.npmjs.org/react-dom/-/react-dom-18.3.1.tgz",
+@@ -4253,28 +3659,6 @@
+       "resolved": "https://registry.npmjs.org/react-is/-/react-is-16.13.1.tgz",
+       "integrity": "sha512-24e6ynE2H+OKt4kqsOvNd8kBpV65zoxbA4BVsEOB3ARVWQki/DHzaUoC5KuON/BiccDaCCTZBuOcfZs70kR8bQ=="
+     },
+-    "node_modules/react-lifecycles-compat": {
+-      "version": "3.0.4",
+-      "resolved": "https://registry.npmjs.org/react-lifecycles-compat/-/react-lifecycles-compat-3.0.4.tgz",
+-      "integrity": "sha512-fBASbA6LnOU9dOU2eW7aQ8xmYBSXUIWr+UmF9b1efZBazGNO+rcXT/icdKnYm2pTwcRylVUYwW7H1PHfLekVzA==",
+-      "license": "MIT"
+-    },
+-    "node_modules/react-transition-group": {
+-      "version": "4.4.5",
+-      "resolved": "https://registry.npmjs.org/react-transition-group/-/react-transition-group-4.4.5.tgz",
+-      "integrity": "sha512-pZcd1MCJoiKiBR2NRxeCRg13uCXbydPnmB4EOeRrY7480qNWO8IIgQG6zlDkm6uRMsURXPuKq0GWtiM59a5Q6g==",
+-      "license": "BSD-3-Clause",
+-      "dependencies": {
+-        "@babel/runtime": "^7.5.5",
+-        "dom-helpers": "^5.0.1",
+-        "loose-envify": "^1.4.0",
+-        "prop-types": "^15.6.2"
+-      },
+-      "peerDependencies": {
+-        "react": ">=16.6.0",
+-        "react-dom": ">=16.6.0"
+-      }
+-    },
+     "node_modules/reflect.getprototypeof": {
+       "version": "1.0.6",
+       "resolved": "https://registry.npmjs.org/reflect.getprototypeof/-/reflect.getprototypeof-1.0.6.tgz",
+@@ -4296,12 +3680,6 @@
+         "url": "https://github.com/sponsors/ljharb"
+       }
+     },
+-    "node_modules/regenerator-runtime": {
+-      "version": "0.14.1",
+-      "resolved": "https://registry.npmjs.org/regenerator-runtime/-/regenerator-runtime-0.14.1.tgz",
+-      "integrity": "sha512-dYnhHh0nJoMfnkZs6GmmhFknAGRrLznOu5nc9ML+EJxGvrx6H7teuevqVqCuPcPK//3eDrrjQhehXVx9cnkGdw==",
+-      "license": "MIT"
+-    },
+     "node_modules/regexp.prototype.flags": {
+       "version": "1.5.3",
+       "resolved": "https://registry.npmjs.org/regexp.prototype.flags/-/regexp.prototype.flags-1.5.3.tgz",
+@@ -4472,7 +3850,7 @@
+       "version": "7.6.3",
+       "resolved": "https://registry.npmjs.org/semver/-/semver-7.6.3.tgz",
+       "integrity": "sha512-oVekP1cKtI+CTDvHWYFUcMtsK/00wmAEfyqKfNdARm8u1wNVhSgaX7A8d4UuIlUI5e84iEwOhs7ZPYRmzU9U6A==",
+-      "devOptional": true,
++      "dev": true,
+       "bin": {
+         "semver": "bin/semver.js"
+       },
+@@ -4517,46 +3895,6 @@
+         "node": ">= 0.4"
+       }
+     },
+-    "node_modules/sharp": {
+-      "version": "0.33.5",
+-      "resolved": "https://registry.npmjs.org/sharp/-/sharp-0.33.5.tgz",
+-      "integrity": "sha512-haPVm1EkS9pgvHrQ/F3Xy+hgcuMV0Wm9vfIBSiwZ05k+xgb0PkBQpGsAA/oWdDobNaZTH5ppvHtzCFbnSEwHVw==",
+-      "hasInstallScript": true,
+-      "license": "Apache-2.0",
+-      "optional": true,
+-      "dependencies": {
+-        "color": "^4.2.3",
+-        "detect-libc": "^2.0.3",
+-        "semver": "^7.6.3"
+-      },
+-      "engines": {
+-        "node": "^18.17.0 || ^20.3.0 || >=21.0.0"
+-      },
+-      "funding": {
+-        "url": "https://opencollective.com/libvips"
+-      },
+-      "optionalDependencies": {
+-        "@img/sharp-darwin-arm64": "0.33.5",
+-        "@img/sharp-darwin-x64": "0.33.5",
+-        "@img/sharp-libvips-darwin-arm64": "1.0.4",
+-        "@img/sharp-libvips-darwin-x64": "1.0.4",
+-        "@img/sharp-libvips-linux-arm": "1.0.5",
+-        "@img/sharp-libvips-linux-arm64": "1.0.4",
+-        "@img/sharp-libvips-linux-s390x": "1.0.4",
+-        "@img/sharp-libvips-linux-x64": "1.0.4",
+-        "@img/sharp-libvips-linuxmusl-arm64": "1.0.4",
+-        "@img/sharp-libvips-linuxmusl-x64": "1.0.4",
+-        "@img/sharp-linux-arm": "0.33.5",
+-        "@img/sharp-linux-arm64": "0.33.5",
+-        "@img/sharp-linux-s390x": "0.33.5",
+-        "@img/sharp-linux-x64": "0.33.5",
+-        "@img/sharp-linuxmusl-arm64": "0.33.5",
+-        "@img/sharp-linuxmusl-x64": "0.33.5",
+-        "@img/sharp-wasm32": "0.33.5",
+-        "@img/sharp-win32-ia32": "0.33.5",
+-        "@img/sharp-win32-x64": "0.33.5"
+-      }
+-    },
+     "node_modules/shebang-command": {
+       "version": "2.0.0",
+       "resolved": "https://registry.npmjs.org/shebang-command/-/shebang-command-2.0.0.tgz",
+@@ -4608,16 +3946,6 @@
+         "url": "https://github.com/sponsors/isaacs"
+       }
+     },
+-    "node_modules/simple-swizzle": {
+-      "version": "0.2.2",
+-      "resolved": "https://registry.npmjs.org/simple-swizzle/-/simple-swizzle-0.2.2.tgz",
+-      "integrity": "sha512-JA//kQgZtbuY83m+xT+tXJkmJncGMTFT+C+g2h2R9uxkYIrE2yy9sgmcLhCnw57/WSD+Eh3J97FPEDFnbXnDUg==",
+-      "license": "MIT",
+-      "optional": true,
+-      "dependencies": {
+-        "is-arrayish": "^0.3.1"
+-      }
+-    },
+     "node_modules/source-map-js": {
+       "version": "1.2.1",
+       "resolved": "https://registry.npmjs.org/source-map-js/-/source-map-js-1.2.1.tgz",
+@@ -4857,10 +4185,9 @@
+       }
+     },
+     "node_modules/styled-jsx": {
+-      "version": "5.1.6",
+-      "resolved": "https://registry.npmjs.org/styled-jsx/-/styled-jsx-5.1.6.tgz",
+-      "integrity": "sha512-qSVyDTeMotdvQYoHWLNGwRFJHC+i+ZvdBRYosOFgC+Wg1vx4frN2/RG/NA7SYqqvKNLf39P2LSRA2pu6n0XYZA==",
+-      "license": "MIT",
++      "version": "5.1.1",
++      "resolved": "https://registry.npmjs.org/styled-jsx/-/styled-jsx-5.1.1.tgz",
++      "integrity": "sha512-pW7uC1l4mBZ8ugbiZrcIsiIvVx1UmTfw7UkC3Um2tmfUq9Bhk8IiyEIPl6F8agHgjzku6j0xQEZbfA5uSgSaCw==",
+       "dependencies": {
+         "client-only": "0.0.1"
+       },
+@@ -4868,7 +4195,7 @@
+         "node": ">= 12.0.0"
+       },
+       "peerDependencies": {
+-        "react": ">= 16.8.0 || 17.x.x || ^18.0.0-0 || ^19.0.0-0"
++        "react": ">= 16.8.0 || 17.x.x || ^18.0.0-0"
+       },
+       "peerDependenciesMeta": {
+         "@babel/core": {
+@@ -4960,10 +4287,9 @@
+       }
+     },
+     "node_modules/tslib": {
+-      "version": "2.8.1",
+-      "resolved": "https://registry.npmjs.org/tslib/-/tslib-2.8.1.tgz",
+-      "integrity": "sha512-oJFu94HQb+KVduSUQL7wnpmqnfmLsOA/nAh6b6EH0wCEoK0/mPeXU6c3wKDV83MkOuHPRHtSXKKU99IBazS/2w==",
+-      "license": "0BSD"
++      "version": "2.8.0",
++      "resolved": "https://registry.npmjs.org/tslib/-/tslib-2.8.0.tgz",
++      "integrity": "sha512-jWVzBLplnCmoaTr13V9dYbiQ99wvZRd0vNWaDRg+aVYRcjDF3nDksxFDE/+fkXnKhpnUUkmx5pK/v8mCtLVqZA=="
+     },
+     "node_modules/type-check": {
+       "version": "0.4.0",
+@@ -5090,21 +4416,6 @@
+         "url": "https://github.com/sponsors/ljharb"
+       }
+     },
+-    "node_modules/uncontrollable": {
+-      "version": "7.2.1",
+-      "resolved": "https://registry.npmjs.org/uncontrollable/-/uncontrollable-7.2.1.tgz",
+-      "integrity": "sha512-svtcfoTADIB0nT9nltgjujTi7BzVmwjZClOmskKu/E8FW9BXzg9os8OLr4f8Dlnk0rYWJIWr4wv9eKUXiQvQwQ==",
+-      "license": "MIT",
+-      "dependencies": {
+-        "@babel/runtime": "^7.6.3",
+-        "@types/react": ">=16.9.11",
+-        "invariant": "^2.2.4",
+-        "react-lifecycles-compat": "^3.0.4"
+-      },
+-      "peerDependencies": {
+-        "react": ">=15.0.0"
+-      }
+-    },
+     "node_modules/undici-types": {
+       "version": "6.19.8",
+       "resolved": "https://registry.npmjs.org/undici-types/-/undici-types-6.19.8.tgz",
+@@ -5119,15 +4430,6 @@
+         "punycode": "^2.1.0"
+       }
+     },
+-    "node_modules/warning": {
+-      "version": "4.0.3",
+-      "resolved": "https://registry.npmjs.org/warning/-/warning-4.0.3.tgz",
+-      "integrity": "sha512-rpJyN222KWIvHJ/F53XSZv0Zl/accqHR8et1kpaMTD/fLCRxtV8iX8czMzY7sVZupTI3zcUTg8eycS2kNF9l6w==",
+-      "license": "MIT",
+-      "dependencies": {
+-        "loose-envify": "^1.0.0"
+-      }
+-    },
+     "node_modules/webidl-conversions": {
+       "version": "3.0.1",
+       "resolved": "https://registry.npmjs.org/webidl-conversions/-/webidl-conversions-3.0.1.tgz",
+@@ -5376,21 +4678,6 @@
+       "funding": {
+         "url": "https://github.com/sponsors/sindresorhus"
+       }
+-    },
+-    "node_modules/@next/swc-win32-ia32-msvc": {
+-      "version": "14.2.15",
+-      "resolved": "https://registry.npmjs.org/@next/swc-win32-ia32-msvc/-/swc-win32-ia32-msvc-14.2.15.tgz",
+-      "integrity": "sha512-fyTE8cklgkyR1p03kJa5zXEaZ9El+kDNM5A+66+8evQS5e/6v0Gk28LqA0Jet8gKSOyP+OTm/tJHzMlGdQerdQ==",
+-      "cpu": [
+-        "ia32"
+-      ],
+-      "optional": true,
+-      "os": [
+-        "win32"
+-      ],
+-      "engines": {
+-        "node": ">= 10"
+-      }
+     }
+   }
+ }
+diff --git a/projectconnect/package.json b/projectconnect/package.json
+index 7b2aa74..f67716d 100644
+--- a/projectconnect/package.json
++++ b/projectconnect/package.json
+@@ -18,14 +18,11 @@
+     "@supabase/ssr": "^0.5.1",
+     "@supabase/supabase-js": "^2.46.1",
+     "bootstrap": "^5.3.3",
+-    "js-cookie": "^3.0.5",
+     "next": "14.2.15",
+     "react": "^18",
+-    "react-bootstrap": "^2.10.5",
+     "react-dom": "^18"
+   },
+   "devDependencies": {
+-    "@types/js-cookie": "^3.0.6",
+     "@types/node": "^20",
+     "@types/react": "^18.3.11",
+     "@types/react-dom": "^18.3.1",
+diff --git a/projectconnect/src/app/components/searchbar.tsx b/projectconnect/src/app/components/searchbar.tsx
+index 6251552..6aa664a 100644
+--- a/projectconnect/src/app/components/searchbar.tsx
++++ b/projectconnect/src/app/components/searchbar.tsx
+@@ -1,3 +1,89 @@
++// "use client";
++// import React from 'react';
++// import '../styles/searchbar.modules.css';
++// import { ChangeEvent, KeyboardEvent } from 'react';
++// import { useRouter } from "next/navigation";
++// import { useState, useEffect } from "react";
++// import { useSearchContext } from "../context/SearchContext";
++
++// interface SearchbarProps {
++//   onSearchChange?: (query: string) => void;
++//   searchText?: string;
++//   onKeyDown?: (event: KeyboardEvent<HTMLInputElement>) => void;
++// }
++
++// export default function Searchbar({ onSearchChange, searchText = "", onKeyDown }: SearchbarProps) {
++//   const router = useRouter();
++//   const { tag, setTag } = useSearchContext(); // Access `tag` and `setTag` from SearchContext
++//   const [inputValue, setInputValue] = useState(searchText);
++
++//   useEffect(() => {
++//     // Update inputValue if searchText prop changes
++//     setInputValue(searchText);
++//   }, [searchText]);
++
++//   const handleSearchChange = (event: ChangeEvent<HTMLInputElement>) => {
++//     const query = event.target.value;
++//     if (onSearchChange) {
++//       onSearchChange(query); // Update the parent with the search query
++//     }
++//   };
++
++//   const handleTagSelect = (tag: string) => {
++//     setTag(tag); // Update the tag in SearchContext
++//   };
++
++//   const handleClearTag = () => {
++//     setTag(""); // Reset the tag in SearchContext
++//   };
++
++//   const handleAllProjects = () => {
++//     setTag("");
++//     setInputValue("");
++//     router.push("/search");
++//   }
++
++//   return (
++//     <div className="parentContainer">
++//       <div className="searchContainer">
++//         <input
++//           id="search"
++//           type="text"
++//           placeholder="Search..."
++//           value={searchText}
++//           onChange={handleSearchChange}
++//           onKeyDown={onKeyDown} // Pass the onKeyDown prop directly to the input field
++//         />
++
++//         <div className="dropdown">
++//           <button
++//             className="btn btn-secondary dropdown-toggle"
++//             type="button"
++//             data-bs-toggle="dropdown"
++//             aria-expanded="false"
++//           >
++//             {tag || "Tags"}
++//           </button>
++//           <ul className="dropdown-menu">
++//             <li><a className="dropdown-item" onClick={() => handleTagSelect("Arts/Crafts")}>Arts/Crafts</a></li>
++//             <li><a className="dropdown-item" onClick={() => handleTagSelect("Business")}>Business</a></li>
++//             <li><a className="dropdown-item" onClick={() => handleTagSelect("Coding")}>Coding</a></li>
++//             <li><a className="dropdown-item" onClick={() => handleTagSelect("Engineering")}>Engineering</a></li>
++//             <li><a className="dropdown-item" onClick={() => handleTagSelect("Math")}>Math</a></li>
++//             <li><a className="dropdown-item" onClick={() => handleTagSelect("Music")}>Music</a></li>
++//             <li><a className="dropdown-item" onClick={() => handleTagSelect("Science")}>Science</a></li>
++//             <li><a className="dropdown-item" onClick={() => handleTagSelect("Writing")}>Writing</a></li>
++//             <li><a className="dropdown-item" onClick={() => handleTagSelect("Other")}>Other</a></li>
++//             <li><a className="dropdown-item text-danger" onClick={handleClearTag}>Clear</a></li> {/* Clear option */}
++//           </ul>
++//         </div>
++
++//         <button type="button" className="btn searchButtons" onClick={handleAllProjects}>All projects</button>
++//       </div>
++//     </div>
++//   );
++// }
++
+ "use client";
+ import React from 'react';
+ import '../styles/searchbar.modules.css';
+@@ -17,15 +103,6 @@ export default function Searchbar({ onSearchChange, searchText = "", onKeyDown }
+   const { tag, setTag } = useSearchContext(); // Access `tag` and `setTag` from SearchContext
+   const [inputValue, setInputValue] = useState(searchText);
+ 
+-  useEffect(() => {
+-    const dropdown = document.querySelector('.dropdown');
+-    if (dropdown) {
+-      dropdown.classList.remove('active');
+-      setTimeout(() => dropdown.classList.add('active'), 0);
+-    }
+-  }, []);
+-  
+-
+   useEffect(() => {
+     // Update inputValue if searchText prop changes
+     setInputValue(searchText);
+@@ -68,7 +145,7 @@ export default function Searchbar({ onSearchChange, searchText = "", onKeyDown }
+           onKeyDown={onKeyDown} // Pass the onKeyDown prop directly to the input field
+         />
+ 
+-        <div className="dropdown" id="searchbarDropdown">
++        <div className="dropdown">
+           <button
+             className="btn btn-secondary dropdown-toggle"
+             type="button"
+diff --git a/projectconnect/src/app/pages/account/page.tsx b/projectconnect/src/app/pages/account/page.tsx
+index 7b19db1..bc8f66e 100644
+--- a/projectconnect/src/app/pages/account/page.tsx
++++ b/projectconnect/src/app/pages/account/page.tsx
+@@ -63,24 +63,16 @@ export default function Account() {
+   const [aboutMe, setAboutMe] = useState("Loading...");
+   const [contactInfo, setContactInfo] = useState("Loading...");
+   const [postsCreated, setPostsCreated] = useState<Project[]>([]); 
+-  const [joinedProjects,  setJoinedProjects] = useState<Project[]>([]);
+   const [skills, setSkills] = useState("Loading...");
+   const [editComponent, setEditComponent] = useState("");
+   const [textareaValue, setTextareaValue] = useState(""); 
+-  const [isOwner, setIsOwner] = useState(false);
+-
+ 
+   const [isLoading, setIsLoading] = useState(true);
+ 
+   useEffect(() => {
+-    const searchParams = new URLSearchParams(window.location.search);
+-    const urlUsername = searchParams.get("username");
+-    const usernameToFetch = urlUsername || getUsernameFromCookie();
+-    setIsOwner(usernameToFetch === getUsernameFromCookie());
+-
+-
+-    if (usernameToFetch ) {
+-      setUsername(usernameToFetch );
++    const cookieUsername = getUsernameFromCookie(); 
++    if (cookieUsername) {
++      setUsername(cookieUsername); 
+ 
+       const fetchUserData = async () => {
+         try {
+@@ -92,7 +84,7 @@ export default function Account() {
+             headers: {
+               "Content-Type": "application/json",
+             },
+-            body: JSON.stringify({ username: usernameToFetch }),
++            body: JSON.stringify({ username: cookieUsername }),
+           });
+ 
+           const userResult = await userResponse.json();
+@@ -112,7 +104,7 @@ export default function Account() {
+             headers: {
+               "Content-Type": "application/json",
+             },
+-            body: JSON.stringify({ creatorusername: usernameToFetch }),
++            body: JSON.stringify({ creatorusername: cookieUsername }),
+           });
+           
+           const postsResult = await postsResponse.json();
+@@ -129,31 +121,7 @@ export default function Account() {
+         }
+       };
+ 
+-
+-      const fetchJoinedProjects = async () => {
+-        try{
+-          const response = await fetch("http://127.0.0.1:5001/projects/by_member", {
+-            method: "POST",
+-            headers: {
+-              "Content-Type": "application/json",
+-            },
+-            body: JSON.stringify({ username: usernameToFetch }),
+-          });
+-
+-          const result = await response.json();
+-          if (response.ok) {
+-            setJoinedProjects(result.projects || []);
+-          } else {
+-            console.error("Error fetching joined projects:", result.message);
+-          }
+-        }
+-        catch (error) {
+-          console.error("Error fetching joined projects:", error);
+-        }
+-      };
+-
+       fetchUserData();
+-      fetchJoinedProjects();
+     } else {
+       console.error("Username not found in cookies.");
+       setAboutMe("Username not found.");
+@@ -278,15 +246,15 @@ export default function Account() {
+             {username}</div>
+           <div className="profileCard">
+             About Me: {aboutMe}
+-            {isOwner && <FontAwesomeIcon onClick={() => handleEdit("About Me")} icon={faPencil} role='button' className="editIcon"/>}
++            <FontAwesomeIcon onClick={() => handleEdit("About Me")} icon={faPencil} role='button' className="editIcon" data-bs-toggle="modal" data-bs-target="#editAccountModal"/>
+           </div>
+           <div className="profileCard">
+             <p>Contact Information: {contactInfo}</p>
+-            {isOwner && <FontAwesomeIcon onClick={() => handleEdit("Contact Information")} icon={faPencil} role='button' className="editIcon"/>}
++            <FontAwesomeIcon onClick={() => handleEdit("Contact Information")} icon={faPencil} role='button' className="editIcon" data-bs-toggle="modal" data-bs-target="#editAccountModal"/>
+           </div>
+           <div className="profileCard">
+             Skills: {skills} 
+-            {isOwner && <FontAwesomeIcon onClick={() => handleEdit("Skills")} icon={faPencil} role='button' className="editIcon"/>}
++            <FontAwesomeIcon onClick={() => handleEdit("Skills")} icon={faPencil} role='button' className="editIcon" data-bs-toggle="modal" data-bs-target="#editAccountModal"/>
+           </div>
+ 
+           <div className="modal fade" id="editAccountModal" tabIndex={-1} role="dialog" aria-labelledby="editAccountModal" aria-hidden="true">
+@@ -309,7 +277,6 @@ export default function Account() {
+               </div>
+             </div>
+           </div>
+-          
+         </div>
+ 
+         <div className="mainContent">
+@@ -356,21 +323,6 @@ export default function Account() {
+             )}
+             {activeTab === "joined" && (
+               <div className="joinedProjects">
+-                <div className={styles.postContainer}>
+-                  {joinedProjects.length > 0 ? (
+-                    joinedProjects.map((project, index) => (
+-                      <Postcard
+-                        key={index}
+-                        postName={project.title}
+-                        postInfo={project.description}
+-                        creatorName={project.creatorusername}
+-                        className={styles.postCard}
+-                      />
+-                    ))
+-                  ) : (
+-                    <p>No joined projects found.</p>
+-                  )}
+-                </div>
+               </div>
+             )}
+             {activeTab === "bookmarks" && (
+diff --git a/projectconnect/src/app/pages/accountInfo/page.tsx b/projectconnect/src/app/pages/accountInfo/page.tsx
+index a31160c..1932131 100644
+--- a/projectconnect/src/app/pages/accountInfo/page.tsx
++++ b/projectconnect/src/app/pages/accountInfo/page.tsx
+@@ -71,6 +71,7 @@ export default function Createpost() {
+   // Submit form data to backend
+   const handleSubmit = async (event: React.FormEvent) => {
+     event.preventDefault(); 
++    console.log(storedUsername)
+     if (!storedUsername) {
+       console.error("No username found in cookies.");
+       return;
+@@ -90,6 +91,7 @@ export default function Createpost() {
+ 
+       const result = await response.json();
+       if (response.ok) {
++        console.log("User info updated:", result);
+         router.push("/"); // Redirect to homepage
+       } else {
+         console.error("Error updating user info:", result.message);
+diff --git a/projectconnect/src/app/pages/createproject/page.tsx b/projectconnect/src/app/pages/createproject/page.tsx
+index c1cf2fb..2298d0a 100644
+--- a/projectconnect/src/app/pages/createproject/page.tsx
++++ b/projectconnect/src/app/pages/createproject/page.tsx
+@@ -1,9 +1,8 @@
+ "use client";
+ import Navbar from '../../components/navbar';
+ import "../../styles/createproject.page.css";
+-import React, { useEffect, useState } from 'react';
++import React, {useState} from 'react';
+ import { useRouter } from "next/navigation";
+-import { getUsernameFromCookie } from "../../lib/cookieUtils";
+ 
+ type AutoResizeTextareaProps = {
+   placeholder: string;
+@@ -14,8 +13,8 @@ type AutoResizeTextareaProps = {
+ function AutoResizeTextarea({ placeholder, value, onChange }: AutoResizeTextareaProps) {
+   const handleChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+     const textarea = event.target;
+-    textarea.style.height = 'auto';
+-    textarea.style.height = `${textarea.scrollHeight}px`;
++    textarea.style.height = 'auto';  
++    textarea.style.height = `${textarea.scrollHeight}px`;  
+     onChange(textarea.value);
+   };
+ 
+@@ -39,96 +38,66 @@ function AutoResizeTextarea({ placeholder, value, onChange }: AutoResizeTextarea
+ export default function Createpost() {
+   const router = useRouter();
+ 
+-  const [projectData, setProjectData] = useState({
+-    creatorusername: '',
+-    tag: '',
+-    title: '',
+-    description: '',
+-    links: '',
+-    contact: '',
+-    memberDescription: '',
+-    memberLinks: '',
+-    memberContact: ''
+-  })
+-
+-  const [selectedTag, setSelectedTag] = useState("Project Tags*");
+-  const [error, setError] = useState('');
+-
+-
+-  useEffect(() => {
+-    const cookieUsername = getUsernameFromCookie();
+-    if (cookieUsername) {
+-      setProjectData((prev) => ({ ...prev, creatorusername: cookieUsername || "failedtogetuser" }));
+-    }
+-  }, []);
+-
+-  const handleInputChange = (field: string, value: string) => {
+-    if (field === 'title' && value.length > 100) {
+-      setError('Title cannot exceed 100 characters.');
+-      return;
+-    }
+-    if (field === 'description' && value.length > 800) {
+-      setError('Description cannot exceed 800 characters.');
+-      return;
+-    }
+-    setProjectData({ ...projectData, [field]: value });
+-    setError('');
+-  };
++  const[projectData,setProjectData]= useState({
++    tag:'',
++    title:'',
++    description:'',
++    links:'',
++    contact:'',
++    memberDescription:'',
++    memberLinks:'',
++    memberContact:''
++    })
++
++    const [selectedTag, setSelectedTag] = useState("Project Tags*");
++    const [error, setError] = useState('');
++
++    const handleInputChange = (field: string, value: string) => {
++      if (field === 'title' && value.length > 100) {
++        setError('Title cannot exceed 100 characters.');
++        return;
++      }
++      if (field === 'description' && value.length > 800) {
++        setError('Description cannot exceed 800 characters.');
++        return;
++      }
++      setProjectData({ ...projectData, [field]: value });
++      setError('');
++    };
+ 
+-  const handleTagSelect = (tag: string) => {
+-    setSelectedTag(tag);
+-    setProjectData({ ...projectData, tag });
+-    setError('');
+-  };
++    const handleTagSelect = (tag: string) => {
++      setSelectedTag(tag);
++      setProjectData({ ...projectData, tag }); 
++      setError('');
++    };
+ 
+-  const handleSubmit = async () => {
+-    try {
++    const handleSubmit = () => {
+       if (
+         !projectData.tag ||
+         selectedTag === "Project Tags*" ||
+         !projectData.title.trim() ||
+-        !projectData.description.trim() ||
+-        !projectData.creatorusername
++        !projectData.description.trim()
+       ) {
+         setError('Required fields are missing.');
+         return;
+       }
+-
++  
+       const payload = {
+-        creatorusername: projectData.creatorusername,
+-        title: projectData.title,
+-        description: projectData.description,
+-        links: projectData.links,
+-        contact: projectData.contact,
+-        memberDescription: projectData.memberDescription,
+-        memberLinks: projectData.memberLinks,
+-        memberContact: projectData.memberContact,
++          title: projectData.title,
++          description: projectData.description,
++          links: projectData.links,
++          contact: projectData.contact,
++          members: {
++          description: projectData.memberDescription,
++          links: projectData.memberLinks,
++          contact: projectData.memberContact
++        },
+         tag: selectedTag,
+       };
+-
+-      const response = await fetch('http://127.0.0.1:5001/buildProject', {
+-        method: 'POST',
+-        headers: {
+-          'Content-Type': 'application/json',
+-        },
+-        body: JSON.stringify(payload),
+-      });
+-
+-
+-      const result = await response.json();
+-
+-      if (response.ok) {
+-        router.push('/');
+-      } else {
+-        setError(result.error || 'Failed to create project.');
+-      }
+-    } catch (err) {
+-      console.error('Error submitting project:', err);
+-      setError('An unexpected error occurred.');
+-    }
++      
++      console.log("string to pass to api", payload);
++      router.push("/");
+   };
+-
+-
+   return (
+     <>
+       <Navbar />
+@@ -165,25 +134,25 @@ export default function Createpost() {
+         </div>
+ 
+         <form className="formInput">
+-          <AutoResizeTextarea
+-            placeholder="Title*"
+-            value={projectData.title}
+-            onChange={(value) => handleInputChange('title', value)}
++          <AutoResizeTextarea 
++            placeholder="Title*" 
++            value={projectData.title} 
++            onChange={(value) => handleInputChange('title', value)} 
+           />
+-          <AutoResizeTextarea
+-            placeholder="Project Description*"
+-            value={projectData.description}
+-            onChange={(value) => handleInputChange('description', value)}
++          <AutoResizeTextarea 
++            placeholder="Project Description*" 
++            value={projectData.description} 
++            onChange={(value) => handleInputChange('description', value)} 
+           />
+-          <AutoResizeTextarea
+-            placeholder="Links"
+-            value={projectData.links}
+-            onChange={(value) => handleInputChange('links', value)}
++          <AutoResizeTextarea 
++            placeholder="Links" 
++            value={projectData.links} 
++            onChange={(value) => handleInputChange('links', value)} 
+           />
+-          <AutoResizeTextarea
+-            placeholder="Contact Information"
+-            value={projectData.contact}
+-            onChange={(value) => handleInputChange('contact', value)}
++          <AutoResizeTextarea 
++            placeholder="Contact Information" 
++            value={projectData.contact  } 
++            onChange={(value) => handleInputChange('contact', value)} 
+           />
+         </form>
+         <div className='formHeader'>
+@@ -191,30 +160,30 @@ export default function Createpost() {
+         </div>
+ 
+         <form className='formInput'>
+-          <AutoResizeTextarea
+-            placeholder="Member Description"
+-            value={projectData.memberDescription}
+-            onChange={(value) => handleInputChange('memberDescription', value)}
++        <AutoResizeTextarea  
++            placeholder="Member Description" 
++            value={projectData.memberDescription} 
++            onChange={(value) => handleInputChange('memberDescription', value)} 
+           />
+-          <AutoResizeTextarea
+-            placeholder="Member Links"
+-            value={projectData.memberLinks}
+-            onChange={(value) => handleInputChange('memberLinks', value)}
++          <AutoResizeTextarea  
++            placeholder="Member Links" 
++            value={projectData.memberLinks} 
++            onChange={(value) => handleInputChange('memberLinks', value)} 
+           />
+-          <AutoResizeTextarea
+-            placeholder="Member Contact Information"
+-            value={projectData.memberContact}
+-            onChange={(value) => handleInputChange('memberContact', value)}
++          <AutoResizeTextarea  
++            placeholder="Member Contact Information" 
++            value={projectData.memberContact} 
++            onChange={(value) => handleInputChange('memberContact', value)} 
+           />
+         </form>
+-        {error && <div className="error">{error}</div>}
++      {error && <div className="error">{error}</div>}
+ 
+-        <button
+-          type="submit"
+-          className="submit-button"
++        <button 
++          type="submit" 
++          className="submit-button" 
+           onClick={handleSubmit}
+         >
+-          Post
++            Post
+         </button>
+       </div>
+       <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossOrigin="anonymous"></script>
+diff --git a/projectconnect/src/app/pages/post/page.tsx b/projectconnect/src/app/pages/post/page.tsx
+index 13907e9..91e1920 100644
+--- a/projectconnect/src/app/pages/post/page.tsx
++++ b/projectconnect/src/app/pages/post/page.tsx
+@@ -6,7 +6,6 @@ import { faBookmark as filledBookmark } from "@fortawesome/free-solid-svg-icons"
+ import { faBookmark as emptyBookmark } from "@fortawesome/free-regular-svg-icons";
+ import Navbar from "../../components/navbar";
+ import "../../styles/project_view.css";
+-import Cookies from "js-cookie";
+ 
+ // Define the type for project details
+ interface ProjectDetails {
+@@ -17,126 +16,40 @@ interface ProjectDetails {
+   memberdescription?: string;
+   memberlinks?: string;
+   membercontactinfo?: string;
+-  isarchived: boolean;
+-  tag: string;
+-  contact: string;
+-}
+-
+-type UserRole = "general" | "member" | "creator";
+-
+-type AutoResizeTextareaProps = {
+-  placeholder: string;
+-  value: string;
+-  onChange: (value: string) => void;
+-};
+-
+-function AutoResizeTextarea({ placeholder, value, onChange }: AutoResizeTextareaProps) {
+-  const handleChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+-    const textarea = event.target;
+-    textarea.style.height = "auto";
+-    textarea.style.height = `${textarea.scrollHeight}px`;
+-    onChange(textarea.value);
+-  };
+-
+-  return (
+-    <textarea
+-      value={value}
+-      onChange={handleChange}
+-      placeholder={placeholder}
+-      className="inputBox"
+-      style={{
+-        width: "100%",
+-        minHeight: "50px",
+-        resize: "none",
+-        overflow: "hidden",
+-        color: "black",
+-      }}
+-      required
+-    />
+-  );
+ }
+ 
+ interface APIResponse {
+   project: ProjectDetails;
+ }
+ 
++// Props for the component
++type ProjectViewProps = {
++  userRole: "general" | "member" | "creator";
++};
+ 
+-export default function ProjectView() {
++export default function ProjectView({ userRole }: ProjectViewProps) {
+   const [activeTab, setActiveTab] = useState<"everyone" | "members">("everyone");
+   const [isBookmarked, setIsBookmarked] = useState(false);
+-  const [isModalVisible, setIsModalVisible] = useState(false); // State for modal visibility
+   const [isLoading, setIsLoading] = useState(true);
+   const [projectDetails, setProjectDetails] = useState<ProjectDetails | null>(null);
+-  const [tempProjectDetails, setTempProjectDetails] = useState<ProjectDetails | null>(null);
+-  const [userRole, setUserRole] = useState<UserRole>();
+-  const pathname = usePathname();
++
++  const pathname = usePathname(); // Get the current route's pathname
+ 
+   // Extract creatorUsername and title from pathname and fetch project info
+   useEffect(() => {
+     if (pathname) {
+       const urlParams = new URLSearchParams(window.location.search);
+       const creator = urlParams.get("creator");
+-     
+-      let project = urlParams.get("title");
+-      console.log("title: ", project);
++      let projectTitle = urlParams.get("title");
+ 
+-      if (project) {
+-        project = project.replace("-", " ");
++      if (projectTitle) {
++        projectTitle = projectTitle.replace("-", " ");
+       }
+-      console.log("projectitle: ", project);
+ 
+-      fetchProjectInformation(creator, project);
++      fetchProjectInformation(creator, projectTitle);
+     }
+   }, [pathname]);
+ 
+-  useEffect(() => {
+-    if (projectDetails) {
+-      const currentUsername = Cookies.get('username') || "";
+-      console.log("Verifying membership for user:", currentUsername);
+-  
+-      if(currentUsername == projectDetails.creatorusername){
+-        console.log("they are the creator");
+-        setUserRole("creator");
+-        setIsLoading(false);
+-      }
+-      else{
+-        // Run verifyMembership with updated projectDetails
+-        verifyMembership(currentUsername, projectDetails.creatorusername, projectDetails.title);
+-      }
+-    }
+-  }, [projectDetails]);
+-
+-  const verifyMembership = async (
+-    memberusername: string | null,
+-    creator: string | null,
+-    projectTitle: string | null
+-  ) => {
+-    if (!memberusername || !creator || !projectTitle) return;
+-    try {
+-      const response = await fetch("http://localhost:5001/verifyMembership", {
+-        method: "POST",
+-        headers: {
+-          "Content-Type": "application/json",
+-        },
+-        body: JSON.stringify({
+-          membersusername: memberusername,
+-          creatorusername: creator,
+-          title: projectTitle,
+-        }),
+-      });
+-      if (response.ok) {
+-        setUserRole("member"); // Set role to member
+-      } else {
+-        setUserRole("general"); // Fallback to general
+-      }
+-    } catch (error) {
+-      console.log("error: ", error);
+-      setUserRole("general"); // Fallback to general on error
+-    }finally {
+-      setIsLoading(false);
+-    }
+-  };
+-
+   const fetchProjectInformation = async (creator: string | null, projectTitle: string | null) => {
+     if (!creator || !projectTitle) return;
+ 
+@@ -160,10 +73,11 @@ export default function ProjectView() {
+       
+       // Type the API response correctly
+       const data: APIResponse = await response.json();
+-      console.log(data);
+-      setProjectDetails(data.project); // Extract `project` from the response 
++      setProjectDetails(data.project); // Extract `project` from the response       
+     } catch (error) {
+       console.error("Error fetching project information:", error);
++    } finally {
++      setIsLoading(false);
+     }
+   };
+ 
+@@ -171,188 +85,10 @@ export default function ProjectView() {
+     setIsBookmarked((prev) => !prev);
+   };
+ 
+-  const handleDeleteProject = async () => {
+-    if (!projectDetails) return;
+-
+-    const { creatorusername, title } = projectDetails;
+-
+-    try {
+-      const response = await fetch("http://localhost:5001/delete-project", {
+-        method: "POST",
+-        headers: {
+-          "Content-Type": "application/json",
+-        },
+-        body: JSON.stringify({
+-          creatorusername: creatorusername,
+-          title: title,
+-        }),
+-      });
+-
+-      const result = await response.json();
+-
+-      if (response.ok) {
+-        console.log("Project deleted:", result);
+-        alert("Project deleted successfully!");
+-
+-        // Navigate to another page or refresh the data
+-        window.location.href = "/"; // Redirect to the homepage or project list
+-      } else {
+-        console.error("Delete project error:", result.error);
+-        alert(`Failed to delete project: ${result.error}`);
+-
+-      }
+-    } catch (error) {
+-      console.error("Delete project error:", error);
+-      alert("An error occurred while deleting the project.");
+-
+-    }
+-  };
+-
+-  const handleArchive = async () => {
+-    if (!projectDetails) return;
+-  
+-    try {
+-      // Determine the API endpoint based on the current archived status
+-      const apiEndpoint = projectDetails.isarchived
+-        ? "http://localhost:5001/unarchiveProject"
+-        : "http://localhost:5001/archiveProject";
+-  
+-      // Make the API call to toggle the archive status
+-      const toggleResponse = await fetch(apiEndpoint, {
+-        method: "POST",
+-        headers: {
+-          "Content-Type": "application/json",
+-        },
+-        body: JSON.stringify({
+-          creatorusername: projectDetails.creatorusername,
+-          title: projectDetails.title,
+-        }),
+-      });
+-  
+-      const result = await toggleResponse.json();
+-  
+-      if (toggleResponse.ok) {
+-        alert(`Project ${projectDetails.isarchived ? "unarchived" : "archived"} successfully!`);
+-  
+-        // Update the project details to reflect the new archive state
+-        setProjectDetails({
+-          ...projectDetails,
+-          isarchived: !projectDetails.isarchived, // Toggle the boolean value
+-        });
+-      } else {
+-        console.error(`Failed to toggle archive state: ${result.error}`);
+-        alert(`Failed to ${projectDetails.isarchived ? "unarchive" : "archive"} project.`);
+-      }
+-    } catch (error) {
+-      console.error(`Error toggling archive state: ${error}`);
+-      alert("An error occurred while toggling the archive state.");
+-    }
+-  };
+-
+-  const handleLeaveProject = async () => {
+-    if (!projectDetails) return;
+-  
+-    const { title } = projectDetails;
+-    const currentUsername = Cookies.get("username");
+-  
+-    try {
+-      const response = await fetch("http://localhost:5001/api/leave-project", {
+-        method: "POST",
+-        headers: {
+-          "Content-Type": "application/json",
+-        },
+-        body: JSON.stringify({
+-          username: currentUsername,
+-          project_title: title,
+-        }),
+-      });
+-  
+-      const result = await response.json();
+-  
+-      if (response.ok) {
+-        alert(`Successfully left the project: ${title}`);
+-        // Redirect user to another page or refresh the project list
+-        window.location.href = "/";
+-      } else {
+-        alert(`Error leaving project: ${result.error}`);
+-      }
+-    } catch (error) {
+-      console.error("Error leaving project:", error);
+-      alert("An error occurred while leaving the project.");
+-    }
+-  };
+-
+   if (isLoading) {
+     return (
+       <div className="d-flex justify-content-center align-items-center" style={{ width: "100vw", height: "100vh" }}>
+-        <div className="spinner-border" role="status" style={{ width: "5rem", height: "5rem", color: "#2D2D2D"}}>
+-          <span className="sr-only">Loading...</span>
+-        </div>
+-      </div>
+-    );
+-  }
+-
+-  if (!projectDetails) {
+-    return (
+-      <div className="d-flex justify-content-center align-items-center" style={{ width: "100vw", height: "100vh" }}>
+-        <h2>No project details available.</h2>
+-      </div>
+-    );
+-  }
+-
+-  const handleSave = async () => {
+-    if (!tempProjectDetails) return;
+-  
+-    try {
+-      const { creatorusername, title, ...updates } = tempProjectDetails;
+-  
+-      const response = await fetch("http://localhost:5001/updateProjectDetails", {
+-        method: "POST",
+-        headers: {
+-          "Content-Type": "application/json",
+-        },
+-        body: JSON.stringify({
+-          creatorusername,
+-          title,
+-          updates,
+-        }),
+-      });
+-  
+-      const result = await response.json();
+-  
+-      if (response.ok) {
+-        setProjectDetails(tempProjectDetails); // Update the main details
+-        setIsModalVisible(false); // Close the modal
+-      } else {
+-        console.error("Error updating project details:", result.message);
+-      }
+-    } catch (error) {
+-      console.error("Error updating project details:", error);
+-    }
+-  };
+-  
+-  const handleClose = () => {
+-    setTempProjectDetails(null); // Discard changes
+-    setIsModalVisible(false); // Close the modal
+-  };
+-
+-  const handleEditClick = () => {
+-    setTempProjectDetails({ ...projectDetails }); // Clone current details
+-    setIsModalVisible(true);
+-  };
+-  
+-  
+-  if (isLoading) {
+-    return (
+-      <div
+-        className="d-flex justify-content-center align-items-center"
+-        style={{ width: "100vw", height: "100vh" }}
+-      >
+-        <div
+-          className="spinner-border"
+-          role="status"
+-          style={{ width: "5rem", height: "5rem", color: "#2D2D2D" }}
+-        >
++        <div className="spinner-border" role="status" style={{ width: "5rem", height: "5rem" }}>
+           <span className="sr-only">Loading...</span>
+         </div>
+       </div>
+@@ -379,11 +115,8 @@ export default function ProjectView() {
+           <div className="left-column">
+             <h3>Creator:</h3>
+             <p className="creator-name">{projectDetails.creatorusername || "Unknown Creator"}</p>
+-            <h3>Tag:</h3>
+-            <p className="creator-name">{projectDetails.tag}</p>
+-            <button className="view-profile-button" onClick={() => {
+-              window.location.href = `/account?username=${projectDetails.creatorusername}`;
+-            }}>View Creator Profile</button>
++            <button className="view-profile-button">View Creator Profile</button>
++            <button className="current-members-button">Current Members</button>
+           </div>
+           <div className="right-column">
+             <div className="tab-container">
+@@ -411,8 +144,6 @@ export default function ProjectView() {
+                   <p>{projectDetails.description || "No description"}</p>
+                   <h3>Links</h3>
+                   <p>{projectDetails.links || "No links provided"}</p>
+-                  <h2>Contact Information</h2>
+-                  <p>{projectDetails.contact || "No contact information"}</p>
+                   <div className="spacer"></div>
+                   {userRole === "general" && (
+                     <div className="buttonContainer">
+@@ -436,99 +167,19 @@ export default function ProjectView() {
+           </div>
+           {userRole === "creator" && (
+             <div className="buttonContainer">
+-              <button className="archiveButton" onClick={handleArchive}>
+-                {projectDetails.isarchived ? "Unarchive" : "Archive"}
+-              </button>
+-              <button className="deleteButton" onClick={handleDeleteProject}>
+-                Delete
+-              </button>
+-              <button
+-                className="editButton"
+-                onClick={handleEditClick}
+-              >
+-                Edit
+-              </button>
++              <button className="archiveButton">Archive</button>
++              <button className="deleteButton">Delete</button>
++              <button className="editButton">Edit</button>
+               <button className="inviteButton">Invite</button>
+             </div>
+           )}
+-          {isModalVisible && tempProjectDetails && (
+-            <div
+-              className="modal fade show"
+-              id="editAccountModal"
+-              tabIndex={-1}
+-              role="dialog"
+-              aria-labelledby="editAccountModal"
+-              aria-hidden={!isModalVisible}
+-              style={{ display: "block" }}
+-            >
+-              <div className="modal-dialog" role="document">
+-                <div className="modal-content">
+-                  <div className="modal-header">
+-                    <h5 className="modal-title" id="editAccountModal">
+-                      Edit Project Details
+-                    </h5>
+-                  </div>
+-                  <div className="modal-body">
+-                    {[
+-                      { key: "description" as keyof ProjectDetails, label: "Description" },
+-                      { key: "links" as keyof ProjectDetails, label: "Links" },
+-                      { key: "contact" as keyof ProjectDetails, label: "Contact Info" },
+-                      { key: "memberdescription" as keyof ProjectDetails, label: "Member Description" },
+-                      { key: "memberlinks" as keyof ProjectDetails, label: "Member Links" },
+-                      { key: "membercontactinfo" as keyof ProjectDetails, label: "Member Contact Info" },
+-                    ].map(({ key, label }) => (
+-                      <div key={key} style={{ marginBottom: "1rem" }}>
+-                        <label
+-                          htmlFor={`edit-${key}`}
+-                          style={{
+-                            fontWeight: "bold",
+-                            display: "block",
+-                            marginBottom: "0.5rem",
+-                          }}
+-                        >
+-                          {label}:
+-                        </label>
+-                        <AutoResizeTextarea
+-                          placeholder={`Edit ${label}`}
+-                          value={tempProjectDetails[key] !== undefined ? String(tempProjectDetails[key]) : ""}
+-                          onChange={(value) =>
+-                            setTempProjectDetails((prev) =>
+-                              prev ? { ...prev, [key]: value } : prev
+-                            )
+-                          }
+-                        />
+-                      </div>
+-                    ))}
+-                  </div>
+-                  <div className="modal-footer">
+-                    <button
+-                      type="button"
+-                      className="btn btn-secondary"
+-                      onClick={handleClose}
+-                    >
+-                      Close
+-                    </button>
+-                    <button
+-                      type="button"
+-                      className="btn btn-primary"
+-                      onClick={handleSave}
+-                    >
+-                      Save
+-                    </button>
+-                  </div>
+-                </div>
+-              </div>
+-            </div>
+-          )}
+           {userRole === "member" && (
+             <div className="buttonContainer">
+-              <button className="leaveButton" onClick={handleLeaveProject}>
+-                Leave Project
+-              </button>
++              <button className="leaveButton">Leave</button>
+             </div>
+           )}
+         </div>
+       </div>
+     </>
+-  );  
+-}
++  );
++}
+\ No newline at end of file
+diff --git a/projectconnect/src/app/styles/account.page.css b/projectconnect/src/app/styles/account.page.css
+index 4b97827..f2e451d 100644
+--- a/projectconnect/src/app/styles/account.page.css
++++ b/projectconnect/src/app/styles/account.page.css
+@@ -104,7 +104,7 @@
+ }
+ 
+ .projects{
+-    height: 70vh;
++    height: 60vh;
+     width: 100%;
+     margin: 3%;
+     overflow-y: auto; 
+diff --git a/projectconnect/src/app/styles/project_view.css b/projectconnect/src/app/styles/project_view.css
+index 19cb44c..47ae18a 100644
+--- a/projectconnect/src/app/styles/project_view.css
++++ b/projectconnect/src/app/styles/project_view.css
+@@ -123,9 +123,7 @@ h2, h3 {
+ .deleteButton,
+ .editButton,
+ .leaveButton,
+-.inviteButton,
+-.saveButton,
+-.cancelButton {
++.inviteButton {
+   padding: 8px 12px;
+   border: none;
+   border-radius: 5px;
+@@ -157,9 +155,7 @@ h2, h3 {
+ .deleteButton:hover,
+ .editButton:hover,
+ .leaveButton:hover,
+-.inviteButton:hover,
+-.saveButton:hover,
+-.cancelButton:hover {
++.inviteButton:hover {
+   opacity: 0.8;
+ }
+ 
+@@ -176,52 +172,4 @@ h2, h3 {
+ 
+ .bookmark-icon:hover {
+   opacity: 0.8;
+-}
+-
+-.modal {
+-  position: fixed;
+-  top: 0;
+-  left: 0;
+-  width: 100vw;
+-  height: 100vh;
+-  background-color: rgba(0, 0, 0, 0.5);
+-  display: flex;
+-  justify-content: center;
+-  align-items: center;
+-}
+-
+-.modal-content {
+-  background: #2d2d2d;
+-  padding: 20px;
+-  border-radius: 8px;
+-  width: 400px;
+-  text-align: left;
+-}
+-
+-.modal-content form {
+-  display: flex;
+-  flex-direction: column;
+-}
+-
+-.modal-content label {
+-  margin-bottom: 10px;
+-}
+-
+-.modal-content input,
+-.modal-content textarea {
+-  width: 100%;
+-  margin-bottom: 15px;
+-  background-color: #ffffff;
+-  padding: 8px 12px;
+-  border: none;
+-  border-radius: 5px;
+-}
+-
+-.saveButton {
+-  background-color: #6c757d;
+-}
+-
+-.cancelButton {
+-  margin-top: 10px;
+-  background-color: #6c757d;
+-}
++}
+\ No newline at end of file
+diff --git a/projectconnect/src/app/styles/searchbar.modules.css b/projectconnect/src/app/styles/searchbar.modules.css
+index 13653ad..1fdef99 100644
+--- a/projectconnect/src/app/styles/searchbar.modules.css
++++ b/projectconnect/src/app/styles/searchbar.modules.css
+@@ -45,14 +45,8 @@
+     background-color: white !important;
+ }
+ 
+-#searchbarDropdown{
+-    margin: 0;
+-}
+ 
+ /* Dropdown Container */
+-.dropdown{
+-    margin: 0 !important;
+-}
+ .dropdown-toggle {
+     position: relative;
+     background-color: #2D2D2D;
