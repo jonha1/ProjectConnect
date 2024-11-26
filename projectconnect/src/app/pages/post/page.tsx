@@ -90,19 +90,19 @@ export default function ProjectView() {
 
   // Extract creatorUsername and title from pathname and fetch project info
   useEffect(() => {
-    const cookieUsername = getUsernameFromCookie(); // Retrieve the username from the cookie
+    const cookieUsername = getUsernameFromCookie() || null; // Convert null to undefined
     if (pathname) {
       const urlParams = new URLSearchParams(window.location.search);
       const creator = urlParams.get("creator");
-
+  
       setCreator(creator);
       let projectTitle = urlParams.get("title");
       setTitle(projectTitle);
       if (projectTitle) {
-        projectTitle = projectTitle.replace("-", " ");
+        projectTitle = projectTitle.replace(/-/g, " ");
       }
       fetchProjectInformation(creator, projectTitle);
-      verifyBookmark(creator, projectTitle, cookieUsername);
+      verifyBookmark(creator, projectTitle, cookieUsername); // Pass `cookieUsername` as `string | null`
       verifyNotif(creator, cookieUsername, projectTitle, "Join");
     }
   }, [pathname]);
@@ -175,7 +175,7 @@ export default function ProjectView() {
 
   const fetchProjectInformation = async (creator: string | null, projectTitle: string | null) => {
     if (!creator || !projectTitle) return;
-
+    
     try {
       const response = await fetch("http://localhost:5001/getProjectInfo", {
         method: "POST",
@@ -185,7 +185,7 @@ export default function ProjectView() {
         },
         body: JSON.stringify({
           creatorusername: creator,
-          title: projectTitle.replace("-", " "),
+          title: projectTitle,
         }),
       });
       
@@ -202,7 +202,7 @@ export default function ProjectView() {
     }
   };
 
-  const verifyBookmark = async (creator: string | null, projectTitle: string | null, user: string | undefined) => {
+  const verifyBookmark = async (creator: string | null, projectTitle: string | null, user: string | null) => {
     try {
         // Ensure projectTitle is not null, use a default value if it is
         const sanitizedTitle = projectTitle ? projectTitle.replace(/-/g, " ") : "";
