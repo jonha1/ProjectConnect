@@ -77,6 +77,7 @@ export default function Account() {
   const [editComponent, setEditComponent] = useState("");
   const [textareaValue, setTextareaValue] = useState("");
   const [bookmarks, setBookmarks] = useState<Bookmark[]>([]);
+  const [isOwner, setIsOwner] = useState(false);
   const [isEditModalVisible, setIsEditModalVisible] = useState(false); // Separate state for Invite modal
   const [isLogoutModalVisible, setLogoutModalVisible] = useState(false);
 
@@ -93,6 +94,8 @@ export default function Account() {
     const searchParams = new URLSearchParams(window.location.search);
     const urlUsername = searchParams.get("username");
     const usernameToFetch = urlUsername || getUsernameFromCookie();
+    
+    setIsOwner(usernameToFetch === getUsernameFromCookie());
 
     if (usernameToFetch) {
       setUsername(usernameToFetch);
@@ -314,15 +317,15 @@ export default function Account() {
             {username}</div>
           <div className="profileCard">
             About Me: {aboutMe}
-            <FontAwesomeIcon onClick={() => handleEdit("About Me")} icon={faPencil} role='button' className="editIcon" />
+            {isOwner && <FontAwesomeIcon onClick={() => handleEdit("About Me")} icon={faPencil} role='button' className="editIcon" data-bs-toggle="modal" data-bs-target="#editAccountModal"/>}
           </div>
           <div className="profileCard">
             <p>Contact Information: {contactInfo}</p>
-            <FontAwesomeIcon onClick={() => handleEdit("Contact Information")} icon={faPencil} role='button' className="editIcon" />
+            {isOwner && <FontAwesomeIcon onClick={() => handleEdit("Contact Information")} icon={faPencil} role='button' className="editIcon" data-bs-toggle="modal" data-bs-target="#editAccountModal"/>}
           </div>
           <div className="profileCard">
-            Skills: {skills}
-            <FontAwesomeIcon onClick={() => handleEdit("Skills")} icon={faPencil} role='button' className="editIcon" />
+            Skills: {skills} 
+            {isOwner && <FontAwesomeIcon onClick={() => handleEdit("Skills")} icon={faPencil} role='button' className="editIcon" data-bs-toggle="modal" data-bs-target="#editAccountModal"/>}
           </div>
 
           {isEditModalVisible && (
@@ -364,13 +367,15 @@ export default function Account() {
             </div>
           )}
           
-          <button
-            type="button"
-            className="btn custom-logout-btn btn-sm"
-            onClick={showLogoutModal}
-          >
-            Logout
-          </button>
+          {isOwner && (
+            <button
+              type="button"
+              className="btn custom-logout-btn btn-sm"
+              onClick={showLogoutModal}
+            >
+              Logout
+            </button>
+          )}
           {isLogoutModalVisible && (
             <div
               className="modal fade show"
