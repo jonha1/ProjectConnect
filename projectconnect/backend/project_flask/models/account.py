@@ -8,87 +8,82 @@ class Account:
         self.loginEmail = loginEmail
         self.password = password
 
-    @staticmethod
-    def get_db_connection():
+    def get_db_connection(self):
         return psycopg2.connect(
             os.getenv("DATABASE_URL"),  
             cursor_factory=RealDictCursor
         )
 
-    @staticmethod
-    def account_exists(username, loginEmail):
+    def account_exists(self):
         try:
-            with Account.get_db_connection() as conn:
+            with self.get_db_connection() as conn:
                 with conn.cursor() as cursor:
                     cursor.execute("""
                         SELECT * FROM users 
                         WHERE username = %s OR loginEmail = %s
-                    """, (username, loginEmail))
+                    """, (self.username, self.loginEmail))
                     result = cursor.fetchone()
                     return result is not None  
         except Exception as e:
             print(f"Error checking account existence: {e}")
             return False 
     
-    @staticmethod
-    def get_email_by_username(username):
+    def get_email_by_username(self):
         try:
-            with Account.get_db_connection() as conn:
+            with self.get_db_connection() as conn:
                 with conn.cursor() as cursor:
                     cursor.execute("""
                         SELECT loginemail FROM users 
-                        WHERE loginEmail = %s
-                    """, (username,))
-                    return cursor.fetchone()  
+                        WHERE username = %s
+                    """, (self.username,))
+                    result = cursor.fetchone()
+                    return result if result else None
         except Exception as e:
-            print(f"Error retrieving account: {e}")
+            print(f"Error retrieving email by username: {e}")
             return None
 
-    ## returns json
-    @staticmethod
-    def get_account_by_email(loginEmail):
+    def get_account_by_email(self):
         try:
-            with Account.get_db_connection() as conn:
+            with self.get_db_connection() as conn:
                 with conn.cursor() as cursor:
                     cursor.execute("""
                         SELECT username, loginEmail, password FROM users 
                         WHERE loginEmail = %s
-                    """, (loginEmail,))
-                    return cursor.fetchone()  
+                    """, (self.loginEmail,))
+                    result = cursor.fetchone()
+                    return result if result else None
         except Exception as e:
-            print(f"Error retrieving account: {e}")
+            print(f"Error retrieving account by email: {e}")
             return None
-        
-    @staticmethod
-    def get_account_by_username(username):
+
+    def get_account_by_username(self):
         try:
-            with Account.get_db_connection() as conn:
+            with self.get_db_connection() as conn:
                 with conn.cursor() as cursor:
                     cursor.execute("""
                         SELECT username, loginEmail, password FROM users 
                         WHERE username = %s
-                    """, (username,))
-                    return cursor.fetchone()  
+                    """, (self.username,))
+                    result = cursor.fetchone()
+                    return result if result else None
         except Exception as e:
-            print(f"Error retrieving account: {e}")
+            print(f"Error retrieving account by username: {e}")
             return None
 
-    @staticmethod
-    def register(username, loginEmail, password):
-        if Account.account_exists(username, loginEmail):
+    def register(self):
+        if self.account_exists():
             return {"error": "Account with this username or email already exists."}
         
         try:
-            with Account.get_db_connection() as conn:
+            with self.get_db_connection() as conn:
                 with conn.cursor() as cursor:
                     cursor.execute("""
                         INSERT INTO users (username, loginEmail, password)
                         VALUES (%s, %s, %s) RETURNING *;
-                    """, (username, loginEmail, password))
+                    """, (self.username, self.loginEmail, self.password))
                     new_account = cursor.fetchone()
-                    conn.commit()  
+                    conn.commit()
                     return new_account  
         except Exception as e:
             print(f"Error registering account: {e}")
             return {"error": str(e)}  
-
