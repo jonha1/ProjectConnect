@@ -28,9 +28,6 @@ class Creator(Member):
     def unarchiveProject(creatorusername, title):
         return Project.unarchiveProject(creatorusername, title)
 
-    def inviteUser(self, username):
-        pass
-
     @staticmethod
     def editPost(creatorusername, title, new_details):
         try:
