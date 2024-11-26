@@ -367,13 +367,15 @@ export default function Account() {
             </div>
           )}
           
-          <button
-            type="button"
-            className="btn custom-logout-btn btn-sm"
-            onClick={showLogoutModal}
-          >
-            Logout
-          </button>
+          {isOwner && (
+            <button
+              type="button"
+              className="btn custom-logout-btn btn-sm"
+              onClick={showLogoutModal}
+            >
+              Logout
+            </button>
+          )}
           {isLogoutModalVisible && (
             <div
               className="modal fade show"
