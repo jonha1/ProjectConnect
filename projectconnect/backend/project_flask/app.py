@@ -95,18 +95,28 @@ def leave_project():
     
 
 @app.route('/updateProfileFromEdit', methods=['POST'])
-def updateProfileFromEdit():
+def update_profile_from_edit():
     data = request.json
     username = data.get("username")
     column = data.get("column")
     value = data.get("value")
-    
-    result = User.updateProfileFromEdit(username, column, value)
-    if "error" in result:
-        return jsonify(result), 400  # 400 for bad request (like duplicate entry)
-    else:
-        return jsonify(result), 201  # 201 for successful creation
-    # Check if the result is an error
+
+    if not username or not column or value is None:
+        return jsonify({"status": "error", "message": "Username, column, and value are required"}), 400
+
+    try:
+        user = User(username=username)  # Initialize the user object
+        result = user.updateProfileFromEdit(column, value)  # Update profile details
+
+        if "error" in result:
+            return jsonify(result), 400  # Bad request
+        else:
+            return jsonify(result), 200  # Successful update
+    except Exception as e:
+        print(f"Error updating profile: {e}")
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+
 
 @app.route('/api/join-project', methods=['POST'])
 def join_project():
@@ -213,25 +223,12 @@ def get_skills():
     if not username:
         return jsonify({"status": "error", "message": "Username is required"}), 400
 
-    try:
-        with Account.get_db_connection() as conn:
-            with conn.cursor() as cursor:
-                cursor.execute(
-                    """
-                    SELECT skills FROM users WHERE username = %s
-                    """,
-                    (username,)
-                )
-                result = cursor.fetchone()
+    result = User.getSkills(username)
 
-        if result:
-            return jsonify({"status": "success", "skills": result["skills"]}), 200
-        else:
-            return jsonify({"status": "error", "message": "User not found"}), 404
-
-    except Exception as e:
-        print(f"Error fetching skills: {e}")
-        return jsonify({"status": "error", "message": str(e)}), 500
+    if result["status"] == "success":
+        return jsonify({"status": "success", "skills": result["skills"]}), 200
+    else:
+        return jsonify({"status": "error", "message": result["message"]}), 500
        
 @app.route('/api/editAboutMe', methods=['POST'])
 def edit_about_me():
@@ -384,25 +381,16 @@ def get_user_details():
         if not username:
             return jsonify({"status": "error", "message": "Username is required"}), 400
 
-        with Account.get_db_connection() as conn:
-            with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cursor:
-                cursor.execute("""
-                    SELECT displayname, loginemail, aboutme, contactinfo, skills
-                    FROM users
-                    WHERE username = %s
-                """, (username,))
-                result = cursor.fetchone()
-                print("SQL query result:", result)
+        # Create an Account instance
+        user = User(username=username, loginEmail=None, password=None)
 
-                if result:
-                    # Directly jsonify the RealDictRow
-                    return jsonify({
-                        "status": "success",
-                        **result
-                    }), 200
-                else:
-                    return jsonify({"status": "error", "message": "User not found"}), 404
+        # Call the getUserDetails instance method
+        result = user.getUserDetails()
 
+        if result.get("status") == "success":
+            return jsonify(result), 200
+        else:
+            return jsonify(result), 404  # User not found or other errors
     except Exception as e:
         print(f"Error fetching user details: {e}")
         return jsonify({"status": "error", "message": str(e)}), 500
