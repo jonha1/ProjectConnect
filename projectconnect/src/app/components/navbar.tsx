@@ -15,11 +15,12 @@ import { useRouter } from "next/navigation";
 import { getUsernameFromCookie } from "../lib/cookieUtils";
 
 export default function Navbar() {
+  
   // Sample notifications arrayx
   const [notifications, setNotifications] = useState([]);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   useEffect(() => {
-    const cookieUsername = getUsernameFromCookie(); // Retrieve the username from the cookie
+    const cookieUsername = getUsernameFromCookie() || null; // Retrieve the username from the cookie
     fetchNotifs(cookieUsername);
   }, []);  
   // Function to remove a notification by id
