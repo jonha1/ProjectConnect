@@ -2,18 +2,16 @@
 import '../../styles/register.page.css';
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Cookies from 'js-cookie';
 
 export default function Register() {
   const [formData, setFormData] = useState({
     email: '',
-    displayname: '',
     username: '',
     password: '',
     confirmPassword: '',
   });
   const [error, setError] = useState('');
-  const [success] = useState('');
+  const [success, setSuccess] = useState('');
   const router = useRouter(); 
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -25,7 +23,7 @@ export default function Register() {
   };
 
   const handleRegister = async () => {
-    if (!formData.email || !formData.username  || !formData.displayname || !formData.password || !formData.confirmPassword) {
+    if (!formData.email || !formData.username || !formData.password || !formData.confirmPassword) {
       setError('All fields are required.');
       return;
     }
@@ -35,6 +33,8 @@ export default function Register() {
     }
 
     setError('');
+    setSuccess('');
+
     try {
       const response = await fetch('http://127.0.0.1:5001/register', {
         method: 'POST',
@@ -42,26 +42,28 @@ export default function Register() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          loginEmail: formData.email,
-          displayname: formData.displayname,
           username: formData.username,
+          loginEmail: formData.email,
           password: formData.password,
         }),
-        
       });
 
+      const result = await response.json();
+
       if (response.ok) {
-        // Save the username to a cookie using js-cookie
-        Cookies.set('username', formData.username, { expires: 30, path: '/' }); // Cookie valid for 30 day
-        router.push('/accountInfo'); // Redirect to the account page
+        setSuccess('Registration successful! Redirecting...');
+        setTimeout(() => {
+          router.push('/accountInfo'); 
+        }, 2000);
       } else {
-        const result = await response.json();
-        setError(result.error || 'Registration failed.');
+        // Handle errors from the backend
+        setError(result.error || 'Registration failed. Please try again.');
       }
-    } catch (error) {
-      setError('An unexpected error occurred.');
-      console.error(error);
+    } catch (err) {
+      setError('An unexpected error occurred. Please try again later.');
+      console.error(err);
     }
+
   };
 
   return (
@@ -81,14 +83,6 @@ export default function Register() {
         name="username"
         placeholder="Username"
         value={formData.username}
-        onChange={handleChange}
-      />
-      <input
-        id="displayname"
-        type="text"
-        name="displayname"
-        placeholder="Display Name"
-        value={formData.displayname}
         onChange={handleChange}
       />
       <input
