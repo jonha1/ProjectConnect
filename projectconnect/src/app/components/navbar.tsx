@@ -14,10 +14,24 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { getUsernameFromCookie } from "../lib/cookieUtils";
 
+
+interface Notification {
+  notificationid: string;
+  messagetype: string;
+  fromuserid: string;
+  title: string;
+}
+
+interface TransformedNotification {
+  id: string;
+  type: string;
+  username: string;
+  project: string;
+}
 export default function Navbar() {
   
   // Sample notifications arrayx
-  const [notifications, setNotifications] = useState([]);
+  const [notifications, setNotifications] = useState<TransformedNotification[]>([]);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   useEffect(() => {
     const cookieUsername = getUsernameFromCookie() || null; // Retrieve the username from the cookie
@@ -27,7 +41,7 @@ export default function Navbar() {
   const removeNotification = (id: number) => {
     setNotifications(notifications.filter((notification) => notification.id !== id));
   };
-  const fetchNotifs = async (user: string| null) => {
+  const fetchNotifs = async (user: string | null) => {
     try {
       const response = await fetch("http://localhost:5001/retrieveNotifications", {
         method: "POST",
@@ -40,9 +54,9 @@ export default function Navbar() {
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      const data = await response.json();
+      const data: Notification[] = await response.json();
       // Transform the response data to match Postcard prop structure
-      const transformedData = data.map((item) => ({
+      const transformedData: TransformedNotification[] = data.map((item) => ({
         id: item.notificationid,
         type: item.messagetype, 
         username: item.fromuserid, 
