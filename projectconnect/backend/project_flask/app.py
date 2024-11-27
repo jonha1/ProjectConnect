@@ -424,18 +424,6 @@ def update_user_info():
         return jsonify(result), 400 if result.get("message") == "Username is required" else 500
     
 # Project API's
-    
-@app.route('/project_exists', methods=['GET'])
-def project_exists():
-    data = request.json 
-    creatorusername = data.get('creatorusername')
-    title = data.get('title')
-    
-    if Project.project_exists(creatorusername, title):
-        return {"exists": True}
-    else:
-        return {"exists": False}
-
 @app.route('/buildProject', methods=['POST'])
 def buildProject():
     data = request.json
@@ -444,21 +432,12 @@ def buildProject():
     description = data.get('description')
     tag = data.get('tag')
     contact = data.get('contact')
-
     links= data.get('links', '')
     memberDescription= data.get('memberDescription', '')
     memberLinks= data.get('memberLinks', '')
     memberContact= data.get('memberContact', '')
     if not all([creatorusername, title, description, tag]):
         return jsonify({"error": "Missing required fields: 'creatorusername', 'title', 'description', or 'tag'"}), 400
-
-    # Extract optional fields, using None if they are not provided
-    optional_fields = {
-        "links": data.get('links'),
-        "memberdescription": data.get('memberdescription'),
-        "memberlinks": data.get('memberlinks'),
-        "membercontactinfo": data.get('membercontactinfo'),
-    }
     
     creator = Creator(
         username=creatorusername,
@@ -472,7 +451,6 @@ def buildProject():
 
     # Call the buildProject method, passing required and optional parameters
     result = creator.createProject(creatorusername, title, description, tag, links , contact, memberDescription, memberLinks, memberContact)
-
 
     # Check if the result is an error
     if "error" in result:
@@ -492,8 +470,22 @@ def getProjectInfo():
     data = request.json
     creatorusername = data.get('creatorusername')
     title = data.get('title')
+    
+    project = Project(
+        creatorusername = creatorusername,
+        title = title,
+        description = None,
+        links = None,
+        contact = None,
+        memberDescription = None,
+        memberLinks = None,
+        memberContactInfo = None, 
+        dateposted = None,
+        isarchived = None,
+        tag = None
+    )
 
-    result = Project.getProjectInfo(creatorusername, title)
+    result = project.getProjectInfo()
 
     # Check if the result is an error
     if "error" in result:
@@ -546,8 +538,21 @@ def findProjects():
     searchQuery = data.get('searchQuery', "")
     tag = data.get('tag', "")
     
-    # Call the Project.getProjects method to fetch projects based on the search query
-    result = Project.findProjects(searchQuery, tag)
+    project = Project(
+        creatorusername = None,
+        title = None,
+        description = None,
+        links = None,
+        contact = None,
+        memberDescription = None,
+        memberLinks = None,
+        memberContactInfo = None, 
+        dateposted = None,
+        isarchived = None,
+        tag = tag
+    )
+
+    result = project.findProjects(searchQuery)
 
     # Check if the result is an error
     if "error" in result:
@@ -563,8 +568,22 @@ def get_projects_by_creator():
         
         if not creatorusername:
             return jsonify({"status": "error", "message": "Creator username is required"}), 400
+        
+        project = Project(
+            creatorusername = creatorusername,
+            title = None,
+            description = None,
+            links = None,
+            contact = None,
+            memberDescription = None,
+            memberLinks = None,
+            memberContactInfo = None, 
+            dateposted = None,
+            isarchived = None,
+            tag = None
+        )
 
-        response = Project.get_projects_by_creator(creatorusername)
+        response = project.get_projects_by_creator()
 
         if response["status"] == "success":
             return jsonify({"status": "success", "projects": response["projects"]}), 200
@@ -768,9 +787,22 @@ def updateProjectDetails():
 
     if not creatorusername or not title:
         return jsonify({"status": "error", "message": "Missing required fields: creatorusername or title."}), 400
+    
+    project = Project(
+        creatorusername = creatorusername,
+        title = title,
+        description = None,
+        links = None,
+        contact = None,
+        memberDescription = None,
+        memberLinks = None,
+        memberContactInfo = None, 
+        dateposted = None,
+        isarchived = None,
+        tag = None
+    )
 
-    # Call the Project.updateProjectDetails method to update the project details
-    result = Project.updateProjectDetails(creatorusername, title, updates)
+    result = project.updateProjectDetails(updates)
 
     # Check if the result is an error
     if "error" in result:

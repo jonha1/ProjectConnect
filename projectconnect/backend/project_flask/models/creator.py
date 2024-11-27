@@ -9,24 +9,59 @@ class Creator(Member):
     def __init__(self, username, displayName, loginEmail, password, aboutMe, contactInfo, skills):
         super().__init__(username, displayName, loginEmail, password, aboutMe, contactInfo, skills)
 
-    @staticmethod
     def get_db_connection():
         return psycopg2.connect(
             os.getenv("DATABASE_URL"),
             cursor_factory=RealDictCursor
         )
     
-    @staticmethod
     def deleteProject(creatorusername, title):
-        return Project.deleteProject(creatorusername, title)
+        project = Project(
+            creatorusername = creatorusername,
+            title = title,
+            description = None,
+            links = None,
+            contact = None,
+            memberDescription = None,
+            memberLinks = None,
+            memberContactInfo = None, 
+            dateposted = None,
+            isarchived = None,
+            tag = None
+        )
+        return project.deleteProject()
 
-    @staticmethod
     def archiveProject(creatorusername, title):
-        return Project.archiveProject(creatorusername, title)
+        project = Project(
+            creatorusername = creatorusername,
+            title = title,
+            description = None,
+            links = None,
+            contact = None,
+            memberDescription = None,
+            memberLinks = None,
+            memberContactInfo = None, 
+            dateposted = None,
+            isarchived = None,
+            tag = None
+        )
+        return project.archiveProject()
     
-    @staticmethod
     def unarchiveProject(creatorusername, title):
-        return Project.unarchiveProject(creatorusername, title)
+        project = Project(
+            creatorusername = creatorusername,
+            title = title,
+            description = None,
+            links = None,
+            contact = None,
+            memberDescription = None,
+            memberLinks = None,
+            memberContactInfo = None, 
+            dateposted = None,
+            isarchived = None,
+            tag = None
+        )
+        return project.unarchiveProject()
 
     @staticmethod
     def editPost(creatorusername, title, new_details):
@@ -74,9 +109,19 @@ class Creator(Member):
 
     def createProject(self, creatorusername, title, description, tag, links, contact, memberDescription, memberLinks, memberContact):
         try:
-
+            project = Project(
+                creatorusername = creatorusername,
+                title = title,
+                description = description,
+                links = links,
+                contact = contact,
+                memberDescription = memberDescription,
+                memberLinks = memberLinks,
+                memberContactInfo = memberContact, 
+                tag = tag
+            )
             # Delegate project creation to the Project class
-            project_result = Project.buildProject(creatorusername, title, description,tag, links, contact ,memberDescription, memberLinks, memberContact)
+            project_result = project.buildProject()
 
             if "error" in project_result:
                 return project_result  # Return any errors from the Project class
