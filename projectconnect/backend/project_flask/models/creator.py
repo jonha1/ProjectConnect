@@ -107,7 +107,7 @@ class Creator(Member):
             return {"error": f"An error occurred: {str(e)}"}
 
 
-    def createProject(self, creatorusername, title, description, tag, links, contact, memberDescription, memberLinks, memberContact):
+    def createProject(self, title, description, tag, links, contact, memberDescription, memberLinks, memberContact):
         try:
             project = Project(
                 creatorusername = creatorusername,
