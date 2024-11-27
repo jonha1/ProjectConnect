@@ -157,25 +157,20 @@ def getEmailByUser():
 
     try:
         print(f"Attempting to fetch email for username: {username}")
-        with Account.get_db_connection() as conn:
-            with conn.cursor() as cursor:
-                cursor.execute(
-                    """
-                    SELECT loginemail FROM users WHERE username = %s
-                    """,
-                    (username,)
-                )
-                result = cursor.fetchone()
+        
+        user = Account(username=username, loginEmail=None, password=None)
+        
+        email_result = user.get_email_by_username()
 
-        if result:
-             # Extract email directly
-            email = result['loginemail'] 
-            return jsonify({"email": email}), 200 
+        if email_result:
+            email = email_result['loginemail']
+            return jsonify({"email": email}), 200
         else:
-            print(result)
             return jsonify({"status": "error", "message": "User not found"}), 404
     except Exception as e:
+        print(f"Error in getEmailByUser endpoint: {e}")
         return jsonify({"status": "error", "message": "Internal server error"}), 500
+
     
 ## USER ##
 @app.route('/api/editSkills', methods=['POST'])
@@ -274,31 +269,29 @@ def get_about_me():
     username = data.get("username")
     loginEmail = data.get("loginEmail")
 
+    # Validate input
     if not username or not loginEmail:
         return jsonify({"status": "error", "message": "Username and loginEmail are required"}), 400
 
-    account_exists = Account.account_exists(username, loginEmail)
-    if not account_exists:
+    # Verify account existence
+    if not Account.account_exists(username, loginEmail):
         return jsonify({"error": "Invalid credentials"}), 401
 
     try:
-        with Account.get_db_connection() as conn:
-            with conn.cursor() as cursor:
-                cursor.execute(
-                    """
-                    SELECT aboutme FROM users WHERE username = %s AND loginEmail = %s
-                    """,
-                    (username, loginEmail)
-                )
-                result = cursor.fetchone()
+        # Create User instance
+        user = User(username=username, displayName=None, loginEmail=None, password=None, aboutMe=None, contactInfo=None, skills=None)
+        
+        # Call the getAboutMe method
+        response = user.getAboutMe()
 
-        if result and "aboutme" in result:
-            return jsonify({"status": "success", "aboutme": result["aboutme"]}), 200
+        if response["status"] == "success":
+            return jsonify(response), 200
         else:
-            return jsonify({"status": "error", "message": "No aboutme found for the user"}), 404
+            return jsonify(response), 404
     except Exception as e:
-        print(f"Error fetching aboutMe: {e}")
+        print(f"Error in get_about_me API: {e}")
         return jsonify({"status": "error", "message": str(e)}), 500
+
     
 @app.route('/api/editContactInfo', methods=['POST'])
 def edit_Contact_Info():
