@@ -72,11 +72,10 @@ class Creator(Member):
             return {"error": f"An error occurred: {str(e)}"}
 
 
-    def createProject(self, creatorusername, title, description, tag, links, contact, memberDescription, memberLinks, memberContact):
+    def createProject(self, title, description, tag, links, contact, memberDescription, memberLinks, memberContact):
         try:
-
             # Delegate project creation to the Project class
-            project_result = Project.buildProject(creatorusername, title, description,tag, links, contact ,memberDescription, memberLinks, memberContact)
+            project_result = Project.buildProject(self.username , title, description,tag, links, contact ,memberDescription, memberLinks, memberContact)
 
             if "error" in project_result:
                 return project_result  # Return any errors from the Project class
