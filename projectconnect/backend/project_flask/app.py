@@ -443,35 +443,28 @@ def buildProject():
     title = data.get('title')
     description = data.get('description')
     tag = data.get('tag')
-    contact = data.get('contact')
+    contact = data.get('contact', None)
+    links= data.get('links', None)
 
-    links= data.get('links', '')
-    memberDescription= data.get('memberDescription', '')
-    memberLinks= data.get('memberLinks', '')
-    memberContact= data.get('memberContact', '')
+    memberDescription= data.get('memberDescription', None)
+    memberLinks= data.get('memberLinks', None)
+    memberContact= data.get('memberContact', None)
     if not all([creatorusername, title, description, tag]):
         return jsonify({"error": "Missing required fields: 'creatorusername', 'title', 'description', or 'tag'"}), 400
+   
 
-    # Extract optional fields, using None if they are not provided
-    optional_fields = {
-        "links": data.get('links'),
-        "memberdescription": data.get('memberdescription'),
-        "memberlinks": data.get('memberlinks'),
-        "membercontactinfo": data.get('membercontactinfo'),
-    }
-    
     creator = Creator(
         username=creatorusername,
-        displayName=data.get('displayName', ""),
-        loginEmail=data.get('loginEmail', ""),
-        password = data.get('password', ""),
-        aboutMe=data.get('aboutMe', ""),
-        contactInfo=data.get('contactInfo', ""),
-        skills=data.get('skills', "")
+        displayName= None,
+        loginEmail= None,
+        password = None, 
+        aboutMe= None, 
+        contactInfo= None,
+        skills= None
     )
 
     # Call the buildProject method, passing required and optional parameters
-    result = creator.createProject(creatorusername, title, description, tag, links , contact, memberDescription, memberLinks, memberContact)
+    result = creator.createProject(title, description, tag, links , contact, memberDescription, memberLinks, memberContact)
 
 
     # Check if the result is an error
