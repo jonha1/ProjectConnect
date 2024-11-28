@@ -107,18 +107,16 @@ def update_profile_from_edit():
         return jsonify({"status": "error", "message": "Username, column, and value are required"}), 400
 
     try:
-        user = User(username=username, loginEmail=None, password=None)
-        result = user.updateProfileFromEdit(column, value)  # Update profile details
+        user = User(username=username, displayName=None, loginEmail=None, password=None, aboutMe=None, contactInfo=None, skills=None)
+        result = user.updateProfileFromEdit(column, value)  
 
         if "error" in result:
-            return jsonify(result), 400  # Bad request
+            return jsonify(result), 400  
         else:
-            return jsonify(result), 200  # Successful update
+            return jsonify(result), 200 
     except Exception as e:
         print(f"Error updating profile: {e}")
         return jsonify({"status": "error", "message": str(e)}), 500
-
-
 
 @app.route('/api/join-project', methods=['POST'])
 def join_project():
@@ -176,40 +174,31 @@ def getEmailByUser():
     
 ## USER ##
 @app.route('/api/editSkills', methods=['POST'])
-def editSkils():
+def edit_skills():
     data = request.json
     username = data.get("username")
     loginEmail = data.get("loginEmail")
     newSkills = data.get("skills")
 
-    if not username or not newSkills or not newSkills:
+    if not username or not newSkills:
         return jsonify({"error": "Username and skills are required"}), 400
 
-    account = Account.account_exists(username,loginEmail,password=None)
+    account = Account(username=username, loginEmail=loginEmail, password=None)
 
-    if not account:
+    if not account.account_exists():
         return jsonify({"error": "Invalid credentials"}), 401
-    
-    skills_list = [skill.strip() for skill in newSkills.split(",") if skill.strip()]
-    all_skills = ", ".join(skills_list)  
 
     try:
-        with Account.get_db_connection() as conn:
-            with conn.cursor() as cursor:
-                cursor.execute(
-                    """
-                    UPDATE users 
-                    SET skills = %s
-                    WHERE username = %s
-                    """,
-                    (all_skills, username)
-                )
-                conn.commit()
+        user = User(username=username, displayName=None, loginEmail=loginEmail, password=None, aboutMe=None, contactInfo=None, skills=None)
+        response = user.editSkills(newSkills)
 
-        return jsonify({"status": "success", "updatedSkills": all_skills}), 200
+        if response["status"] == "success":
+            return jsonify(response), 200
+        else:
+            return jsonify(response), 400
 
     except Exception as e:
-        print(f"Error updating skills: {e}")
+        print(f"Error in edit_skills API: {e}")
         return jsonify({"status": "error", "message": str(e)}), 500
 
 @app.route('/api/getSkills', methods=['POST'])
@@ -237,33 +226,14 @@ def edit_about_me():
     if not username or not new_about_me:
         return jsonify({"status": "error", "message": "Both username and newAboutMe are required"}), 400
 
-    account = Account.account_exists(username,loginEmail)
+    user = User( username=username, displayName=None, loginEmail=loginEmail, password=None, aboutMe=None, contactInfo=None, skills=None)
 
-    if not account:
-        return jsonify({"error": "Invalid credentials"}), 401
-    try:
-        with Account.get_db_connection() as conn:
-            with conn.cursor() as cursor:
-                cursor.execute(
-                    """
-                    UPDATE users 
-                    SET aboutme = %s 
-                    WHERE username = %s
-                    RETURNING aboutme;
-                    """,
-                    (new_about_me, username)
-                )
-                updated_record = cursor.fetchone()
-                conn.commit()
+    result = user.editAboutMe(new_about_me)
 
-        if updated_record:
-            return jsonify({"status": "success", "aboutme": updated_record["aboutme"]}), 200
-        else:
-            return jsonify({"status": "error", "message": "User not found"}), 404
-
-    except Exception as e:
-        print(f"Error updating aboutMe: {e}")
-        return jsonify({"status": "error", "message": str(e)}), 500
+    if "status" in result and result["status"] == "success":
+        return jsonify(result), 200
+    else:
+        return jsonify(result), 400
 
 @app.route('/api/getAboutMe', methods=['POST'])
 def get_about_me():
@@ -271,19 +241,17 @@ def get_about_me():
     username = data.get("username")
     loginEmail = data.get("loginEmail")
 
-    # Validate input
+    account = Account(username=username, loginEmail=loginEmail, password=None)
+
     if not username or not loginEmail:
         return jsonify({"status": "error", "message": "Username and loginEmail are required"}), 400
 
-    # Verify account existence
-    if not Account.account_exists(username, loginEmail):
+    if not account.account_exists():
         return jsonify({"error": "Invalid credentials"}), 401
 
     try:
-        # Create User instance
-        user = User(username=username, displayName=None, loginEmail=None, password=None, aboutMe=None, contactInfo=None, skills=None)
+        user = User(username=username, displayName=None, loginEmail=loginEmail, password=None, aboutMe=None, contactInfo=None, skills=None)
         
-        # Call the getAboutMe method
         response = user.getAboutMe()
 
         if response["status"] == "success":
@@ -305,27 +273,16 @@ def edit_Contact_Info():
     if not username or not newContactInfo:
         return jsonify({"status": "error", "message": "Both username and contactInfo are required"}), 400
 
-    account = Account.account_exists(username,loginEmail)
+    account = Account(username=username, loginEmail=loginEmail, password=None)
 
-    if not account:
+    if not account.account_exists(username,loginEmail):
         return jsonify({"error": "Invalid credentials"}), 401
     try:
-        with Account.get_db_connection() as conn:
-            with conn.cursor() as cursor:
-                cursor.execute(
-                    """
-                    UPDATE users 
-                    SET contactinfo = %s 
-                    WHERE username = %s
-                    RETURNING contactinfo;
-                    """,
-                    (newContactInfo, username)
-                )
-                updated_record = cursor.fetchone()
-                conn.commit()
+        user = User(username=username, displayName=None, loginEmail=loginEmail, password=None, aboutMe=None, contactInfo=None, skills=None)
 
-        if updated_record:
-            return jsonify({"status": "success", "contactinfo": updated_record["contactinfo"]}), 200
+        response = user.editContactInfo(newContactInfo)
+        if response:
+            return jsonify({"status": "success", "contactinfo": response["contactinfo"]}), 200
         else:
             return jsonify({"status": "error", "message": "User not found"}), 404
 
@@ -342,15 +299,13 @@ def get_Contact_Info():
     if not username or not loginEmail:
         return jsonify({"status": "error", "message": "Username and loginEmail are required"}), 400
 
-    # Create a User instance with the provided username and loginEmail
-    user = User(username=username, loginEmail=loginEmail)
+    account = Account(username=username, loginEmail=loginEmail, password=None)
 
-    # Check if the account exists
-    account_exists = user.getUserDetails()  
+    account_exists = account.account_exists()  
     if account_exists["status"] != "success":
         return jsonify({"status": "error", "message": "Invalid credentials"}), 401
 
-    # Fetch contact info using the getContactInfo method
+    user = User(username=username, displayName=None, loginEmail=loginEmail, password=None, aboutMe=None, contactInfo=None, skills=None)
     contact_info_result = user.getContactInfo()
 
     if contact_info_result["status"] == "success":
@@ -369,7 +324,7 @@ def get_user_details():
         if not username:
             return jsonify({"status": "error", "message": "Username is required"}), 400
 
-        user = User(username=username, loginEmail=None, password=None)
+        user = User(username=username, displayName=None, loginEmail=None, password=None, aboutMe=None, contactInfo=None, skills=None)
 
         result = user.getUserDetails()
 
