@@ -3,8 +3,9 @@ import psycopg2
 from psycopg2.extras import RealDictCursor
 
 class Account:
-    def __init__(self, username, loginEmail, password):
+    def __init__(self, username, displayName, loginEmail, password):
         self.username = username
+        self.displayName = displayName
         self.loginEmail = loginEmail
         self.password = password
 
@@ -78,9 +79,9 @@ class Account:
             with self.get_db_connection() as conn:
                 with conn.cursor() as cursor:
                     cursor.execute("""
-                        INSERT INTO users (username, loginEmail, password)
-                        VALUES (%s, %s, %s) RETURNING *;
-                    """, (self.username, self.loginEmail, self.password))
+                        INSERT INTO users (username, displayName, loginEmail, password)
+                        VALUES (%s, %s, %s, %s) RETURNING *;
+                    """, (self.username, self.displayName, self.loginEmail, self.password))
                     new_account = cursor.fetchone()
                     conn.commit()
                     return new_account  

@@ -49,7 +49,7 @@ def register_account():
 
     account = Account(
         username=data.get('username'),
-        displayname=data.get('displayname'),
+        displayName=data.get('displayName'),
         loginEmail=data.get('loginEmail'),
         password=data.get('password')
     )
@@ -70,9 +70,9 @@ def login():
     account = None
     
     if "@" in check:
-        account = Account( username=None,loginEmail=check,password=None).get_account_by_email()  # Get by email
+        account = Account( username=None, displayName=None, loginEmail=check,password=None).get_account_by_email() 
     else:
-        account = Account(username=check, loginEmail=None, password=None).get_account_by_username()  # Get by username
+        account = Account(username=check, displayName=None, loginEmail=None, password=None).get_account_by_username()  
 
     if not account:
         return jsonify({"error": "Incorrect username or email"}), 404
@@ -159,7 +159,7 @@ def getEmailByUser():
     try:
         print(f"Attempting to fetch email for username: {username}")
         
-        user = Account(username=username, loginEmail=None, password=None)
+        user = Account(username=username, displayName=None, loginEmail=None, password=None)
         
         email_result = user.get_email_by_username()
 
@@ -184,7 +184,7 @@ def edit_skills():
     if not username or not newSkills:
         return jsonify({"error": "Username and skills are required"}), 400
 
-    account = Account(username=username, loginEmail=loginEmail, password=None)
+    account = Account(username=username, displayName=None, loginEmail=loginEmail, password=None)
 
     if not account.account_exists():
         return jsonify({"error": "Invalid credentials"}), 401
@@ -274,7 +274,7 @@ def edit_Contact_Info():
     if not username or not newContactInfo:
         return jsonify({"status": "error", "message": "Both username and contactInfo are required"}), 400
 
-    account = Account(username=username, loginEmail=loginEmail, password=None)
+    account = Account(username=username, displayName=None, loginEmail=loginEmail, password=None)
 
     if not account.account_exists(username,loginEmail):
         return jsonify({"error": "Invalid credentials"}), 401
@@ -300,7 +300,7 @@ def get_Contact_Info():
     if not username or not loginEmail:
         return jsonify({"status": "error", "message": "Username and loginEmail are required"}), 400
 
-    account = Account(username=username, loginEmail=loginEmail, password=None)
+    account = Account(username=username, displayName=None,loginEmail=loginEmail, password=None)
 
     account_exists = account.account_exists()  
     if account_exists["status"] != "success":
