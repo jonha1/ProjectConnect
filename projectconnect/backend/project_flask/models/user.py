@@ -3,7 +3,7 @@ import psycopg2
 from psycopg2.extras import RealDictCursor
 
 class User:
-    def __init__(self, username=None, displayName=None, loginEmail=None, password=None, aboutMe=None, contactInfo=None, skills=None):
+    def __init__(self, username, displayName, loginEmail, password, aboutMe, contactInfo, skills):
         self.username = username
         self.displayName = displayName
         self.loginEmail = loginEmail

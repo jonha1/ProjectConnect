@@ -45,15 +45,20 @@ def test_db_connection():
 ## make sure to find out if account exists 
 @app.route('/register', methods=['POST'])
 def register_account():
-    data = request.json 
+    data = request.json  
 
-    result = Account.register(
+    account = Account(
         username=data.get('username'),
         loginEmail=data.get('loginEmail'),
-        password=data.get('password')  
+        password=data.get('password')
     )
 
-    return jsonify(result), 201 if 'error' not in result else 400
+    result = account.register()
+
+    if 'error' in result:
+        return jsonify(result), 400  
+    else:
+        return jsonify(result), 201 
 
 @app.route('/api/login', methods=['POST'])
 def login():
@@ -61,25 +66,22 @@ def login():
     check = data.get("check") 
     password = data.get("password")
 
+    account = None
+    
     if "@" in check:
-        account = Account.get_account_by_email(check)
-        if not account:
-            return jsonify({"error": "Incorrect email"}), 404
+        account = Account( username=None,loginEmail=check,password=None).get_account_by_email()  # Get by email
     else:
-        account = Account.get_account_by_username(check)
-        if not account:
-            return jsonify({"error": "Incorrect username"}), 404
+        account = Account(username=check, loginEmail=None, password=None).get_account_by_username()  # Get by username
 
     if not account:
-        return jsonify({"error": "Account doesn't exist"}), 404
+        return jsonify({"error": "Incorrect username or email"}), 404
 
     if account['password'] != password:
         return jsonify({"error": "Incorrect password"}), 401
 
-    if account and account['password'] == password:
-        return jsonify({"message": "Login successful", "user": account['username']}), 200
-    else:
-        return jsonify({"error": "Invalid credentials"}), 401
+    # Successful login
+    return jsonify({"message": "Login successful", "user": account['username']}), 200
+
 
 @app.route('/api/leave-project', methods=['POST'])
 def leave_project():
@@ -183,7 +185,7 @@ def editSkils():
     if not username or not newSkills or not newSkills:
         return jsonify({"error": "Username and skills are required"}), 400
 
-    account = Account.account_exists(username,loginEmail)
+    account = Account.account_exists(username,loginEmail,password=None)
 
     if not account:
         return jsonify({"error": "Invalid credentials"}), 401
