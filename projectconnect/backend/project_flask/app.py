@@ -93,7 +93,7 @@ def leave_project():
     else:
         return jsonify(result), 200
     
-
+## important ##
 @app.route('/updateProfileFromEdit', methods=['POST'])
 def update_profile_from_edit():
     data = request.json
@@ -105,7 +105,7 @@ def update_profile_from_edit():
         return jsonify({"status": "error", "message": "Username, column, and value are required"}), 400
 
     try:
-        user = User(username=username)  # Initialize the user object
+        user = User(username=username, loginEmail=None, password=None)
         result = user.updateProfileFromEdit(column, value)  # Update profile details
 
         if "error" in result:
@@ -340,28 +340,21 @@ def get_Contact_Info():
     if not username or not loginEmail:
         return jsonify({"status": "error", "message": "Username and loginEmail are required"}), 400
 
-    account_exists = Account.account_exists(username, loginEmail)
-    if not account_exists:
-        return jsonify({"error": "Invalid credentials"}), 401
+    # Create a User instance with the provided username and loginEmail
+    user = User(username=username, loginEmail=loginEmail)
 
-    try:
-        with Account.get_db_connection() as conn:
-            with conn.cursor() as cursor:
-                cursor.execute(
-                    """
-                    SELECT contactinfo FROM users WHERE username = %s AND loginEmail = %s
-                    """,
-                    (username, loginEmail)
-                )
-                result = cursor.fetchone()
+    # Check if the account exists
+    account_exists = user.getUserDetails()  
+    if account_exists["status"] != "success":
+        return jsonify({"status": "error", "message": "Invalid credentials"}), 401
 
-        if result and "contactinfo" in result:
-            return jsonify({"status": "success", "contactinfo": result["contactinfo"]}), 200
-        else:
-            return jsonify({"status": "error", "message": "No contactinfo found for the user"}), 404
-    except Exception as e:
-        print(f"Error fetching aboutMe: {e}")
-        return jsonify({"status": "error", "message": str(e)}), 500
+    # Fetch contact info using the getContactInfo method
+    contact_info_result = user.getContactInfo()
+
+    if contact_info_result["status"] == "success":
+        return jsonify(contact_info_result), 200
+    else:
+        return jsonify(contact_info_result), 404
 
 ## important ##
 @app.route('/api/getUserDetails', methods=['POST'])
@@ -374,10 +367,8 @@ def get_user_details():
         if not username:
             return jsonify({"status": "error", "message": "Username is required"}), 400
 
-        # Create an Account instance
         user = User(username=username, loginEmail=None, password=None)
 
-        # Call the getUserDetails instance method
         result = user.getUserDetails()
 
         if result.get("status") == "success":
