@@ -317,15 +317,15 @@ export default function Account() {
             {username}</div>
           <div className="profileCard">
             About Me: {aboutMe}
-            {isOwner && <FontAwesomeIcon onClick={() => handleEdit("About Me")} icon={faPencil} role='button' className="editIcon" data-bs-toggle="modal" data-bs-target="#editAccountModal"/>}
+            {isOwner && <FontAwesomeIcon onClick={() => handleEdit("About Me")} icon={faPencil} role='button' className="editIcon"/>}
           </div>
           <div className="profileCard">
             <p>Contact Information: {contactInfo}</p>
-            {isOwner && <FontAwesomeIcon onClick={() => handleEdit("Contact Information")} icon={faPencil} role='button' className="editIcon" data-bs-toggle="modal" data-bs-target="#editAccountModal"/>}
+            {isOwner && <FontAwesomeIcon onClick={() => handleEdit("Contact Information")} icon={faPencil} role='button' className="editIcon"/>}
           </div>
           <div className="profileCard">
             Skills: {skills} 
-            {isOwner && <FontAwesomeIcon onClick={() => handleEdit("Skills")} icon={faPencil} role='button' className="editIcon" data-bs-toggle="modal" data-bs-target="#editAccountModal"/>}
+            {isOwner && <FontAwesomeIcon onClick={() => handleEdit("Skills")} icon={faPencil} role='button' className="editIcon"/>}
           </div>
 
           {isEditModalVisible && (

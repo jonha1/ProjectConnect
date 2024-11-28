@@ -59,7 +59,7 @@ export default function Searchbar({ onSearchChange, searchText = "", onKeyDown }
           onKeyDown={onKeyDown} // Pass the onKeyDown prop directly to the input field
         />
 
-        <div className="dropdown">
+        <div className="dropdown" id="searchbarDropdown">
           <button
             className="btn btn-secondary dropdown-toggle"
             type="button"
