@@ -110,7 +110,7 @@ class Creator(Member):
     def createProject(self, title, description, tag, links, contact, memberDescription, memberLinks, memberContact):
         try:
             project = Project(
-                creatorusername = creatorusername,
+                creatorusername = self.username,
                 title = title,
                 description = description,
                 links = links,
@@ -118,7 +118,9 @@ class Creator(Member):
                 memberDescription = memberDescription,
                 memberLinks = memberLinks,
                 memberContactInfo = memberContact, 
-                tag = tag
+                dateposted = None,
+                isarchived = None,
+                tag = tag,
             )
             # Delegate project creation to the Project class
             project_result = project.buildProject()

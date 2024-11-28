@@ -45,7 +45,7 @@ class Project:
 
         # Define required fields
         fields = ["creatorusername", "title", "description", "tag", "links", "contact", "memberdescription", "memberlinks","membercontactinfo"]
-        values = [self.creatorusername, self.title, self.description, self.tag, self.links, self.contact, self.memberDescription, self.memberLinks, self.memberContact]
+        values = [self.creatorusername, self.title, self.description, self.tag, self.links, self.contact, self.memberDescription, self.memberLinks, self.memberContactInfo]
         
         # Dynamically build the SQL query based on available fields
         field_names = ", ".join(fields)
