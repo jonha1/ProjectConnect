@@ -1,5 +1,7 @@
 "use client";
 
+import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faPlus,
@@ -11,35 +13,104 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import "../styles/navbar.modules.css";
 import "../styles/notifications.css"; 
-import React, { useState } from "react";
-import { useRouter } from "next/navigation";
+import { getUsernameFromCookie } from "../lib/cookieUtils";
+
+interface Notification {
+  notificationid: string;
+  messagetype: string;
+  fromuserid: string;
+  title: string;
+}
+
+interface TransformedNotification {
+  id: number; 
+  type: string;
+  username: string;
+  project: string;
+}
 
 export default function Navbar() {
-  // Sample notifications arrayx
-  const [notifications, setNotifications] = useState([
-    { id: 1, type: "Project Join Request", username: "SpicyDoritos", project: "Medical AI"},
-    { id: 2, type: "Request Denied", username: "TornadoMan", project: "Bench Woodmaking" },
-    { id: 3, type: "Project Invite Request", username: "John Smith", project: "Archaeologist Trip" },
-    { id: 4, type: "Invite Accepted", username: "HelloKittyGirl", project: "Art Mural" },
-    { id: 5, type: "Project Join Request", username: "Shaggy", project: "Eat Mountain"},
-    { id: 6, type: "Project Join Request", username: "Scooby", project: "Fart Bomb"},
-  ]);
-  
-  
+  const [notifications, setNotifications] = useState<TransformedNotification[]>([]);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const router = useRouter();
 
-  // Function to remove a notification by id
+  // Helper function to normalize string | null to string | undefined
+  const normalizeString = (value: string | undefined): string | undefined => value ?? undefined;
+
+  useEffect(() => {
+    const cookieUsername = normalizeString(getUsernameFromCookie()); // Normalize cookie username
+    fetchNotifs(cookieUsername);
+  }, []);
+
+  // Fetch notifications for the logged-in user
+  const fetchNotifs = async (user: string | undefined) => {
+    try {
+      const response = await fetch("http://localhost:5001/retrieveNotifications", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username: user }),
+      });
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+
+      const data: Notification[] = await response.json();
+      const transformedData: TransformedNotification[] = data.map((item) => ({
+        id: Number(item.notificationid), // Convert id to number
+        type: item.messagetype,
+        username: item.fromuserid,
+        project: item.title,
+      }));
+      setNotifications(transformedData);
+    } catch (error) {
+      console.error("Error fetching notifications:", error);
+    }
+  };
+
+  // Remove notification locally
   const removeNotification = (id: number) => {
     setNotifications(notifications.filter((notification) => notification.id !== id));
+  };
+
+  // Accept a notification
+  const acceptNotifs = async (notifId: number) => {
+    try {
+      const response = await fetch("http://localhost:5001/acceptNotification", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ notificationid: notifId }),
+      });
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+      await response.json();
+      removeNotification(notifId); // Remove notification after accepting
+    } catch (error) {
+      console.error("Error accepting notification:", error);
+    }
+  };
+
+  // Remove a notification from the server and locally
+  const removeNotifs = async (notifId: number) => {
+    try {
+      const response = await fetch("http://localhost:5001/removeNotification", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ notificationid: notifId }),
+      });
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+      await response.json();
+      removeNotification(notifId); // Remove notification locally
+    } catch (error) {
+      console.error("Error removing notification:", error);
+    }
   };
 
   const toggleDropdown = () => {
     setIsDropdownOpen(!isDropdownOpen);
   };
 
-  const router = useRouter();
   const handleBookmarkClick = () => {
-      router.push("/account?query=bookmark");
+    router.push("/account?query=bookmark");
   };
 
   return (
@@ -51,7 +122,7 @@ export default function Navbar() {
           </a>
           <div className="collapse navbar-collapse" id="navbarNav">
             <ul className="navbar-nav">
-            <li className="nav-item" key="plus-icon">
+              <li className="nav-item" key="plus-icon">
                 <a className="nav-link navbarComponent" aria-current="page" href="/createproject">
                   <FontAwesomeIcon icon={faPlus} />
                 </a>
@@ -61,51 +132,53 @@ export default function Navbar() {
                   <FontAwesomeIcon icon={faBookmark} />
                 </a>
               </li>
-              <li className="nav-item" key="bell-icon" onClick={toggleDropdown} style={{ position: 'relative' }}>
+              <li
+                className="nav-item"
+                key="bell-icon"
+                onClick={toggleDropdown}
+                style={{ position: "relative" }}
+              >
                 <a className="nav-link navbarComponent" href="#">
                   <FontAwesomeIcon icon={faBell} />
                   {notifications.length > 0 && (
-                      <span className="notificationCountBadge">{notifications.length}</span>
-                    )}
+                    <span className="notificationCountBadge">{notifications.length}</span>
+                  )}
                 </a>
                 {isDropdownOpen && (
                   <div className="notificationDropdown">
-                    {/* Notifications Title */}
                     <div className="notificationTitle">Notifications</div>
-                    
                     {notifications.length > 0 ? (
-                      notifications.map(notification => (
+                      notifications.map((notification) => (
                         <div key={notification.id} className="notificationItem">
-                          {/* Display Notification Type, Username, and Project */}
                           <div className="notificationText">
-                          {notification.type}:
+                            {notification.type}:
                             <br />
                             <a href={`/profile/${notification.username}`} className="username">
                               {notification.username}
-                            </a> <>  </>    
+                            </a>{" "}
                             <a href={`/project/${notification.project}`} className="projectName">
                               ({notification.project})
-                            </a> 
+                            </a>
                           </div>
-
-                          {/* Icons for actionable and dismissible notifications */}
                           <div className="iconContainer">
-                            {/* Show the check and X icons for actionable notifications */}
-                            {(notification.type === "Project Join Request" || notification.type === "Project Invite Request") && (
-                              <>
-                                <div className="iconButton">
-                                  <FontAwesomeIcon icon={faCheck} onClick={(e) => {
+                            {["Join", "Invite"].includes(notification.type) && (
+                              <div className="iconButton">
+                                <FontAwesomeIcon
+                                  icon={faCheck}
+                                  onClick={(e) => {
                                     e.stopPropagation();
-                                    removeNotification(notification.id);
-                                  }}/>
-                                </div>
-                              </>
+                                    acceptNotifs(notification.id);
+                                  }}
+                                />
+                              </div>
                             )}
-                            {/* Show only the X icon for dismissing all types */}
-                            <div className="iconButton" onClick={(e) => {
-                              e.stopPropagation();
-                              removeNotification(notification.id);
-                            }}>
+                            <div
+                              className="iconButton"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                removeNotifs(notification.id);
+                              }}
+                            >
                               <FontAwesomeIcon icon={faTimes} />
                             </div>
                           </div>

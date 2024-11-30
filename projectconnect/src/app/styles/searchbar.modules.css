@@ -45,6 +45,9 @@
     background-color: white !important;
 }
 
+#searchbarDropdown{
+    margin: 0;
+}
 
 /* Dropdown Container */
 .dropdown-toggle {

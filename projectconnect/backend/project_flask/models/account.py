@@ -43,27 +43,6 @@ class Account:
         except Exception as e:
             print(f"Error retrieving account: {e}")
             return None
-        
-    @staticmethod
-    def getEmailByUser(username):
-        try:
-            with Account.get_db_connection() as conn:
-                with conn.cursor() as cursor:
-                    cursor.execute(
-                        """
-                        SELECT loginemail FROM users WHERE username = %s
-                        """,
-                        (username,)
-                    )
-                    result = cursor.fetchone()
-
-            if result and "loginemail" in result:
-                return {"status": "success", "email": result["loginemail"]}
-            else:
-                return {"status": "error", "message": "User not found"}
-        except Exception as e:
-            print(f"Error fetching email for user {username}: {e}")
-        return {"status": "error", "message": str(e)}
 
     ## returns json
     @staticmethod
@@ -95,7 +74,7 @@ class Account:
             return None
 
     @staticmethod
-    def register(username, loginEmail, password):
+    def register(username, displayname, loginEmail, password):
         if Account.account_exists(username, loginEmail):
             return {"error": "Account with this username or email already exists."}
         
@@ -103,13 +82,12 @@ class Account:
             with Account.get_db_connection() as conn:
                 with conn.cursor() as cursor:
                     cursor.execute("""
-                        INSERT INTO users (username, loginEmail, password)
-                        VALUES (%s, %s, %s) RETURNING *;
-                    """, (username, loginEmail, password))
+                        INSERT INTO users (username, displayname, loginEmail, password)
+                        VALUES (%s, %s, %s, %s) RETURNING *;
+                    """, (username, displayname, loginEmail, password))
                     new_account = cursor.fetchone()
                     conn.commit()  
                     return new_account  
         except Exception as e:
             print(f"Error registering account: {e}")
             return {"error": str(e)}  
-

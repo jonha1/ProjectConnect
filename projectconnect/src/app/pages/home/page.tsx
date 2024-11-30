@@ -26,7 +26,6 @@ export default function Home() {
 
   useEffect(() => {
     const username = Cookies.get("username");
-    console.log(username);
     if (!username) {
       router.push("/login"); 
     }
