@@ -130,12 +130,14 @@ def delete_project():
     data = request.json
     creatorusername = data.get("creatorusername")
     title = data.get("title")
-    print(title, creatorusername)
+    if not creatorusername or not title:
+        return jsonify({"error": "Missing creatorusername or title"}), 400
+    
     result = Creator.deleteProject(creatorusername, title)
+    
     if "error" in result:
         return jsonify(result), 400  # 400 for bad request (like duplicate entry)
-    else:
-        return jsonify(result), 201  # 201 for successful creation
+    return jsonify(result), 201  # 201 for successful creation
         
 @app.route('/getEmailByUser', methods=['POST'])
 def getEmailByUser():
@@ -437,7 +439,9 @@ def buildProject():
     memberDescription= data.get('memberDescription', None)
     memberLinks= data.get('memberLinks', None)
     memberContact= data.get('memberContact', None)
-    if not all([creatorusername, title, description, tag]):
+
+    required_fields = ['creatorusername', 'title', 'description', 'tag']
+    if not all(field in data for field in required_fields):
         return jsonify({"error": "Missing required fields: 'creatorusername', 'title', 'description', or 'tag'"}), 400
    
     creator = Creator(
@@ -456,8 +460,7 @@ def buildProject():
     # Check if the result is an error
     if "error" in result:
         return jsonify(result), 400  # 400 for bad request (like duplicate entry)
-    else:
-        return jsonify(result), 201  # 201 for successful creation
+    return jsonify(result), 201  # 201 for successful creation
     
 @app.route('/getProjectInfo', methods=['POST', 'OPTIONS'])
 def getProjectInfo():
@@ -508,8 +511,7 @@ def archiveProject():
     # Check if the result is an error
     if "error" in result:
         return jsonify(result), 400  # 400 for bad request (like duplicate entry)
-    else:
-        return jsonify(result), 201  # 201 for successful creation
+    return jsonify(result), 201  # 201 for successful creation
     
 @app.route('/unarchiveProject', methods=['POST'])
 def unarchiveProject():
@@ -648,8 +650,8 @@ def edit_project():
 
     if "error" in result:
         return jsonify(result), 400
-    else:
-        return jsonify(result), 200
+    return jsonify(result), 200
+    
 @app.route('/projects/by_member', methods=['POST'])
 def get_projects_by_member():
     data = request.json
