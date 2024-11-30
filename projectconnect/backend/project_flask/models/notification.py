@@ -176,7 +176,44 @@ class Notification:
                         else if full_row['messagetype'] == [new notification types]:
 
                         '''    
+                        cursor.execute("""
+                                INSERT INTO notifications
+                                (touserid, fromuserid, messagetype, title)
+                                VALUES (%s, %s, %s, %s) RETURNING *
+                            """, (full_row['fromuserid'], full_row['touserid'], full_row['messagetype']+" Request Accepted", full_row['title']))
+                        conn.commit()
+                        Notification.removeNotification(notificationID)
                         return {"status": "success", "Project added": title}
             except Exception as e:
-                print(f"Failure to remove notification: {e}")
+                print(f"Failure to accept notification: {e}")
                 return {"status": "error", "error": str(e)}
+
+    @staticmethod
+    def rejectNotification(notificationID):
+        if Notification.verifyNotification(notificationID):
+            try:
+                with Notification.get_db_connection() as conn:
+                    with conn.cursor() as cursor:
+
+                        postgres_get = """
+                            SELECT * FROM notifications 
+                            WHERE notificationid = %s
+                        """
+                        cursor.execute(postgres_get, (notificationID,))
+                        full_row = cursor.fetchone()
+                        if full_row['messagetype'] == 'Join' or full_row['messagetype'] == 'Invite':
+                            cursor.execute("""
+                                    INSERT INTO notifications
+                                    (touserid, fromuserid, messagetype, title)
+                                    VALUES (%s, %s, %s, %s) RETURNING *
+                                """, (full_row['fromuserid'], full_row['touserid'], full_row['messagetype']+" Request Rejected", full_row['title']))
+                            conn.commit()
+                            Notification.removeNotification(notificationID)
+                            return {"status": "success", "Project Rejected": full_row['title']}
+                        else:
+                            Notification.removeNotification(notificationID)
+                            return {"status": "success", "Project Removed": notificationID}
+            except Exception as e:
+                print(f"Failure to reject notification: {e}")
+                return {"status": "error", "error": str(e)}
+
