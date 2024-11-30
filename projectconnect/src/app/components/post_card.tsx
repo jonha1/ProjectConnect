@@ -16,8 +16,7 @@ export default function PostCard({ postName, postInfo, creatorName, className }:
   const router = useRouter();
 
   const handleClickPost = () => {
-    // Format post name for the URL (replace spaces with hyphens and convert to lowercase)
-    const formattedPostName = postName.replace(/\s+/g, "-");
+    const formattedPostName = encodeURIComponent(postName);
     const destination = "?creator=" + creatorName + "&title=" + formattedPostName;
     router.push(`/post${destination}`);
   };

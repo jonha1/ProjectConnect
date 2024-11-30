@@ -99,7 +99,7 @@ export default function ProjectView() {
       let projectTitle = urlParams.get("title");
       setTitle(projectTitle);
       if (projectTitle) {
-        projectTitle = projectTitle.replace(/-/g, " ");
+        projectTitle = decodeURIComponent(projectTitle);
       }
       fetchProjectInformation(creator, projectTitle);
       verifyBookmark(creator, projectTitle, cookieUsername); // Pass `cookieUsername` as `string | null`
