@@ -16,6 +16,7 @@ class Notification:
             cursor_factory=RealDictCursor
         )
 
+    @staticmethod
     def verifyNotifExists(ToUserID, FromUser, MessageType, Title):
         try:
             with Notification.get_db_connection() as conn:
@@ -37,6 +38,7 @@ class Notification:
             print(f"Error verifying if Notification has already been sent: {e}")
             return {"status":"error", "error": str(e)}
 
+    @staticmethod
     def sendNotification(ToUserID, FromUser, MessageType, Title):
         try:
             with Notification.get_db_connection() as conn:
@@ -81,32 +83,6 @@ class Notification:
         except Exception as e:
             print(f"Error sending notification: {e}")
             return {"status":"error", "error": str(e)}
-
-    def retrieveNotifications(username):
-        try:
-            with Notification.get_db_connection() as conn:
-                with conn.cursor() as cursor:
-                    cursor.execute("""
-                        SELECT * FROM notifications 
-                        WHERE touserid = %s
-                        ORDER BY datesent
-                    """, (username,))
-                    result = cursor.fetchall()
-                    allNotifs = []
-                    for row in result:
-                        fromUser = row['fromuserid']
-                        toUser = row['touserid'] 
-                        messageType = row['messagetype']
-                        title = row['title']
-                        notificationid = row['notificationid']
-                        notif_dict = {"notificationid":notificationid,
-                        "title": title, "messagetype": messageType,
-                         "fromuserid": fromUser, "touserid": toUser};
-                        allNotifs.append(notif_dict)
-                    return allNotifs #list of tuples, each tuple is a row ex. [("Will", timestamp, "Green Energy", "alice")]
-        except Exception as e:
-            print(f"Error checking bookmarks existence: {e}")
-            return []
 
     @staticmethod
     def verifyNotification(notificationID):
@@ -180,3 +156,100 @@ class Notification:
             except Exception as e:
                 print(f"Failure to remove notification: {e}")
                 return {"status": "error", "error": str(e)}
+
+
+    @staticmethod
+    def removeProject(creatorusername, title):
+        try:
+            with Notification.get_db_connection() as conn:
+                with conn.cursor() as cursor:
+                    postgres_delete = """
+                        DELETE FROM notifications 
+                        WHERE touserid = %s
+                        and title = %s
+                        and messagetype = %s
+                    """
+                    cursor.execute(postgres_delete, (creatorusername, title, "Join"))
+                    conn.commit()
+                    postgres_delete = """
+                        DELETE FROM notifications 
+                        WHERE fromuserid = %s
+                        and title = %s
+                        and messagetype = %s
+                    """
+                    cursor.execute(postgres_delete, (creatorusername, title, "Invite"))
+                    conn.commit()
+                    return {"status": "success"}
+        except Exception as e:
+            print(f"Failure to remove notification: {e}")
+            return {"status": "error", "error": str(e)}
+
+    @staticmethod
+    def checkProjectExist(ToUserID,FromUserID, messageType, title):
+        try:
+            with Notification.get_db_connection() as conn:
+                with conn.cursor() as cursor:
+                    if messageType == "Invite":
+                        cursor.execute("""
+                            SELECT * FROM projects
+                            WHERE creatorusername = %s
+                            and title = %s
+                        """,(FromUserID, title))
+                        result = cursor.fetchall()
+                        print(FromUserID, title, result)
+                        if len(result) != 0:
+                            return True
+                        else:
+                            Notification.removeProject(FromUserID, title)
+                            return False
+                    elif messageType == "Join":
+                        cursor.execute("""
+                            SELECT * FROM projects
+                            WHERE creatorusername = %s
+                            and title = %s
+                        """,(ToUserID, title))
+                        result = cursor.fetchall()
+                        print(ToUserID, title, result)
+                        if len(result) != 0:
+                            return True
+                        else:
+                            Notification.removeProject(ToUserID, title)
+                            return False
+                    else:
+                        return True
+        except Exception as e:
+            print(f"Error checking project existence: {e}")
+            return False
+
+    @staticmethod
+    def retrieveNotifications(username):
+        try:
+            with Notification.get_db_connection() as conn:
+                with conn.cursor() as cursor:
+                    cursor.execute("""
+                        SELECT * FROM notifications 
+                        WHERE touserid = %s
+                        ORDER BY datesent
+                    """, (username,))
+                    result = cursor.fetchall()
+                    allNotifs = []
+                    for row in result:
+                        fromUser = row['fromuserid']
+                        toUser = row['touserid'] 
+                        messageType = row['messagetype']
+                        title = row['title']
+                        notificationid = row['notificationid']
+                        project_exists = Notification.checkProjectExist(toUser, fromUser, messageType, title)
+                        print(project_exists, title)
+                        if project_exists:
+                            notif_dict = {"notificationid":notificationid,
+                            "title": title, "messagetype": messageType,
+                             "fromuserid": fromUser, "touserid": toUser};
+                            allNotifs.append(notif_dict)
+                    return allNotifs #list of tuples, each tuple is a row ex. [("Will", timestamp, "Green Energy", "alice")]
+        except Exception as e:
+            print(f"Error checking notification existence: {e}")
+            return []
+
+
+
