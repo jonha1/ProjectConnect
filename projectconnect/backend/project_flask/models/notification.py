@@ -200,7 +200,7 @@ class Notification:
                         if len(result) != 0:
                             return True
                         else:
-                            removeProject(FromUserID, title)
+                            Notification.removeProject(FromUserID, title)
                             return False
                     elif messageType == "Join":
                         cursor.execute("""
@@ -213,7 +213,7 @@ class Notification:
                         if len(result) != 0:
                             return True
                         else:
-                            removeProject(ToUserID, title)
+                            Notification.removeProject(ToUserID, title)
                             return False
                     else:
                         return True
