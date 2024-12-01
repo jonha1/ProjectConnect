@@ -52,7 +52,7 @@ def test_db_connection():
 
 ## ACCOUNT ##
 ## make sure to find out if account exists 
-@app.route('/register', methods=['POST'])
+@app.route('/api/register', methods=['POST'])
 def register_account():
     data = request.json 
 
