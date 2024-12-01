@@ -16,9 +16,9 @@ class Notification:
             cursor_factory=RealDictCursor
         )
 
-    def verifyNotifExists(ToUserID, FromUser, MessageType, Title):
+    def verifyNotifExists(self):
         try:
-            with Notification.get_db_connection() as conn:
+            with self.get_db_connection() as conn:
                 with conn.cursor() as cursor:
                     #see if that user already sent a notif
                     verify_query = """
@@ -28,7 +28,7 @@ class Notification:
                         and messagetype = %s
                         and title = %s
                     """
-                    cursor.execute(verify_query, (ToUserID, FromUser, MessageType, Title))
+                    cursor.execute(verify_query, (self.toUser, self.fromUser, self.messageType, self.title))
                     exists = cursor.fetchone()
                     if exists is None:
                         return False
@@ -37,32 +37,32 @@ class Notification:
             print(f"Error verifying if Notification has already been sent: {e}")
             return {"status":"error", "error": str(e)}
 
-    def sendNotification(ToUserID, FromUser, MessageType, Title):
+    def sendNotification(self):
         try:
-            with Notification.get_db_connection() as conn:
+            with self.get_db_connection() as conn:
                 with conn.cursor() as cursor:
-                    if Notification.verifyNotifExists(ToUserID, FromUser, MessageType, Title):
+                    if Notification.verifyNotifExists(self.toUser, self.fromUser, self.messageType, self.title):
                         return {"status": "success", "result": "notification has already been sent"}
                     #Invite: check to see the toUser is already in the members
-                    if MessageType == "Invite":
+                    if self.messageType == "Invite":
                         cursor.execute("""
                             SELECT FROM joinedprojects
                             WHERE membersusername = %s
                             and creatorusername = %s 
                             and projecttitle = %s
-                        """, (ToUserID, FromUser, Title))
+                        """, (self.toUser, self.fromUser, self.title))
                         exists = cursor.fetchone()
                         if exists is not None:
                             return {"status": "success", "result": "Invited user is already in the project"}
                         print("Invitee not in the project already")
                     #Join: check to see if the fromUser is already in the members
-                    elif MessageType == "Join":
+                    elif self.messageType == "Join":
                         cursor.execute("""
                             SELECT FROM joinedprojects
                             WHERE membersusername = %s
                             and creatorusername = %s 
                             and projecttitle = %s
-                        """, (FromUser, ToUserID, Title))
+                        """, (self.fromUser, self.toUser, self.title))
                         exists = cursor.fetchone()
                         if exists is not None:
                             return {"status": "success", "result": "You have already joined the project"}
@@ -73,7 +73,7 @@ class Notification:
                         (touserid, fromuserid, messagetype, title) 
                         VALUES (%s, %s, %s, %s) RETURNING *;
                     """
-                    row_to_insert = (ToUserID, FromUser, MessageType, Title)
+                    row_to_insert = (self.toUser, self.fromUser, self.messageType, self.title)
                     cursor.execute(postgres_insert_query, row_to_insert)
                     full_row = cursor.fetchone()
                     conn.commit()
@@ -82,15 +82,15 @@ class Notification:
             print(f"Error sending notification: {e}")
             return {"status":"error", "error": str(e)}
 
-    def retrieveNotifications(username):
+    def retrieveNotifications(self):
         try:
-            with Notification.get_db_connection() as conn:
+            with self.get_db_connection() as conn:
                 with conn.cursor() as cursor:
                     cursor.execute("""
                         SELECT * FROM notifications 
                         WHERE touserid = %s
                         ORDER BY datesent
-                    """, (username,))
+                    """, (self.toUser,))
                     result = cursor.fetchall()
                     allNotifs = []
                     for row in result:

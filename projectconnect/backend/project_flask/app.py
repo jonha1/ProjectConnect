@@ -687,7 +687,8 @@ def acceptNotification():
 def retrieveNotifications():
     data = request.json
     user = data.get('username')
-    result = Notification.retrieveNotifications(user)
+    Notification_manager = Notification(toUser = user) 
+    result = Notification_manager.retrieveNotifications()
     return result, 201  # 201 for successful creation        
 
 @app.route('/sendNotification', methods=['POST'])
@@ -697,7 +698,8 @@ def sendNotification():
     fromuser = data.get('fromuserid')
     messagetype = data.get('messagetype')
     title = data.get('projectitle')
-    result = Notification.sendNotification(touser, fromuser, messagetype, title)
+    Notification_manager = Notification(toUser = touser, fromUser = fromuser, messageType = messagetype, title = title) 
+    result = Notification_manager.sendNotification()
     if result["status"] == "error":
         return jsonify(result), 400  # 400 for bad request (like duplicate entry)
     else:
@@ -710,7 +712,8 @@ def verifyNotif():
     fromuser = data.get('fromuserid')
     messagetype = data.get('messagetype')
     title = data.get('projectitle')
-    result = Notification.verifyNotifExists(touser, fromuser, messagetype, title)
+    Notification_manager = Notification(toUser = touser, fromUser = fromuser, messageType = messagetype, title = title)
+    result = Notification_manager.verifyNotifExists()
     return jsonify({"status": "success", "result": result}), 201  # 400 for bad request (like duplicate entry)
 
 
