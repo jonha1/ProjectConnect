@@ -9,6 +9,7 @@ import "../../styles/project_view.css";
 import { getUsernameFromCookie } from "../../lib/cookieUtils";
 import Cookies from "js-cookie";
 
+
 // Define the type for project details
 interface ProjectDetails {
   creatorusername: string;
@@ -77,6 +78,11 @@ export default function ProjectView() {
   const pathname = usePathname(); // Get the current route's pathname
   const [textareaValue, setTextareaValue] = useState(""); 
   const [isInviteModalVisible, setIsInviteModalVisible] = useState(false); // Separate state for Invite modal
+  const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
+
+  const showDeleteModal = () => setIsDeleteModalVisible(true);
+  const hideDeleteModal = () => setIsDeleteModalVisible(false);
+
 
   // Function to open the Invite modal
   const openInviteModal = () => {
@@ -99,7 +105,7 @@ export default function ProjectView() {
       let projectTitle = urlParams.get("title");
       setTitle(projectTitle);
       if (projectTitle) {
-        projectTitle = projectTitle.replace(/-/g, " ");
+        projectTitle = decodeURIComponent(projectTitle);
       }
       fetchProjectInformation(creator, projectTitle);
       verifyBookmark(creator, projectTitle, cookieUsername); // Pass `cookieUsername` as `string | null`
@@ -572,7 +578,12 @@ export default function ProjectView() {
 
             <p className="creator-name">{projectDetails.tag}</p>
             <button className="view-profile-button" onClick={() => {
-              window.location.href = `/account?username=${projectDetails.creatorusername}`;
+              const currentUsername = Cookies.get("username");
+              if (currentUsername === projectDetails.creatorusername) {
+                window.location.href = "/account";
+              } else {
+                window.location.href = "/account?username=${projectDetails.creatorusername}";
+              }
             }}>View Creator Profile</button>
           </div>
           <div className="right-column">
@@ -635,7 +646,7 @@ export default function ProjectView() {
               <button className="archiveButton" onClick={handleArchive}>
                 {projectDetails.isarchived ? "Unarchive" : "Archive"}
               </button>
-              <button className="deleteButton" onClick={handleDeleteProject}>
+              <button className="deleteButton" onClick={showDeleteModal}>
                 Delete
               </button>
               <button
@@ -647,6 +658,54 @@ export default function ProjectView() {
               <button className="inviteButton" type="button" onClick={openInviteModal}>
                 Invite
               </button>
+            </div>
+          )}
+          {isDeleteModalVisible && (
+            <div
+              className="modal fade show"
+              role="dialog"
+              tabIndex={-1}
+              style={{
+                display: "block",
+                position: "fixed",
+                top: 0,
+                left: 0,  
+                width: "100%",
+                height: "100%",
+                backgroundColor: "rgba(0, 0, 0, 0.5)", 
+                zIndex: 1040,
+              }}
+              aria-hidden={!isDeleteModalVisible}
+              aria-labelledby="deleteModal"
+            >
+              <div className="modal-dialog" role="document">
+                <div className="modal-content">
+                  <div className="modal-header">
+                    <h5 className="modal-title" id="deleteModal">
+                      Confirm Delete
+                    </h5>
+                  </div>
+                  <div className="modal-body">
+                    Are you sure you want to delete this project? This action cannot be undone.
+                  </div>
+                  <div className="modal-footer">
+                    <button
+                      type="button"
+                      className="btn btn-secondary"
+                      onClick={hideDeleteModal}
+                    >
+                      Close
+                    </button>
+                    <button
+                      type="button"
+                      className="leaveButton"
+                      onClick={handleDeleteProject}
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </div>
+              </div>
             </div>
           )}
           {isModalVisible && tempProjectDetails && (
