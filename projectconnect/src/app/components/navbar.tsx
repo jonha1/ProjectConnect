@@ -89,9 +89,9 @@ export default function Navbar() {
   };
 
   // Remove a notification from the server and locally
-  const removeNotifs = async (notifId: number) => {
+  const rejectNotifs = async (notifId: number) => {
     try {
-      const response = await fetch("http://localhost:5001/removeNotification", {
+      const response = await fetch("http://localhost:5001/rejectNotification", {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
@@ -176,7 +176,7 @@ export default function Navbar() {
                               className="iconButton"
                               onClick={(e) => {
                                 e.stopPropagation();
-                                removeNotifs(notification.id);
+                                rejectNotifs(notification.id);
                               }}
                             >
                               <FontAwesomeIcon icon={faTimes} />

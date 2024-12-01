@@ -9,6 +9,7 @@ import "../../styles/project_view.css";
 import { getUsernameFromCookie } from "../../lib/cookieUtils";
 import Cookies from "js-cookie";
 
+
 // Define the type for project details
 interface ProjectDetails {
   creatorusername: string;
@@ -99,7 +100,7 @@ export default function ProjectView() {
       let projectTitle = urlParams.get("title");
       setTitle(projectTitle);
       if (projectTitle) {
-        projectTitle = projectTitle.replace(/-/g, " ");
+        projectTitle = decodeURIComponent(projectTitle);
       }
       fetchProjectInformation(creator, projectTitle);
       verifyBookmark(creator, projectTitle, cookieUsername); // Pass `cookieUsername` as `string | null`
@@ -572,7 +573,12 @@ export default function ProjectView() {
 
             <p className="creator-name">{projectDetails.tag}</p>
             <button className="view-profile-button" onClick={() => {
-              window.location.href = `/account?username=${projectDetails.creatorusername}`;
+              const currentUsername = Cookies.get("username");
+              if (currentUsername === projectDetails.creatorusername) {
+                window.location.href = "/account";
+              } else {
+                window.location.href = "/account?username=${projectDetails.creatorusername}";
+              }
             }}>View Creator Profile</button>
           </div>
           <div className="right-column">

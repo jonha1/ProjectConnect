@@ -11,7 +11,6 @@ from project_flask.models.bookmark import Bookmark
 from project_flask.models.notification import Notification
 from project_flask.models.user import User
 
-
 load_dotenv()
 app = Flask(__name__)
 CORS(app)
@@ -593,11 +592,11 @@ def get_projects_by_member():
         return jsonify(result), 404
     return jsonify(result), 200
 
-@app.route('/removeNotification', methods=['POST'])
-def removeNotification():
+@app.route('/rejectNotification', methods=['POST'])
+def rejectNotification():
     data = request.json
     notif_id = data.get('notificationid')
-    result = Notification.removeNotification(notif_id)
+    result = Notification.rejectNotification(notif_id)
     if result["status"] == "error":
         return jsonify(result), 400  # 400 for bad request (like duplicate entry)
     else:
