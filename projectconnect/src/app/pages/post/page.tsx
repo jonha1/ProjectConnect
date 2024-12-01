@@ -77,6 +77,11 @@ export default function ProjectView() {
   const pathname = usePathname(); // Get the current route's pathname
   const [textareaValue, setTextareaValue] = useState(""); 
   const [isInviteModalVisible, setIsInviteModalVisible] = useState(false); // Separate state for Invite modal
+  const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
+
+  const showDeleteModal = () => setIsDeleteModalVisible(true);
+  const hideDeleteModal = () => setIsDeleteModalVisible(false);
+
 
   // Function to open the Invite modal
   const openInviteModal = () => {
@@ -572,7 +577,12 @@ export default function ProjectView() {
 
             <p className="creator-name">{projectDetails.tag}</p>
             <button className="view-profile-button" onClick={() => {
-              window.location.href = `/account?username=${projectDetails.creatorusername}`;
+              const currentUsername = Cookies.get("username");
+              if (currentUsername === projectDetails.creatorusername) {
+                window.location.href = `/account`;
+              } else {
+                window.location.href = `/account?username=${projectDetails.creatorusername}`;
+              }
             }}>View Creator Profile</button>
           </div>
           <div className="right-column">
@@ -635,7 +645,7 @@ export default function ProjectView() {
               <button className="archiveButton" onClick={handleArchive}>
                 {projectDetails.isarchived ? "Unarchive" : "Archive"}
               </button>
-              <button className="deleteButton" onClick={handleDeleteProject}>
+              <button className="deleteButton" onClick={showDeleteModal}>
                 Delete
               </button>
               <button
@@ -647,6 +657,44 @@ export default function ProjectView() {
               <button className="inviteButton" type="button" onClick={openInviteModal}>
                 Invite
               </button>
+            </div>
+          )}
+          {isDeleteModalVisible && (
+            <div
+              className="modal-overlay"
+              role="dialog"
+              tabIndex={-1}
+              aria-labelledby="deleteModal"
+            >
+              <div className="modal-dialog">
+                <div className="modal-content">
+                  <div className="modal-header">
+                    <h5 className="modal-title">Confirm Delete</h5>
+                  </div>
+                  <div className="modal-body">
+                    <p>
+                      Are you sure you want to delete this post? This action cannot be
+                      undone.
+                    </p>
+                  </div>
+                  <div className="modal-footer">
+                    <button
+                      type="button"
+                      className="btn btn-secondary"
+                      onClick={hideDeleteModal}
+                    >
+                      Close
+                    </button>
+                    <button
+                      type="button"
+                      className="btn btn-danger"
+                      onClick={handleDeleteProject}
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </div>
+              </div>
             </div>
           )}
           {isModalVisible && tempProjectDetails && (
