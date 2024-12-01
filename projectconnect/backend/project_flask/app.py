@@ -34,6 +34,7 @@ def add_cors_headers(response):
     return response
 
 
+
 @app.route('/')
 def home():
     return "Hello, Flask!"
