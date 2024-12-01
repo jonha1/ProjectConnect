@@ -577,12 +577,7 @@ export default function ProjectView() {
 
             <p className="creator-name">{projectDetails.tag}</p>
             <button className="view-profile-button" onClick={() => {
-              const currentUsername = Cookies.get("username");
-              if (currentUsername === projectDetails.creatorusername) {
-                window.location.href = `/account`;
-              } else {
-                window.location.href = `/account?username=${projectDetails.creatorusername}`;
-              }
+              window.location.href = `/account?username=${projectDetails.creatorusername}`;
             }}>View Creator Profile</button>
           </div>
           <div className="right-column">
