@@ -9,6 +9,7 @@ import { faPencil } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Cookies from 'js-cookie';
 import { useRouter } from 'next/navigation';
+import { useSearchParams } from "next/navigation";
 
 interface Project {
   creatorusername: string;
@@ -79,6 +80,7 @@ export default function Account() {
 
   const [isLoading, setIsLoading] = useState(true);
 
+  const searchParams = useSearchParams();
 
   const openEditModal = () => setIsEditModalVisible(true);
   const closeEditModal = () => setIsEditModalVisible(false);
@@ -93,6 +95,12 @@ export default function Account() {
     }
   }, []); 
 
+  useEffect(() => {
+    const queryTab = searchParams.get("query");
+    if (queryTab === "bookmark") {
+      setActiveTab("bookmarks");
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     const searchParams = new URLSearchParams(window.location.search);
