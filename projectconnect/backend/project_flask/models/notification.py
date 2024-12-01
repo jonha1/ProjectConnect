@@ -41,7 +41,7 @@ class Notification:
         try:
             with self.get_db_connection() as conn:
                 with conn.cursor() as cursor:
-                    if Notification.verifyNotifExists(self.toUser, self.fromUser, self.messageType, self.title):
+                    if self.verifyNotifExists():
                         return {"status": "success", "result": "notification has already been sent"}
                     #Invite: check to see the toUser is already in the members
                     if self.messageType == "Invite":
@@ -54,7 +54,7 @@ class Notification:
                         exists = cursor.fetchone()
                         if exists is not None:
                             return {"status": "success", "result": "Invited user is already in the project"}
-                        print("Invitee not in the project already")
+                        #print("Invitee not in the project already")
                     #Join: check to see if the fromUser is already in the members
                     elif self.messageType == "Join":
                         cursor.execute("""
@@ -66,7 +66,7 @@ class Notification:
                         exists = cursor.fetchone()
                         if exists is not None:
                             return {"status": "success", "result": "You have already joined the project"}
-                        print("Joiner not in the project already")
+                        #print("Joiner not in the project already")
                     # all checks passed, can now send notif to the recipient
                     postgres_insert_query = """ 
                         INSERT INTO notifications 
@@ -108,10 +108,9 @@ class Notification:
             print(f"Error checking bookmarks existence: {e}")
             return []
 
-    @staticmethod
-    def verifyNotification(notificationID):
+    def verifyNotification(self, notificationID):
         try:
-            with Notification.get_db_connection() as conn:
+            with self.get_db_connection() as conn:
                 with conn.cursor() as cursor:
                     cursor.execute("""
                         SELECT * FROM notifications 
@@ -123,11 +122,10 @@ class Notification:
             print(f"Error checking notification existence: {e}")
             return False
 
-    @staticmethod
-    def removeNotification(notificationID):
-        if Notification.verifyNotification(notificationID):
+    def removeNotification(self, notificationID):
+        if self.verifyNotification(notificationID):
             try:
-                with Notification.get_db_connection() as conn:
+                with self.get_db_connection() as conn:
                     with conn.cursor() as cursor:
                         postgres_delete = """
                             DELETE FROM notifications 
@@ -140,11 +138,10 @@ class Notification:
                 print(f"Failure to remove notification: {e}")
                 return {"status": "error", "error": str(e)}
 
-    @staticmethod
-    def acceptNotification(notificationID):
-        if Notification.verifyNotification(notificationID):
+    def acceptNotification(self, notificationID):
+        if self.verifyNotification(notificationID):
             try:
-                with Notification.get_db_connection() as conn:
+                with self.get_db_connection() as conn:
                     with conn.cursor() as cursor:
 
                         postgres_get = """
@@ -182,17 +179,16 @@ class Notification:
                                 VALUES (%s, %s, %s, %s) RETURNING *
                             """, (full_row['fromuserid'], full_row['touserid'], full_row['messagetype']+" Request Accepted", full_row['title']))
                         conn.commit()
-                        Notification.removeNotification(notificationID)
+                        self.removeNotification(notificationID)
                         return {"status": "success", "Project added": title}
             except Exception as e:
                 print(f"Failure to accept notification: {e}")
                 return {"status": "error", "error": str(e)}
 
-    @staticmethod
-    def rejectNotification(notificationID):
-        if Notification.verifyNotification(notificationID):
+    def rejectNotification(self, notificationID):
+        if self.verifyNotification(notificationID):
             try:
-                with Notification.get_db_connection() as conn:
+                with self.get_db_connection() as conn:
                     with conn.cursor() as cursor:
 
                         postgres_get = """
@@ -208,10 +204,10 @@ class Notification:
                                     VALUES (%s, %s, %s, %s) RETURNING *
                                 """, (full_row['fromuserid'], full_row['touserid'], full_row['messagetype']+" Request Rejected", full_row['title']))
                             conn.commit()
-                            Notification.removeNotification(notificationID)
+                            self.removeNotification(notificationID)
                             return {"status": "success", "Project Rejected": full_row['title']}
                         else:
-                            Notification.removeNotification(notificationID)
+                            self.removeNotification(notificationID)
                             return {"status": "success", "Project Removed": notificationID}
             except Exception as e:
                 print(f"Failure to reject notification: {e}")

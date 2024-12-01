@@ -666,7 +666,8 @@ def get_projects_by_member():
 def rejectNotification():
     data = request.json
     notif_id = data.get('notificationid')
-    result = Notification.rejectNotification(notif_id)
+    notif = Notification()
+    result = notif.rejectNotification(notif_id)
     if result["status"] == "error":
         return jsonify(result), 400  # 400 for bad request (like duplicate entry)
     else:
@@ -676,7 +677,8 @@ def rejectNotification():
 def acceptNotification():
     data = request.json
     notif_id = data.get('notificationid')
-    result = Notification.acceptNotification(notif_id)
+    notif = Notification()
+    result = notif.acceptNotification(notif_id)
     if result["status"] == "error":
         return jsonify(result), 400  # 400 for bad request (like duplicate entry)
     else:
