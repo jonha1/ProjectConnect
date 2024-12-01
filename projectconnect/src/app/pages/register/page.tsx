@@ -36,7 +36,11 @@ export default function Register() {
 
     setError('');
     try {
-      const response = await fetch('http://127.0.0.1:5001/register', {
+      const apiUrl = process.env.NODE_ENV === 'production'
+        ? '/api/register' 
+        : 'http://127.0.0.1:5001/register'; 
+
+      const response = await fetch(apiUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -52,7 +56,7 @@ export default function Register() {
 
       if (response.ok) {
         // Save the username to a cookie using js-cookie
-        Cookies.set('username', formData.username, { expires: 30, path: '/' }); // Cookie valid for 30 day
+        Cookies.set('username', formData.username, { expires: 30, path: '/' }); // Cookie valid for 30 days
         router.push('/accountInfo'); // Redirect to the account page
       } else {
         const result = await response.json();
