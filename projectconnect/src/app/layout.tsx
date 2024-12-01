@@ -25,10 +25,6 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        <link
-          href="https://fonts.googleapis.com/css2?family=Jockey+One&display=swap"
-          rel="stylesheet"
-        />
       </head>
       <body>
         {/* Wrap the children in the SearchProvider */}
