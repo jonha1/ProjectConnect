@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, Suspense } from 'react';
 import Navbar from "../../components/navbar";
 import "../../styles/account.page.css";
 import Postcard from "../../components/post_card";
@@ -61,6 +61,41 @@ function AutoResizeTextarea({ placeholder, value, onChange }: AutoResizeTextarea
   );
 }
 
+function AccountContent({ setActiveTab, activeTab }: { setActiveTab: React.Dispatch<React.SetStateAction<string>>, activeTab: string }) {
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    const queryTab = searchParams.get("query");
+    if (queryTab === "bookmark") {
+      setActiveTab("bookmarks");
+    }
+  }, [searchParams, setActiveTab]);
+
+  return (
+    <div className="tabs">
+      <div
+        className={`tab ${activeTab === "created" ? "activeTab" : ""}`}
+        onClick={() => setActiveTab("created")}
+      >
+        Created Projects
+      </div>
+      <div
+        className={`tab ${activeTab === "joined" ? "activeTab" : ""}`}
+        onClick={() => setActiveTab("joined")}
+      >
+        Joined Projects
+      </div>
+      <div
+        className={`tab ${activeTab === "bookmarks" ? "activeTab" : ""}`}
+        onClick={() => setActiveTab("bookmarks")}
+      >
+        Bookmarks
+      </div>
+    </div>
+  );
+}
+
+
 export default function Account() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState("created"); // Default to "created"
@@ -80,27 +115,10 @@ export default function Account() {
 
   const [isLoading, setIsLoading] = useState(true);
 
-  const searchParams = useSearchParams();
-
   const openEditModal = () => setIsEditModalVisible(true);
   const closeEditModal = () => setIsEditModalVisible(false);
   const showLogoutModal = () => setLogoutModalVisible(true);
   const hideLogoutModal = () => setLogoutModalVisible(false);
-
-  useEffect(() => {
-    const searchParams = new URLSearchParams(window.location.search);
-    const queryTab = searchParams.get("query");
-    if (queryTab === "bookmark") {
-      setActiveTab("bookmarks");
-    }
-  }, []); 
-
-  useEffect(() => {
-    const queryTab = searchParams.get("query");
-    if (queryTab === "bookmark") {
-      setActiveTab("bookmarks");
-    }
-  }, [searchParams]);
 
   useEffect(() => {
     const searchParams = new URLSearchParams(window.location.search);
@@ -321,7 +339,6 @@ export default function Account() {
   return (
     <div className="wrapper">
       <Navbar />
-
       <div className="contentContainer">
         <div className="sidePanel">
           <div className="displayName">{displayName}</div>
@@ -438,28 +455,10 @@ export default function Account() {
       </div>
 
       <div className="mainContent">
-        <div className={`tabs`}>
-          <div
-            className={activeTab === "created" ? "activeTab" : ""}
-            onClick={() => setActiveTab("created")}
-          >
-            Created Projects
-          </div>
-          <div
-            className={activeTab === "joined" ? "activeTab" : ""}
-            onClick={() => setActiveTab("joined")}
-          >
-            Joined Projects
-          </div>
-          {isOwner && 
-            <div
-              className={activeTab === "bookmarks" ? "activeTab" : ""}
-              onClick={() => setActiveTab("bookmarks")}
-            >
-              Bookmarks
-            </div>
-          }   
-        </div>
+        <Suspense fallback={<div>Loading tabs...</div>}>
+          <AccountContent setActiveTab={setActiveTab} activeTab={activeTab} />
+        </Suspense>
+
 
         <div className="projects">
           {activeTab === "created" && (
