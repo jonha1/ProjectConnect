@@ -657,21 +657,31 @@ export default function ProjectView() {
           )}
           {isDeleteModalVisible && (
             <div
-              className="modal-overlay"
+              className="modal fade show"
               role="dialog"
               tabIndex={-1}
+              style={{
+                display: "block",
+                position: "fixed",
+                top: 0,
+                left: 0,  
+                width: "100%",
+                height: "100%",
+                backgroundColor: "rgba(0, 0, 0, 0.5)", 
+                zIndex: 1040,
+              }}
+              aria-hidden={!isDeleteModalVisible}
               aria-labelledby="deleteModal"
             >
-              <div className="modal-dialog">
+              <div className="modal-dialog" role="document">
                 <div className="modal-content">
                   <div className="modal-header">
-                    <h5 className="modal-title">Confirm Delete</h5>
+                    <h5 className="modal-title" id="deleteModal">
+                      Confirm Delete
+                    </h5>
                   </div>
                   <div className="modal-body">
-                    <p>
-                      Are you sure you want to delete this post? This action cannot be
-                      undone.
-                    </p>
+                    Are you sure you want to delete this project? This action cannot be undone.
                   </div>
                   <div className="modal-footer">
                     <button
@@ -683,7 +693,7 @@ export default function ProjectView() {
                     </button>
                     <button
                       type="button"
-                      className="btn btn-danger"
+                      className="leaveButton"
                       onClick={handleDeleteProject}
                     >
                       Delete
