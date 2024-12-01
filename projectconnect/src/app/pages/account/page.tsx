@@ -1,11 +1,9 @@
 "use client";
-import React, { useEffect } from 'react';
-import { useState } from "react";
+import React, { useEffect, useState } from 'react';
 import Navbar from "../../components/navbar";
 import "../../styles/account.page.css";
 import Postcard from "../../components/post_card";
 import styles from "../../styles/searchpage.module.css";
-import { useSearchParams } from "next/navigation";
 import { getUsernameFromCookie } from "../../lib/cookieUtils";
 import { faPencil } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -64,9 +62,7 @@ function AutoResizeTextarea({ placeholder, value, onChange }: AutoResizeTextarea
 
 export default function Account() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const initialTab = searchParams.get("query") === "bookmark" ? "bookmarks" : "created";
-  const [activeTab, setActiveTab] = useState(initialTab);
+  const [activeTab, setActiveTab] = useState("created"); // Default to "created"
   const [username, setUsername] = useState("");
   const [displayName, setDisplayName] = useState("Loading...");
   const [aboutMe, setAboutMe] = useState("Loading...");
@@ -88,6 +84,14 @@ export default function Account() {
   const closeEditModal = () => setIsEditModalVisible(false);
   const showLogoutModal = () => setLogoutModalVisible(true);
   const hideLogoutModal = () => setLogoutModalVisible(false);
+
+  useEffect(() => {
+    const searchParams = new URLSearchParams(window.location.search);
+    const queryTab = searchParams.get("query");
+    if (queryTab === "bookmark") {
+      setActiveTab("bookmarks");
+    }
+  }, []); 
 
 
   useEffect(() => {

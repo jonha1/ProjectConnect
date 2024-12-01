@@ -11,7 +11,6 @@ from project_flask.models.bookmark import Bookmark
 from project_flask.models.notification import Notification
 from project_flask.models.user import User
 
-
 load_dotenv()
 app = Flask(__name__)
 CORS(app)
