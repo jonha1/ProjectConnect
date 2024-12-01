@@ -32,6 +32,7 @@ interface TransformedNotification {
 export default function Navbar() {
   const [notifications, setNotifications] = useState<TransformedNotification[]>([]);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [hideBookmark, setHideBookmark] = useState(false);
   const router = useRouter();
 
   // Helper function to normalize string | null to string | undefined
@@ -40,6 +41,12 @@ export default function Navbar() {
   useEffect(() => {
     const cookieUsername = normalizeString(getUsernameFromCookie()); // Normalize cookie username
     fetchNotifs(cookieUsername);
+    const currentPath = window.location.pathname;
+    if (currentPath === "/account") {
+      setHideBookmark(true);
+    } else {
+      setHideBookmark(false);
+    }
   }, []);
 
   // Fetch notifications for the logged-in user
@@ -127,11 +134,13 @@ export default function Navbar() {
                   <FontAwesomeIcon icon={faPlus} />
                 </a>
               </li>
-              <li className="nav-item" key="bookmark-icon">
-                <a className="nav-link navbarComponent" onClick={handleBookmarkClick}>
-                  <FontAwesomeIcon icon={faBookmark} />
-                </a>
-              </li>
+              {!hideBookmark && ( // Conditionally render the bookmark button
+                <li className="nav-item">
+                  <a className="nav-link navbarComponent" onClick={handleBookmarkClick}>
+                    <FontAwesomeIcon icon={faBookmark} />
+                  </a>
+                </li>
+              )}
               <li
                 className="nav-item"
                 key="bell-icon"
