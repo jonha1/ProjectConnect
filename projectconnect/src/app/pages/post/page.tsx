@@ -9,6 +9,7 @@ import "../../styles/project_view.css";
 import { getUsernameFromCookie } from "../../lib/cookieUtils";
 import Cookies from "js-cookie";
 
+
 // Define the type for project details
 interface ProjectDetails {
   creatorusername: string;
@@ -99,7 +100,7 @@ export default function ProjectView() {
       let projectTitle = urlParams.get("title");
       setTitle(projectTitle);
       if (projectTitle) {
-        projectTitle = projectTitle.replace(/-/g, " ");
+        projectTitle = decodeURIComponent(projectTitle);
       }
       fetchProjectInformation(creator, projectTitle);
       verifyBookmark(creator, projectTitle, cookieUsername); // Pass `cookieUsername` as `string | null`
