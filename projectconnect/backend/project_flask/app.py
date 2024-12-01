@@ -345,7 +345,7 @@ def update_user_info():
     about_me = data.get("aboutMe")
 
     user = User(username=username, displayName=None, loginEmail=None, password=None, aboutMe=about_me, contactInfo=contact_info, skills=skills)
-    result = user.updateUserInfo(username, contact_info, skills, about_me)
+    result = user.updateUserInfo(contact_info, skills, about_me)
 
     if result["status"] == "success":
         return jsonify(result), 200
