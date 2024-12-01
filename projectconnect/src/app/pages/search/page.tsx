@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Navbar from "../../components/navbar";
 import Searchbar from "../../components/searchbar";
 import Postcard from "../../components/post_card";
@@ -18,7 +18,7 @@ export default function Search() {
   const [posts, setPosts] = useState<Post[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  const fetchProjects = async () => {
+  const fetchProjects = useCallback(async () => {
     try {
       const response = await fetch("http://localhost:5001/findProjects", {
         method: "POST",
@@ -28,7 +28,7 @@ export default function Search() {
         },
         body: JSON.stringify({
           searchQuery: searchText.trim(),
-          tag: tag.trim(), 
+          tag: tag.trim(),
         }),
       });
 
@@ -53,11 +53,12 @@ export default function Search() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [searchText, tag]); // Include searchText and tag as dependencies
 
   useEffect(() => {
     fetchProjects();
-  }, [searchText, tag]); // Add tag as a dependency
+  }, [fetchProjects]); // Add fetchProjects as a dependency
+
 
   if (isLoading) {
     return (
