@@ -7,6 +7,7 @@ import Postcard from "../../components/post_card";
 import { useSearchContext } from "../../context/SearchContext";
 import styles from "../../styles/searchpage.module.css";
 
+
 interface Post {
   postName: string;
   postInfo: string;
