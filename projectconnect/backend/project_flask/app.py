@@ -119,21 +119,21 @@ def update_profile_from_edit():
         print(f"Error updating profile: {e}")
         return jsonify({"status": "error", "message": str(e)}), 500
 
-@app.route('/api/join-project', methods=['POST'])
-def join_project():
-    data = request.json
-    username = data.get("username")
-    project_title = data.get("project_title")
+# @app.route('/api/join-project', methods=['POST'])
+# def join_project():
+#     data = request.json
+#     username = data.get("username")
+#     project_title = data.get("project_title")
 
-    if not username or not project_title:
-        return jsonify({"error": "Missing username or project title"}), 400
+#     if not username or not project_title:
+#         return jsonify({"error": "Missing username or project title"}), 400
 
-    result = User.join_project(username, project_title)
+#     result = User.join_project(username, project_title)
 
-    if "error" in result:
-        return jsonify(result), 400
-    else:
-        return jsonify(result), 201
+#     if "error" in result:
+#         return jsonify(result), 400
+#     else:
+#         return jsonify(result), 201
 
 @app.route('/delete-project', methods=['POST'])
 def delete_project():
@@ -159,7 +159,7 @@ def getEmailByUser():
     try:
         print(f"Attempting to fetch email for username: {username}")
         
-        user = Account(username=username, displayName=None, loginEmail=None, password=None)
+        user = User(username=username, displayName=None, loginEmail=None, password=None, aboutMe=None, contactInfo=None, skills=None)
         
         email_result = user.get_email_by_username()
 
@@ -345,7 +345,8 @@ def update_user_info():
     skills = data.get("skills")
     about_me = data.get("aboutMe")
 
-    result = User.updateUserInfo(username, contact_info, skills, about_me)
+    user = User(username=username, displayName=None, loginEmail=None, password=None, aboutMe=about_me, contactInfo=contact_info, skills=skills)
+    result = user.updateUserInfo(username, contact_info, skills, about_me)
 
     if result["status"] == "success":
         return jsonify(result), 200

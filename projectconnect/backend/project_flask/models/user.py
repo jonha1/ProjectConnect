@@ -213,7 +213,6 @@ class User:
             return {"status": "error", "message": str(e)}
 
     def updateUserInfo(self, contact_info, skills, about_me):
-        """Update multiple user details at once."""
         try:
             with self.get_db_connection() as conn:
                 with conn.cursor() as cursor:
