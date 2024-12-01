@@ -12,12 +12,12 @@
 ],
 "routes": [
     {
-    "src": "/backend/project_flask/(.*)",
+    "src": "/(.*)",
     "dest": "backend/project_flask/app.py"
     },
     {
     "src": "/(.*)", 
-    "dest": "frontend/$1"  
+    "dest": "src/app/$1"  
     }
 ]
 }
