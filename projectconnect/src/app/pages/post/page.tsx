@@ -9,6 +9,8 @@ import "../../styles/project_view.css";
 import { getUsernameFromCookie } from "../../lib/cookieUtils";
 import Cookies from "js-cookie";
 
+
+
 // Define the type for project details
 interface ProjectDetails {
   creatorusername: string;
