@@ -9,7 +9,7 @@
     "src": "backend/project_flask/app.py",
     "use": "@vercel/python",
     "config": {
-        "installCommand": "pip install -r requirements.txt"
+        "installCommand": "pip install --upgrade pip && pip install -r backend/project_flask/requirements.txt"
       }
     }  
 ],
