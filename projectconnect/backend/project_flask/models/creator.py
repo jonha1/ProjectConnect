@@ -1,8 +1,8 @@
 import os
 import psycopg2
 from psycopg2.extras import RealDictCursor
-from project_flask.models.member import Member
-from project_flask.models.project import Project
+from models.member import Member
+from models.project import Project
 
 
 class Creator(Member):
