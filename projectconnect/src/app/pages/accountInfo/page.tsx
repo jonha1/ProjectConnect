@@ -15,7 +15,7 @@ function AutoResizeTextarea({
 }) {
   const handleChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
     const textarea = event.target;
-    textarea.style.height = "auto"; 
+    textarea.style.height = "auto";
     textarea.style.height = `${textarea.scrollHeight}px`;
     onChange(textarea.value);
   };
@@ -60,6 +60,11 @@ export default function Createpost() {
     }
   }, [router]);
 
+  const isProduction =
+    window.location.hostname !== "localhost" &&
+    window.location.hostname !== "127.0.0.1";
+  const apiUrl = isProduction ? "/api" : "http://127.0.0.1:5001/api";
+
   // Update state when input changes
   const handleInputChange = (field: string, value: string) => {
     setFormData((prev) => ({
@@ -70,22 +75,22 @@ export default function Createpost() {
 
   // Submit form data to backend
   const handleSubmit = async (event: React.FormEvent) => {
-    event.preventDefault(); 
-    console.log(storedUsername)
+    event.preventDefault();
+    console.log(storedUsername);
     if (!storedUsername) {
       console.error("No username found in cookies.");
       return;
     }
 
     try {
-      const response = await fetch("http://127.0.0.1:5001/api/updateUserInfo", {
+      const response = await fetch(`${apiUrl}/updateUserInfo`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
           ...formData,
-          username: storedUsername, 
+          username: storedUsername,
         }),
       });
 
@@ -109,7 +114,7 @@ export default function Createpost() {
         </div>
 
         <form className="formInput" onSubmit={handleSubmit}>
-        <AutoResizeTextarea
+          <AutoResizeTextarea
             placeholder="About Me"
             value={formData.aboutMe}
             onChange={(value) => handleInputChange("aboutMe", value)}
