@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useState, ReactNode } from "react";
+import React, { createContext, useContext, useState, ReactNode, useEffect } from "react";
 
 // Define the shape of the context data
 interface SearchContextType {
@@ -17,6 +17,15 @@ const SearchContext = createContext<SearchContextType | undefined>(undefined);
 export const SearchProvider = ({ children }: { children: ReactNode }) => {
   const [searchText, setSearchText] = useState<string>("");
   const [tag, setTag] = useState<string>("");
+  const [isHydrated, setIsHydrated] = useState(false);
+
+  useEffect(() => {
+    setIsHydrated(true);
+  }, []);
+
+  if (!isHydrated) {
+    return null; // Render nothing until hydration is complete
+  }
 
   return (
     <SearchContext.Provider value={{ searchText, setSearchText, tag, setTag }}>
