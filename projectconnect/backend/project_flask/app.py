@@ -3,13 +3,13 @@ import psycopg2
 from psycopg2.extras import RealDictCursor
 from dotenv import load_dotenv
 from flask import Flask, request, jsonify, make_response
-from project_flask.models.account import Account
-from project_flask.models.member import Member
-from project_flask.models.creator import Creator
-from project_flask.models.project import Project
-from project_flask.models.bookmark import Bookmark
-from project_flask.models.notification import Notification
-from project_flask.models.user import User
+from .models.account import Account
+from .models.member import Member
+from .models.creator import Creator
+from models.project import Project
+from .models.bookmark import Bookmark
+from .models.notification import Notification
+from .models.user import User
 import os
 
 load_dotenv()
