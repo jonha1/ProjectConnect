@@ -14,17 +14,10 @@ interface Post {
   creatorName: string;
 }
 
-export const dynamic = "force-dynamic";
-
 export default function Search() {
   const { searchText, tag, setSearchText } = useSearchContext(); // Include setTag
   const [posts, setPosts] = useState<Post[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    console.log("Search context in production:", { searchText, tag });
-  }, [searchText, tag]);
-  
 
   const fetchProjects = useCallback(async () => {
     try {
