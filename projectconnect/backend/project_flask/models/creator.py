@@ -8,16 +8,16 @@ from project_flask.models.project import Project
 class Creator(Member):
     def __init__(self, username, displayName, loginEmail, password, aboutMe, contactInfo, skills):
         super().__init__(username, displayName, loginEmail, password, aboutMe, contactInfo, skills)
-
+            
     def get_db_connection():
         return psycopg2.connect(
             os.getenv("DATABASE_URL"),
             cursor_factory=RealDictCursor
         )
     
-    def deleteProject(creatorusername, title):
+    def deleteProject(self, title):
         project = Project(
-            creatorusername = creatorusername,
+            creatorusername = self.username,
             title = title,
             description = None,
             links = None,
@@ -29,11 +29,15 @@ class Creator(Member):
             isarchived = None,
             tag = None
         )
-        return project.deleteProject()
+        try:
+            return project.deleteProject()
+        except Exception as e:
+            print(f"Error in Creator.deleteProject for title '{title}' by '{self.username}': {e}")
+            return {"error": f"An unexpected error occurred: {str(e)}"}
 
-    def archiveProject(creatorusername, title):
+    def archiveProject(self, title):
         project = Project(
-            creatorusername = creatorusername,
+            creatorusername = self.username,
             title = title,
             description = None,
             links = None,
@@ -45,11 +49,16 @@ class Creator(Member):
             isarchived = None,
             tag = None
         )
-        return project.archiveProject()
+        try:
+            return project.archiveProject()
+        except Exception as e:
+            print(f"Error in Creator.archiveProject for title '{title}' by '{self.username}': {e}")
+            return {"error": f"An unexpected error occurred: {str(e)}"}
+
     
-    def unarchiveProject(creatorusername, title):
+    def unarchiveProject(self, title):
         project = Project(
-            creatorusername = creatorusername,
+            creatorusername = self.username,
             title = title,
             description = None,
             links = None,
@@ -61,10 +70,13 @@ class Creator(Member):
             isarchived = None,
             tag = None
         )
-        return project.unarchiveProject()
-
-    @staticmethod
-    def editPost(creatorusername, title, new_details):
+        try:
+            return project.unarchiveProject()
+        except Exception as e:
+            print(f"Error in Creator.unarchiveProject for title '{title}' by '{self.username}': {e}")
+            return {"error": f"An unexpected error occurred: {str(e)}"}
+        
+    def editPost(self, title, new_details):
         try:
             with Creator.get_db_connection() as conn:
                 with conn.cursor() as cursor:
@@ -72,11 +84,11 @@ class Creator(Member):
                     cursor.execute("""
                         SELECT * FROM projects
                         WHERE creatorusername = %s AND title = %s;
-                    """, (creatorusername, title))
+                    """, (self.username, title))
                     project = cursor.fetchone()
 
                     if not project:
-                        return {"error": f"Project '{title}' by '{creatorusername}' does not exist."}
+                        return {"error": f"Project '{title}' by '{self.username}' does not exist."}
 
                     # Update the project with new details
                     update_fields = []
@@ -94,7 +106,7 @@ class Creator(Member):
                             WHERE creatorusername = %s AND title = %s
                             RETURNING *;
                         """
-                        cursor.execute(query, update_values + [creatorusername, title])
+                        cursor.execute(query, update_values + [self.username, title])
                         updated_project = cursor.fetchone()
                         conn.commit()
 
@@ -103,12 +115,10 @@ class Creator(Member):
                         return {"error": "No new details provided to update."}
 
         except Exception as e:
-            print(f"Error updating project '{title}' by '{creatorusername}': {e}")
+            print(f"Error updating project '{title}' by '{self.username}': {e}")
             return {"error": f"An error occurred: {str(e)}"}
 
-
     def createProject(self, title, description, tag, links, contact, memberDescription, memberLinks, memberContact):
-        try:
             project = Project(
                 creatorusername = self.username,
                 title = title,
@@ -122,20 +132,19 @@ class Creator(Member):
                 isarchived = None,
                 tag = tag,
             )
+            try:
             # Delegate project creation to the Project class
-            project_result = project.buildProject()
+                project_result = project.buildProject()
 
-            if "error" in project_result:
-                return project_result  # Return any errors from the Project class
+                if "error" in project_result:
+                    return project_result  # Return any errors from the Project class
 
-            return {
-                "status": "success",
-                "message": f"Project '{title}' created successfully.",
-                "project": project_result.get("project"),
-            }
+                return {
+                    "status": "success",
+                    "message": f"Project '{title}' created successfully.",
+                    "project": project_result.get("project"),
+                }
 
-        except Exception as e:
-            print(f"Error in createProject: {e}")
-
-            return {"error": f"Failed to create project: {str(e)}"}
-
+            except Exception as e:
+                print(f"Error in createProject: {e}")
+                return {"error": f"Failed to create project: {str(e)}"}
