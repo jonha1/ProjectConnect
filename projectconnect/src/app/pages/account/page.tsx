@@ -193,7 +193,7 @@ export default function Account() {
       setSkills("Username not found.");
       setIsLoading(false);
     }
-  }, []);
+  }, [isOwner]);
 
 
 
