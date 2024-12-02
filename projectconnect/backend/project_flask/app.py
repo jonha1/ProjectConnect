@@ -139,12 +139,24 @@ def delete_project():
     data = request.json
     creatorusername = data.get("creatorusername")
     title = data.get("title")
-    print(title, creatorusername)
-    result = Creator.deleteProject(creatorusername, title)
+    if not creatorusername or not title:
+        return jsonify({"error": "Missing creatorusername or title"}), 400
+    
+    creator = Creator(
+        username=creatorusername,
+        displayName=None,
+        loginEmail=None,
+        password= None,
+        aboutMe= None,
+        contactInfo=None,
+        skills=None
+    )
+
+    result = creator.deleteProject(title)
+    
     if "error" in result:
         return jsonify(result), 400  # 400 for bad request (like duplicate entry)
-    else:
-        return jsonify(result), 201  # 201 for successful creation
+    return jsonify(result), 201  # 201 for successful creation
         
 @app.route('/getEmailByUser', methods=['POST'])
 def getEmailByUser():
@@ -351,8 +363,7 @@ def update_user_info():
         return jsonify(result), 200
     else:
         return jsonify(result), 400 if result.get("message") == "Username is required" else 500
-    
-# Project API's
+#ProjectAPI
 @app.route('/buildProject', methods=['POST'])
 def buildProject():
     data = request.json
@@ -366,9 +377,11 @@ def buildProject():
     memberDescription= data.get('memberDescription', None)
     memberLinks= data.get('memberLinks', None)
     memberContact= data.get('memberContact', None)
-    if not all([creatorusername, title, description, tag]):
+
+    required_fields = ['creatorusername', 'title', 'description', 'tag']
+    if not all(field in data for field in required_fields):
         return jsonify({"error": "Missing required fields: 'creatorusername', 'title', 'description', or 'tag'"}), 400
-   
+
     creator = Creator(
         username=creatorusername,
         displayName= None,
@@ -385,8 +398,7 @@ def buildProject():
     # Check if the result is an error
     if "error" in result:
         return jsonify(result), 400  # 400 for bad request (like duplicate entry)
-    else:
-        return jsonify(result), 201  # 201 for successful creation
+    return jsonify(result), 201  # 201 for successful creation
     
 @app.route('/getProjectInfo', methods=['POST', 'OPTIONS'])
 def getProjectInfo():
@@ -431,14 +443,22 @@ def archiveProject():
 
     if not creatorusername or not title:
         return jsonify({"error": "Missing creatorusername or title"}), 400
-
-    result = Creator.archiveProject(creatorusername, title)
+ 
+    creator = Creator(
+        username=creatorusername,
+        displayName=None,
+        loginEmail=None,
+        password= None,
+        aboutMe= None,
+        contactInfo=None,
+        skills=None
+    )
+    result = creator.archiveProject(title)
 
     # Check if the result is an error
     if "error" in result:
         return jsonify(result), 400  # 400 for bad request (like duplicate entry)
-    else:
-        return jsonify(result), 201  # 201 for successful creation
+    return jsonify(result), 201  # 201 for successful creation
     
 @app.route('/unarchiveProject', methods=['POST'])
 def unarchiveProject():
@@ -446,7 +466,16 @@ def unarchiveProject():
     creatorusername = data.get('creatorusername')
     title = data.get('title')
 
-    result = Creator.unarchiveProject(creatorusername, title)
+    creator = Creator(
+        username=creatorusername,
+        displayName=None,
+        loginEmail=None,
+        password= None,
+        aboutMe= None,
+        contactInfo=None,
+        skills=None
+    )
+    result = creator.unarchiveProject(title)
 
     # Check if the result is an error
     if "error" in result:
@@ -573,12 +602,21 @@ def edit_project():
     if not creatorusername or not title or not new_details:
         return jsonify({"error": "Missing required fields"}), 400
 
-    result = Creator.editPost(creatorusername, title, new_details)
+    creator = Creator(
+        username=creatorusername,
+        displayName=None,
+        loginEmail=None,
+        password= None,
+        aboutMe= None,
+        contactInfo=None,
+        skills=None
+    )
+    result = creator.editPost(title, new_details)
 
     if "error" in result:
         return jsonify(result), 400
-    else:
-        return jsonify(result), 200
+    return jsonify(result), 200
+    
 @app.route('/projects/by_member', methods=['POST'])
 def get_projects_by_member():
     data = request.json
