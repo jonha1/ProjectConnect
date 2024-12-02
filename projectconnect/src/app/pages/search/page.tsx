@@ -21,7 +21,13 @@ export default function Search() {
 
   const fetchProjects = useCallback(async () => {
     try {
-      const response = await fetch("http://localhost:5001/findProjects", {
+      const isProduction =
+        window.location.hostname !== "localhost" && window.location.hostname !== '127.0.0.1';
+        const apiUrl = isProduction
+          ? "/api"
+          : "http://127.0.0.1:5001/api";
+
+      const response = await fetch(`${apiUrl}/findProjects`, {
         method: "POST",
         credentials: "include",
         headers: {

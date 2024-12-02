@@ -133,7 +133,13 @@ export default function ProjectView() {
   if (!memberusername || !creator || !projectTitle) return;
 
   try {
-    const response = await fetch("http://localhost:5001/verifyMembership", {
+    const isProduction =
+        window.location.hostname !== "localhost" && window.location.hostname !== '127.0.0.1';
+        const apiUrl = isProduction
+          ? "/api"
+          : "http://127.0.0.1:5001/api";
+
+    const response = await fetch(`${apiUrl}/verifyMembership`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -178,7 +184,13 @@ export default function ProjectView() {
     if (!creator || !projectTitle) return;
     
     try {
-      const response = await fetch("http://localhost:5001/getProjectInfo", {
+      const isProduction =
+        window.location.hostname !== "localhost" && window.location.hostname !== '127.0.0.1';
+        const apiUrl = isProduction
+          ? "/api"
+          : "http://127.0.0.1:5001/api";
+
+      const response = await fetch(`${apiUrl}/getProjectInfo`, {
         method: "POST",
         credentials: "include",
         headers: {
@@ -205,9 +217,15 @@ export default function ProjectView() {
 
   const verifyBookmark = async (creator: string | null, projectTitle: string | null, user: string | null) => {
     try {
+      const isProduction =
+        window.location.hostname !== "localhost" && window.location.hostname !== '127.0.0.1';
+        const apiUrl = isProduction
+          ? "/api"
+          : "http://127.0.0.1:5001/api";
+
         // Ensure projectTitle is not null, use a default value if it is
         const sanitizedTitle = projectTitle ? projectTitle.replace(/-/g, " ") : "";
-        const response = await fetch("http://localhost:5001/verifyBookmark", {
+        const response = await fetch(`${apiUrl}/verifyBookmark`, {
             method: "POST",
             credentials: "include",
             headers: {
@@ -233,8 +251,14 @@ export default function ProjectView() {
     const cookieUsername = getUsernameFromCookie();
     if (!creator || !projectTitle) return;
     try {
+      const isProduction =
+        window.location.hostname !== "localhost" && window.location.hostname !== '127.0.0.1';
+        const apiUrl = isProduction
+          ? "/api"
+          : "http://127.0.0.1:5001/api";
+
       const sanitizedTitle = projectTitle ? projectTitle.replace(/-/g, " ") : "";
-      const response = await fetch("http://localhost:5001/addBookmark", {
+      const response = await fetch(`${apiUrl}/addBookmark`, {
         method: "POST",
         credentials: "include",
         headers: {
@@ -259,8 +283,14 @@ export default function ProjectView() {
     const cookieUsername = getUsernameFromCookie();
     if (!creator || !projectTitle) return;
     try {
+      const isProduction =
+        window.location.hostname !== "localhost" && window.location.hostname !== '127.0.0.1';
+        const apiUrl = isProduction
+          ? "/api"
+          : "http://127.0.0.1:5001/api";
+
       const sanitizedTitle = projectTitle ? projectTitle.replace(/-/g, " ") : "";
-      const response = await fetch("http://localhost:5001/deleteBookmark", {
+      const response = await fetch(`${apiUrl}/deleteBookmark`, {
         method: "POST",
         credentials: "include",
         headers: {
@@ -298,7 +328,13 @@ export default function ProjectView() {
     const { creatorusername, title } = projectDetails;
 
     try {
-      const response = await fetch("http://localhost:5001/delete-project", {
+      const isProduction =
+        window.location.hostname !== "localhost" && window.location.hostname !== '127.0.0.1';
+        const apiUrl = isProduction
+          ? "/api"
+          : "http://127.0.0.1:5001/api";
+
+      const response = await fetch(`${apiUrl}/delete-project`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -330,10 +366,16 @@ export default function ProjectView() {
     if (!projectDetails) return;
   
     try {
+      const isProduction =
+        window.location.hostname !== "localhost" && window.location.hostname !== '127.0.0.1';
+        const apiUrl = isProduction
+          ? "/api"
+          : "http://127.0.0.1:5001/api";
+
       // Determine the API endpoint based on the current archived status
       const apiEndpoint = projectDetails.isarchived
-        ? "http://localhost:5001/unarchiveProject"
-        : "http://localhost:5001/archiveProject";
+        ? `${apiUrl}/unarchiveProject`
+        : `${apiUrl}/archiveProject`;
   
       // Make the API call to toggle the archive status
       const toggleResponse = await fetch(apiEndpoint, {
@@ -371,8 +413,14 @@ export default function ProjectView() {
     try {
         // Ensure projectTitle is not null, use a default value if it is
         const sanitizedTitle = projectTitle ? projectTitle.replace(/-/g, " ") : "";
+        
+        const isProduction =
+        window.location.hostname !== "localhost" && window.location.hostname !== '127.0.0.1';
+        const apiUrl = isProduction
+          ? "/api"
+          : "http://127.0.0.1:5001/api";
 
-        const response = await fetch("http://localhost:5001/verifyNotif", {
+        const response = await fetch(`${apiUrl}/verifyNotif`, {
             method: "POST",
             credentials: "include",
             headers: {
@@ -398,7 +446,13 @@ export default function ProjectView() {
     try {
         const sanitizedTitle = projectTitle.replace(/-/g, " "); // Safe to call .replace now
 
-        const response = await fetch("http://localhost:5001/sendNotification", {
+        const isProduction =
+        window.location.hostname !== "localhost" && window.location.hostname !== '127.0.0.1';
+        const apiUrl = isProduction
+          ? "/api"
+          : "http://127.0.0.1:5001/api";
+
+        const response = await fetch(`${apiUrl}/sendNotification`, {
             method: "POST",
             credentials: "include",
             headers: {
@@ -429,7 +483,13 @@ export default function ProjectView() {
     const currentUsername = Cookies.get("username");
   
     try {
-      const response = await fetch("http://localhost:5001/api/leave-project", {
+      const isProduction =
+        window.location.hostname !== "localhost" && window.location.hostname !== '127.0.0.1';
+        const apiUrl = isProduction
+          ? "/api"
+          : "http://127.0.0.1:5001/api";
+
+      const response = await fetch(`${apiUrl}/leave-project`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -488,8 +548,13 @@ export default function ProjectView() {
   
     try {
       const { creatorusername, title, ...updates } = tempProjectDetails;
-  
-      const response = await fetch("http://localhost:5001/updateProjectDetails", {
+      const isProduction =
+      window.location.hostname !== "localhost" && window.location.hostname !== '127.0.0.1';
+      const apiUrl = isProduction
+        ? "/api"
+        : "http://127.0.0.1:5001/api";
+
+      const response = await fetch(`${apiUrl}/updateProjectDetails`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

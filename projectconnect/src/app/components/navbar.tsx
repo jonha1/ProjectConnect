@@ -45,7 +45,13 @@ export default function Navbar() {
   // Fetch notifications for the logged-in user
   const fetchNotifs = async (user: string | undefined) => {
     try {
-      const response = await fetch("http://localhost:5001/retrieveNotifications", {
+      const isProduction =
+      window.location.hostname !== "localhost" && window.location.hostname !== '127.0.0.1';
+      const apiUrl = isProduction
+        ? "/api"
+        : "http://127.0.0.1:5001/api";
+
+      const response = await fetch(`${apiUrl}/retrieveNotifications`, {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
@@ -74,7 +80,13 @@ export default function Navbar() {
   // Accept a notification
   const acceptNotifs = async (notifId: number) => {
     try {
-      const response = await fetch("http://localhost:5001/acceptNotification", {
+      const isProduction =
+      window.location.hostname !== "localhost" && window.location.hostname !== '127.0.0.1';
+      const apiUrl = isProduction
+        ? "/api"
+        : "http://127.0.0.1:5001/api";
+      
+      const response = await fetch(`${apiUrl}/acceptNotification"`, {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
@@ -91,7 +103,13 @@ export default function Navbar() {
   // Remove a notification from the server and locally
   const rejectNotifs = async (notifId: number) => {
     try {
-      const response = await fetch("http://localhost:5001/rejectNotification", {
+      const isProduction =
+      window.location.hostname !== "localhost" && window.location.hostname !== '127.0.0.1';
+      const apiUrl = isProduction
+        ? "/api"
+        : "http://127.0.0.1:5001/api";
+      
+      const response = await fetch(`${apiUrl}/rejectNotification"`, {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
