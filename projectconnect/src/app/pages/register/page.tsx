@@ -23,17 +23,21 @@ export default function Register() {
       [name]: value,
     }));
   };
-
+  //validate all fields are entered to create account
   const handleRegister = async () => {
     if (!formData.email || !formData.username  || !formData.displayname || !formData.password || !formData.confirmPassword) {
       setError('All fields are required.');
       return;
     }
-    if (formData.password !== formData.confirmPassword) {
+    if (formData.password !== formData.confirmPassword) { //VALIDATE PASSWORDS
       setError('Passwords do not match. Please re-enter.');
       return;
     }
-
+    // Validate username for spaces
+    if (formData.username.trim() !== formData.username || formData.username.includes(' ')) {
+      setError('Username cannot contain spaces.');
+      return;
+    }
     setError('');
     try {
       //change
