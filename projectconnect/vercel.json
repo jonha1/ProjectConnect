@@ -2,13 +2,16 @@
 "version": 2,
 "builds": [
     {
-    "src": "package.json",  
+    "src": "package.json", 
     "use": "@vercel/next" 
     },
     {
     "src": "backend/project_flask/app.py",
-    "use": "@vercel/python"
-    }
+    "use": "@vercel/python",
+    "config": {
+        "installCommand": "pip install -r requirements.txt"
+      }
+    }  
 ],
 "routes": [
     {

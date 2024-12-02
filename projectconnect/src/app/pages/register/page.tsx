@@ -36,9 +36,11 @@ export default function Register() {
 
     setError('');
     try {
-      const apiUrl = process.env.NODE_ENV === 'production'
-        ? '/api/register' 
-        : 'http://127.0.0.1:5001/api/register'; 
+      //change
+      const isProduction = window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
+      const apiUrl = isProduction
+        ? '/api/register'
+        : 'http://127.0.0.1:5001/api/register';
 
       const response = await fetch(apiUrl, {
         method: 'POST',
