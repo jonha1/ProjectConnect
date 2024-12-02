@@ -89,7 +89,7 @@ export default function Navbar() {
         ? "/api"
         : "http://127.0.0.1:5001/api";
       
-      const response = await fetch(`${apiUrl}/acceptNotification"`, {
+      const response = await fetch(`${apiUrl}/acceptNotification`, {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
@@ -112,7 +112,7 @@ export default function Navbar() {
         ? "/api"
         : "http://127.0.0.1:5001/api";
       
-      const response = await fetch(`${apiUrl}/rejectNotification"`, {
+      const response = await fetch(`${apiUrl}/rejectNotification`, {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
