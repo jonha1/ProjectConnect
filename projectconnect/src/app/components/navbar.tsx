@@ -154,13 +154,18 @@ export default function Navbar() {
                       notifications.map((notification) => (
                         <div key={notification.id} className="notificationItem">
                           <div className="notificationText">
-                            {notification.type}:
+                            {["Join", "Invite"].includes(notification.type) 
+                              ? `${notification.type} Request From` 
+                              : `${notification.type} By`}
                             <br />
+                            <a> {"User: "} </a>
                             <a href={`/account?username=${notification.username}`} className="username">
                               {notification.username}
-                            </a>{" "}
+                            </a>
+                            <br />
+                            <a> {"Project:"} </a>
                             <a href={`/post?creator=${notification.creator}&title=${notification.project}`} className="projectName">
-                              ({notification.project})
+                              {notification.project}
                             </a>
                           </div>
                           <div className="iconContainer">
