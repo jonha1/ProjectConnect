@@ -19,6 +19,11 @@ export default function Search() {
   const [posts, setPosts] = useState<Post[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
+  useEffect(() => {
+    console.log("Search context in production:", { searchText, tag });
+  }, [searchText, tag]);
+  
+
   const fetchProjects = useCallback(async () => {
     try {
       const isProduction =
