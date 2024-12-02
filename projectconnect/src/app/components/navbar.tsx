@@ -14,6 +14,7 @@ import {
 import "../styles/navbar.modules.css";
 import "../styles/notifications.css"; 
 import { getUsernameFromCookie } from "../lib/cookieUtils";
+import { useSearchContext } from "../context/SearchContext"; 
 
 interface Notification {
   notificationid: string;
@@ -35,6 +36,7 @@ export default function Navbar() {
   const [notifications, setNotifications] = useState<TransformedNotification[]>([]);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const router = useRouter();
+  const { setSearchText, setTag } = useSearchContext();
 
   // Helper function to normalize string | null to string | undefined
   const normalizeString = (value: string | undefined): string | undefined => value ?? undefined;
@@ -134,11 +136,18 @@ export default function Navbar() {
     router.push("/account?query=bookmark");
   };
 
+  const handleHomeClick = (event: React.MouseEvent) => {
+    event.preventDefault(); // Prevent default link behavior
+    setSearchText(""); // Reset searchText
+    setTag(""); // Reset tag
+    router.push("/"); // Navigate to the homepage
+  };
+
   return (
     <div>
       <nav className="navbar navbar-expand-lg bg-body-tertiary navbarClass">
         <div className="container-fluid">
-          <a className="navbar-brand" href="/">
+          <a className="navbar-brand" onClick={handleHomeClick}>
             <h2 className="navbarTitle">ProjectConnect</h2>
           </a>
           <div className="collapse navbar-collapse" id="navbarNav">

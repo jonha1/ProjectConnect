@@ -9,6 +9,10 @@
     margin-left: 10px;
 }
 
+.navbarTitle:hover{
+    cursor: pointer;
+}
+
 .navbarComponent,
 .navbarComponent:hover, 
 .navbarComponent:focus, 
