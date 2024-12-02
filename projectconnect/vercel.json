@@ -9,7 +9,7 @@
     "src": "backend/project_flask/app.py",
     "use": "@vercel/python",
     "config": {
-        "installCommand": "pip install --upgrade pip && pip install -r backend/project_flask/requirements.txt"
+        "installCommand": "pip install --upgrade pip && pip install psycopg2-binary==2.9.6 && pip install -r backend/project_flask/requirements.txt"
       }
     }  
 ],
