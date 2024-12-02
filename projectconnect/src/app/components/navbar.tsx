@@ -20,6 +20,7 @@ interface Notification {
   messagetype: string;
   fromuserid: string;
   title: string;
+  creator: string
 }
 
 interface TransformedNotification {
@@ -27,6 +28,7 @@ interface TransformedNotification {
   type: string;
   username: string;
   project: string;
+  creator: string;
 }
 
 export default function Navbar() {
@@ -59,6 +61,7 @@ export default function Navbar() {
         type: item.messagetype,
         username: item.fromuserid,
         project: item.title,
+        creator: item.creator
       }));
       setNotifications(transformedData);
     } catch (error) {
@@ -153,10 +156,10 @@ export default function Navbar() {
                           <div className="notificationText">
                             {notification.type}:
                             <br />
-                            <a href={`/profile/${notification.username}`} className="username">
+                            <a href={`/account?username=${notification.username}`} className="username">
                               {notification.username}
                             </a>{" "}
-                            <a href={`/project/${notification.project}`} className="projectName">
+                            <a href={`/post?creator=${notification.creator}&title=${notification.project}`} className="projectName">
                               ({notification.project})
                             </a>
                           </div>

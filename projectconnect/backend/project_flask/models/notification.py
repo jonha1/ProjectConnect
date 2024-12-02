@@ -99,9 +99,18 @@ class Notification:
                         messageType = row['messagetype']
                         title = row['title']
                         notificationid = row['notificationid']
+                        creator = ''
+                        if messageType == 'Invite':
+                            creator = fromUser
+                        elif messageType == 'Join':
+                            creator = toUser
+                        elif "Invite Request" in messageType:
+                            creator = toUser
+                        elif "Join Request" in messageType:
+                            creator = creator = fromUser
                         notif_dict = {"notificationid":notificationid,
                         "title": title, "messagetype": messageType,
-                         "fromuserid": fromUser, "touserid": toUser};
+                         "fromuserid": fromUser, "touserid": toUser, "creator": creator};
                         allNotifs.append(notif_dict)
                     return allNotifs #list of tuples, each tuple is a row ex. [("Will", timestamp, "Green Energy", "alice")]
         except Exception as e:
