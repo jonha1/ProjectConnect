@@ -610,7 +610,7 @@ export default function ProjectView() {
                   <h2>Contact Information</h2>
                   <p>{projectDetails.contact || "No contact information"}</p>
                   <div className="spacer"></div>
-                  {userRole === "general" && (
+                  {userRole === "general" && !projectDetails.isarchived && (
                     <div className="buttonContainer">
                       <button className="requestJoinButton" 
                         onClick={(e) => {
