@@ -50,20 +50,25 @@ export default function Createpost() {
   // State to store username
   const [storedUsername, setStoredUsername] = useState<string | null>(null);
 
-  // Fetch username from cookies
+  // State for API URL
+  const [apiUrl, setApiUrl] = useState<string>("");
+
+  // Fetch username from cookies and set API URL
   useEffect(() => {
+    // Set username from cookies
     const username = Cookies.get("username");
     if (!username) {
       router.push("/login"); // Redirect to login if username is not found
     } else {
       setStoredUsername(username); // Store username in state
     }
-  }, [router]);
 
-  const isProduction =
-    window.location.hostname !== "localhost" &&
-    window.location.hostname !== "127.0.0.1";
-  const apiUrl = isProduction ? "/api" : "http://127.0.0.1:5001/api";
+    // Determine environment (client-side only)
+    const isProduction =
+      window.location.hostname !== "localhost" &&
+      window.location.hostname !== "127.0.0.1";
+    setApiUrl(isProduction ? "/api" : "http://127.0.0.1:5001/api");
+  }, [router]);
 
   // Update state when input changes
   const handleInputChange = (field: string, value: string) => {
