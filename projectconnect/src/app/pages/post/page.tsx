@@ -615,15 +615,22 @@ export default function ProjectView() {
                   <h2>Contact Information</h2>
                   <p>{projectDetails.contact || "No contact information"}</p>
                   <div className="spacer"></div>
-                  {userRole === "general" && !projectDetails.isarchived && (
+                  {userRole === "general" && (
                     <div className="buttonContainer">
-                      <button className="requestJoinButton" 
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          sendNotif(projectDetails.creatorusername,projectDetails.title, "Join");
-                          setRequestSent(true);
-                        }}
-                      > {requestSent ? "Requested" : "Request Join"} </button>
+                      {projectDetails.isarchived ? (
+                        <p className="archivedMessage">This project is currently archived</p>
+                      ) : (
+                        <button
+                          className="requestJoinButton"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            sendNotif(projectDetails.creatorusername, projectDetails.title, "Join");
+                            setRequestSent(true);
+                          }}
+                        >
+                          {requestSent ? "Requested" : "Request Join"}
+                        </button>
+                      )}
                     </div>
                   )}
                 </div>
