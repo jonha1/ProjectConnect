@@ -6,7 +6,7 @@ from flask import Flask, request, jsonify, make_response
 from .models.account import Account
 from .models.member import Member
 from .models.creator import Creator
-from models.project import Project
+from .models.project import Project
 from .models.bookmark import Bookmark
 from .models.notification import Notification
 from .models.user import User
