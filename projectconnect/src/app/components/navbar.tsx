@@ -20,6 +20,7 @@ interface Notification {
   messagetype: string;
   fromuserid: string;
   title: string;
+  creator: string
 }
 
 interface TransformedNotification {
@@ -27,6 +28,7 @@ interface TransformedNotification {
   type: string;
   username: string;
   project: string;
+  creator: string;
 }
 
 export default function Navbar() {
@@ -59,6 +61,7 @@ export default function Navbar() {
         type: item.messagetype,
         username: item.fromuserid,
         project: item.title,
+        creator: item.creator
       }));
       setNotifications(transformedData);
     } catch (error) {
@@ -151,13 +154,18 @@ export default function Navbar() {
                       notifications.map((notification) => (
                         <div key={notification.id} className="notificationItem">
                           <div className="notificationText">
-                            {notification.type}:
+                            {["Join", "Invite"].includes(notification.type) 
+                              ? `${notification.type} Request From` 
+                              : `${notification.type} By`}
                             <br />
-                            <a href={`/profile/${notification.username}`} className="username">
+                            <a> {"User: "} </a>
+                            <a href={`/account?username=${notification.username}`} className="username">
                               {notification.username}
-                            </a>{" "}
-                            <a href={`/project/${notification.project}`} className="projectName">
-                              ({notification.project})
+                            </a>
+                            <br />
+                            <a> {"Project:"} </a>
+                            <a href={`/post?creator=${notification.creator}&title=${notification.project}`} className="projectName">
+                              {notification.project}
                             </a>
                           </div>
                           <div className="iconContainer">
