@@ -6,6 +6,7 @@ from project_flask.models.user import User
 class Member(User):
     def __init__(self, username, displayName, loginEmail, password, aboutMe, contactInfo, skills):
         super().__init__(username, displayName, loginEmail, password, aboutMe, contactInfo, skills)
+        self.username = username
 
     @staticmethod
     def get_db_connection():
