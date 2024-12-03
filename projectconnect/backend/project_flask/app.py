@@ -96,7 +96,7 @@ def leave_project():
     else:
         return jsonify(result), 200
     
-## important ##
+## important  ##
 @app.route('/updateProfileFromEdit', methods=['POST'])
 def update_profile_from_edit():
     data = request.json
