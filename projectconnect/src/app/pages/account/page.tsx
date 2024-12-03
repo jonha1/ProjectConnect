@@ -137,7 +137,7 @@ export default function Account() {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ creatorusername: usernameToFetch }),
+          body: JSON.stringify({ creatorusername: usernameToFetch, includeArchive : isOwner  }),
         })
           .then((res) => res.json())
           .then((postsResult) => {
@@ -152,7 +152,7 @@ export default function Account() {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ username: usernameToFetch }),
+          body: JSON.stringify({ username: usernameToFetch, includeArchive : isOwner }),
         })
           .then((res) => res.json())
           .then((result) => {
@@ -199,7 +199,7 @@ export default function Account() {
       setSkills("Username not found.");
       setIsLoading(false);
     }
-  }, []);
+  }, [isOwner]);
 
 
 
@@ -469,16 +469,20 @@ export default function Account() {
           {activeTab === "created" && (
             <div className="createdProjects">
               <div className={styles.postContainer}>
-                {postsCreated.length > 0 ? (
-                  postsCreated.map((post, index) => (
-                    <Postcard
-                      key={index}
-                      postName={post.title}
-                      postInfo={post.description}
-                      creatorName={post.creatorusername}
-                      className={styles.postCard}
-                    />
-                  ))
+              {postsCreated
+                .filter((post) => isOwner || !post.isarchived) // Filter based on ownership
+                .length > 0 ? (
+                  postsCreated
+                    .filter((post) => isOwner || !post.isarchived) // Exclude archived for non-owners
+                    .map((post, index) => (
+                      <Postcard
+                        key={index}
+                        postName={post.title}
+                        postInfo={post.description}
+                        creatorName={post.creatorusername}
+                        className={styles.postCard}
+                      />
+                    ))
                 ) : (
                   <p>No created projects found.</p>
                 )}
@@ -488,16 +492,20 @@ export default function Account() {
           {activeTab === "joined" && (
             <div className="joinedProjects">
               <div className={styles.postContainer}>
-                {joinedProjects.length > 0 ? (
-                  joinedProjects.map((project, index) => (
-                    <Postcard
-                      key={index}
-                      postName={project.title}
-                      postInfo={project.description}
-                      creatorName={project.creatorusername}
-                      className={styles.postCard}
-                    />
-                  ))
+              {joinedProjects
+                .filter((project) => isOwner || !project.isarchived) // Filter based on ownership
+                .length > 0 ? (
+                  joinedProjects
+                    .filter((project) => isOwner || !project.isarchived)
+                    .map((project, index) => (
+                      <Postcard
+                        key={index}
+                        postName={project.title}
+                        postInfo={project.description}
+                        creatorName={project.creatorusername}
+                        className={styles.postCard}
+                      />
+                    ))
                 ) : (
                   <p>No joined projects found.</p>
                 )}

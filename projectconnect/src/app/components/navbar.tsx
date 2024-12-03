@@ -35,6 +35,7 @@ interface TransformedNotification {
 export default function Navbar() {
   const [notifications, setNotifications] = useState<TransformedNotification[]>([]);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [hideBookmark, setHideBookmark] = useState(false);
   const router = useRouter();
   const { setSearchText, setTag } = useSearchContext();
 
@@ -44,6 +45,12 @@ export default function Navbar() {
   useEffect(() => {
     const cookieUsername = normalizeString(getUsernameFromCookie()); // Normalize cookie username
     fetchNotifs(cookieUsername);
+    const currentPath = window.location.pathname;
+    if (currentPath === "/account") {
+      setHideBookmark(true);
+    } else {
+      setHideBookmark(false);
+    }
   }, []);
 
   // Fetch notifications for the logged-in user
@@ -157,11 +164,13 @@ export default function Navbar() {
                   <FontAwesomeIcon icon={faPlus} />
                 </a>
               </li>
-              <li className="nav-item" key="bookmark-icon">
-                <a className="nav-link navbarComponent" onClick={handleBookmarkClick}>
-                  <FontAwesomeIcon icon={faBookmark} />
-                </a>
-              </li>
+              {!hideBookmark && ( // Conditionally render the bookmark button
+                <li className="nav-item">
+                  <a className="nav-link navbarComponent" onClick={handleBookmarkClick}>
+                    <FontAwesomeIcon icon={faBookmark} />
+                  </a>
+                </li>
+              )}
               <li
                 className="nav-item"
                 key="bell-icon"
@@ -181,13 +190,18 @@ export default function Navbar() {
                       notifications.map((notification) => (
                         <div key={notification.id} className="notificationItem">
                           <div className="notificationText">
-                            {notification.type}:
+                            {["Join", "Invite"].includes(notification.type) 
+                              ? `${notification.type} Request From` 
+                              : `${notification.type} By`}
                             <br />
+                            <a> {"User: "} </a>
                             <a href={`/account?username=${notification.username}`} className="username">
                               {notification.username}
-                            </a>{" "}
+                            </a>
+                            <br />
+                            <a> {"Project:"} </a>
                             <a href={`/post?creator=${notification.creator}&title=${notification.project}`} className="projectName">
-                              ({notification.project})
+                              {notification.project}
                             </a>
                           </div>
                           <div className="iconContainer">

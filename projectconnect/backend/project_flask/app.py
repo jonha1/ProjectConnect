@@ -98,14 +98,14 @@ def leave_project():
     data = request.json
     username = data.get("username")
     project_title = data.get("project_title")
-    result = Member.leaveProject(username, project_title)
+    member = Member(username=username, displayName=None, loginEmail=None, password=None, aboutMe=None, contactInfo=None, skills=None)
+    result = member.leaveProject(project_title)
 
     if "error" in result:
         return jsonify(result), 400
     else:
         return jsonify(result), 200
     
-
 @app.route('/api/updateProfileFromEdit', methods=['POST'])
 def updateProfileFromEdit():
     data = request.json
@@ -149,12 +149,24 @@ def delete_project():
     data = request.json
     creatorusername = data.get("creatorusername")
     title = data.get("title")
-    print(title, creatorusername)
-    result = Creator.deleteProject(creatorusername, title)
+    if not creatorusername or not title:
+        return jsonify({"error": "Missing creatorusername or title"}), 400
+    
+    creator = Creator(
+        username=creatorusername,
+        displayName=None,
+        loginEmail=None,
+        password= None,
+        aboutMe= None,
+        contactInfo=None,
+        skills=None
+    )
+
+    result = creator.deleteProject(title)
+    
     if "error" in result:
         return jsonify(result), 400  # 400 for bad request (like duplicate entry)
-    else:
-        return jsonify(result), 201  # 201 for successful creation
+    return jsonify(result), 201  # 201 for successful creation
         
 @app.route('/api/getEmailByUser', methods=['POST'])
 def getEmailByUser():
@@ -361,8 +373,7 @@ def update_user_info():
         return jsonify(result), 200
     else:
         return jsonify(result), 400 if result.get("message") == "Username is required" else 500
-    
-# Project API's
+
 @app.route('/api/buildProject', methods=['POST'])
 def buildProject():
     data = request.json
@@ -376,9 +387,11 @@ def buildProject():
     memberDescription= data.get('memberDescription', None)
     memberLinks= data.get('memberLinks', None)
     memberContact= data.get('memberContact', None)
-    if not all([creatorusername, title, description, tag]):
+
+    required_fields = ['creatorusername', 'title', 'description', 'tag']
+    if not all(field in data for field in required_fields):
         return jsonify({"error": "Missing required fields: 'creatorusername', 'title', 'description', or 'tag'"}), 400
-   
+
     creator = Creator(
         username=creatorusername,
         displayName= None,
@@ -395,8 +408,7 @@ def buildProject():
     # Check if the result is an error
     if "error" in result:
         return jsonify(result), 400  # 400 for bad request (like duplicate entry)
-    else:
-        return jsonify(result), 201  # 201 for successful creation
+    return jsonify(result), 201  # 201 for successful creation
     
 @app.route('/api/getProjectInfo', methods=['POST', 'OPTIONS'])
 def getProjectInfo():
@@ -441,14 +453,22 @@ def archiveProject():
 
     if not creatorusername or not title:
         return jsonify({"error": "Missing creatorusername or title"}), 400
-
-    result = Creator.archiveProject(creatorusername, title)
+ 
+    creator = Creator(
+        username=creatorusername,
+        displayName=None,
+        loginEmail=None,
+        password= None,
+        aboutMe= None,
+        contactInfo=None,
+        skills=None
+    )
+    result = creator.archiveProject(title)
 
     # Check if the result is an error
     if "error" in result:
         return jsonify(result), 400  # 400 for bad request (like duplicate entry)
-    else:
-        return jsonify(result), 201  # 201 for successful creation
+    return jsonify(result), 201  # 201 for successful creation
     
 @app.route('/api/unarchiveProject', methods=['POST'])
 def unarchiveProject():
@@ -456,7 +476,16 @@ def unarchiveProject():
     creatorusername = data.get('creatorusername')
     title = data.get('title')
 
-    result = Creator.unarchiveProject(creatorusername, title)
+    creator = Creator(
+        username=creatorusername,
+        displayName=None,
+        loginEmail=None,
+        password= None,
+        aboutMe= None,
+        contactInfo=None,
+        skills=None
+    )
+    result = creator.unarchiveProject(title)
 
     # Check if the result is an error
     if "error" in result:
@@ -555,7 +584,8 @@ def verifyMembership():
 
     try:
         # Check if the member is part of the project
-        in_project = Member.verifyMembership(memberusername, title, creatorusername)
+        member = Member(username=memberusername, displayName=None, loginEmail=None, password=None, aboutMe=None, contactInfo=None, skills=None)
+        in_project = member.verifyMembership(title, creatorusername)
 
         # Always return a 200 status with success message
         if in_project:
@@ -583,21 +613,32 @@ def edit_project():
     if not creatorusername or not title or not new_details:
         return jsonify({"error": "Missing required fields"}), 400
 
-    result = Creator.editPost(creatorusername, title, new_details)
+    creator = Creator(
+        username=creatorusername,
+        displayName=None,
+        loginEmail=None,
+        password= None,
+        aboutMe= None,
+        contactInfo=None,
+        skills=None
+    )
+    result = creator.editPost(title, new_details)
 
     if "error" in result:
         return jsonify(result), 400
     else:
         return jsonify(result), 200
+
 @app.route('/api/projects/by_member', methods=['POST'])
 def get_projects_by_member():
     data = request.json
     username = data.get('username')
-    
+
     if not username:
         return jsonify({"error": "Username is required"}), 400
-
-    result = Member.get_projects_by_member(username)
+    member = Member(username=username, displayName=None, loginEmail=None, password=None, aboutMe=None, contactInfo=None, skills=None)
+    print("member: ",member)
+    result = member.get_projects_by_member()
     if "error" in result:
         return jsonify(result), 404
     return jsonify(result), 200
