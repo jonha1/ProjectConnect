@@ -88,7 +88,8 @@ def leave_project():
     data = request.json
     username = data.get("username")
     project_title = data.get("project_title")
-    result = Member.leaveProject(username, project_title)
+    member = Member(username=username, displayName=None, loginEmail=None, password=None, aboutMe=None, contactInfo=None, skills=None)
+    result = member.leaveProject(project_title)
 
     if "error" in result:
         return jsonify(result), 400
@@ -574,7 +575,8 @@ def verifyMembership():
 
     try:
         # Check if the member is part of the project
-        in_project = Member.verifyMembership(memberusername, title, creatorusername)
+        member = Member(username=memberusername, displayName=None, loginEmail=None, password=None, aboutMe=None, contactInfo=None, skills=None)
+        in_project = member.verifyMembership(title, creatorusername)
 
         # Always return a 200 status with success message
         if in_project:
@@ -621,11 +623,12 @@ def edit_project():
 def get_projects_by_member():
     data = request.json
     username = data.get('username')
-    
+
     if not username:
         return jsonify({"error": "Username is required"}), 400
-
-    result = Member.get_projects_by_member(username)
+    member = Member(username=username, displayName=None, loginEmail=None, password=None, aboutMe=None, contactInfo=None, skills=None)
+    print("member: ",member)
+    result = member.get_projects_by_member()
     if "error" in result:
         return jsonify(result), 404
     return jsonify(result), 200
