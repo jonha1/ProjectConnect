@@ -16,9 +16,9 @@ class Notification:
             cursor_factory=RealDictCursor
         )
 
-    def verifyNotifExists(ToUserID, FromUser, MessageType, Title):
+    def verifyNotifExists(self):
         try:
-            with Notification.get_db_connection() as conn:
+            with self.get_db_connection() as conn:
                 with conn.cursor() as cursor:
                     #see if that user already sent a notif
                     verify_query = """
@@ -28,7 +28,7 @@ class Notification:
                         and messagetype = %s
                         and title = %s
                     """
-                    cursor.execute(verify_query, (ToUserID, FromUser, MessageType, Title))
+                    cursor.execute(verify_query, (self.toUser, self.fromUser, self.messageType, self.title))
                     exists = cursor.fetchone()
                     if exists is None:
                         return False
@@ -37,43 +37,43 @@ class Notification:
             print(f"Error verifying if Notification has already been sent: {e}")
             return {"status":"error", "error": str(e)}
 
-    def sendNotification(ToUserID, FromUser, MessageType, Title):
+    def sendNotification(self):
         try:
-            with Notification.get_db_connection() as conn:
+            with self.get_db_connection() as conn:
                 with conn.cursor() as cursor:
-                    if Notification.verifyNotifExists(ToUserID, FromUser, MessageType, Title):
+                    if self.verifyNotifExists():
                         return {"status": "success", "result": "notification has already been sent"}
                     #Invite: check to see the toUser is already in the members
-                    if MessageType == "Invite":
+                    if self.messageType == "Invite":
                         cursor.execute("""
                             SELECT FROM joinedprojects
                             WHERE membersusername = %s
                             and creatorusername = %s 
                             and projecttitle = %s
-                        """, (ToUserID, FromUser, Title))
+                        """, (self.toUser, self.fromUser, self.title))
                         exists = cursor.fetchone()
                         if exists is not None:
                             return {"status": "success", "result": "Invited user is already in the project"}
-                        print("Invitee not in the project already")
+                        #print("Invitee not in the project already")
                     #Join: check to see if the fromUser is already in the members
-                    elif MessageType == "Join":
+                    elif self.messageType == "Join":
                         cursor.execute("""
                             SELECT FROM joinedprojects
                             WHERE membersusername = %s
                             and creatorusername = %s 
                             and projecttitle = %s
-                        """, (FromUser, ToUserID, Title))
+                        """, (self.fromUser, self.toUser, self.title))
                         exists = cursor.fetchone()
                         if exists is not None:
                             return {"status": "success", "result": "You have already joined the project"}
-                        print("Joiner not in the project already")
+                        #print("Joiner not in the project already")
                     # all checks passed, can now send notif to the recipient
                     postgres_insert_query = """ 
                         INSERT INTO notifications 
                         (touserid, fromuserid, messagetype, title) 
                         VALUES (%s, %s, %s, %s) RETURNING *;
                     """
-                    row_to_insert = (ToUserID, FromUser, MessageType, Title)
+                    row_to_insert = (self.toUser, self.fromUser, self.messageType, self.title)
                     cursor.execute(postgres_insert_query, row_to_insert)
                     full_row = cursor.fetchone()
                     conn.commit()
@@ -82,15 +82,15 @@ class Notification:
             print(f"Error sending notification: {e}")
             return {"status":"error", "error": str(e)}
 
-    def retrieveNotifications(username):
+    def retrieveNotifications(self):
         try:
-            with Notification.get_db_connection() as conn:
+            with self.get_db_connection() as conn:
                 with conn.cursor() as cursor:
                     cursor.execute("""
                         SELECT * FROM notifications 
                         WHERE touserid = %s
                         ORDER BY datesent
-                    """, (username,))
+                    """, (self.toUser,))
                     result = cursor.fetchall()
                     allNotifs = []
                     for row in result:
@@ -99,19 +99,27 @@ class Notification:
                         messageType = row['messagetype']
                         title = row['title']
                         notificationid = row['notificationid']
+                        creator = ''
+                        if messageType == 'Invite':
+                            creator = fromUser
+                        elif messageType == 'Join':
+                            creator = toUser
+                        elif "Invite Request" in messageType:
+                            creator = toUser
+                        elif "Join Request" in messageType:
+                            creator = creator = fromUser
                         notif_dict = {"notificationid":notificationid,
                         "title": title, "messagetype": messageType,
-                         "fromuserid": fromUser, "touserid": toUser};
+                         "fromuserid": fromUser, "touserid": toUser, "creator": creator};
                         allNotifs.append(notif_dict)
                     return allNotifs #list of tuples, each tuple is a row ex. [("Will", timestamp, "Green Energy", "alice")]
         except Exception as e:
             print(f"Error checking bookmarks existence: {e}")
             return []
 
-    @staticmethod
-    def verifyNotification(notificationID):
+    def verifyNotification(self, notificationID):
         try:
-            with Notification.get_db_connection() as conn:
+            with self.get_db_connection() as conn:
                 with conn.cursor() as cursor:
                     cursor.execute("""
                         SELECT * FROM notifications 
@@ -123,11 +131,10 @@ class Notification:
             print(f"Error checking notification existence: {e}")
             return False
 
-    @staticmethod
-    def removeNotification(notificationID):
-        if Notification.verifyNotification(notificationID):
+    def removeNotification(self, notificationID):
+        if self.verifyNotification(notificationID):
             try:
-                with Notification.get_db_connection() as conn:
+                with self.get_db_connection() as conn:
                     with conn.cursor() as cursor:
                         postgres_delete = """
                             DELETE FROM notifications 
@@ -140,11 +147,10 @@ class Notification:
                 print(f"Failure to remove notification: {e}")
                 return {"status": "error", "error": str(e)}
 
-    @staticmethod
-    def acceptNotification(notificationID):
-        if Notification.verifyNotification(notificationID):
+    def acceptNotification(self, notificationID):
+        if self.verifyNotification(notificationID):
             try:
-                with Notification.get_db_connection() as conn:
+                with self.get_db_connection() as conn:
                     with conn.cursor() as cursor:
 
                         postgres_get = """
@@ -176,7 +182,43 @@ class Notification:
                         else if full_row['messagetype'] == [new notification types]:
 
                         '''    
+                        cursor.execute("""
+                                INSERT INTO notifications
+                                (touserid, fromuserid, messagetype, title)
+                                VALUES (%s, %s, %s, %s) RETURNING *
+                            """, (full_row['fromuserid'], full_row['touserid'], full_row['messagetype']+" Request Accepted", full_row['title']))
+                        conn.commit()
+                        self.removeNotification(notificationID)
                         return {"status": "success", "Project added": title}
             except Exception as e:
-                print(f"Failure to remove notification: {e}")
+                print(f"Failure to accept notification: {e}")
                 return {"status": "error", "error": str(e)}
+
+    def rejectNotification(self, notificationID):
+        if self.verifyNotification(notificationID):
+            try:
+                with self.get_db_connection() as conn:
+                    with conn.cursor() as cursor:
+
+                        postgres_get = """
+                            SELECT * FROM notifications 
+                            WHERE notificationid = %s
+                        """
+                        cursor.execute(postgres_get, (notificationID,))
+                        full_row = cursor.fetchone()
+                        if full_row['messagetype'] == 'Join' or full_row['messagetype'] == 'Invite':
+                            cursor.execute("""
+                                    INSERT INTO notifications
+                                    (touserid, fromuserid, messagetype, title)
+                                    VALUES (%s, %s, %s, %s) RETURNING *
+                                """, (full_row['fromuserid'], full_row['touserid'], full_row['messagetype']+" Request Rejected", full_row['title']))
+                            conn.commit()
+                            self.removeNotification(notificationID)
+                            return {"status": "success", "Project Rejected": full_row['title']}
+                        else:
+                            self.removeNotification(notificationID)
+                            return {"status": "success", "Project Removed": notificationID}
+            except Exception as e:
+                print(f"Failure to reject notification: {e}")
+                return {"status": "error", "error": str(e)}
+

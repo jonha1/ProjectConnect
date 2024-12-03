@@ -20,6 +20,7 @@ interface Notification {
   messagetype: string;
   fromuserid: string;
   title: string;
+  creator: string
 }
 
 interface TransformedNotification {
@@ -27,11 +28,13 @@ interface TransformedNotification {
   type: string;
   username: string;
   project: string;
+  creator: string;
 }
 
 export default function Navbar() {
   const [notifications, setNotifications] = useState<TransformedNotification[]>([]);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [hideBookmark, setHideBookmark] = useState(false);
   const router = useRouter();
 
   // Helper function to normalize string | null to string | undefined
@@ -40,6 +43,12 @@ export default function Navbar() {
   useEffect(() => {
     const cookieUsername = normalizeString(getUsernameFromCookie()); // Normalize cookie username
     fetchNotifs(cookieUsername);
+    const currentPath = window.location.pathname;
+    if (currentPath === "/account") {
+      setHideBookmark(true);
+    } else {
+      setHideBookmark(false);
+    }
   }, []);
 
   // Fetch notifications for the logged-in user
@@ -59,6 +68,7 @@ export default function Navbar() {
         type: item.messagetype,
         username: item.fromuserid,
         project: item.title,
+        creator: item.creator
       }));
       setNotifications(transformedData);
     } catch (error) {
@@ -89,9 +99,9 @@ export default function Navbar() {
   };
 
   // Remove a notification from the server and locally
-  const removeNotifs = async (notifId: number) => {
+  const rejectNotifs = async (notifId: number) => {
     try {
-      const response = await fetch("http://localhost:5001/removeNotification", {
+      const response = await fetch("http://localhost:5001/rejectNotification", {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
@@ -127,11 +137,13 @@ export default function Navbar() {
                   <FontAwesomeIcon icon={faPlus} />
                 </a>
               </li>
-              <li className="nav-item" key="bookmark-icon">
-                <a className="nav-link navbarComponent" onClick={handleBookmarkClick}>
-                  <FontAwesomeIcon icon={faBookmark} />
-                </a>
-              </li>
+              {!hideBookmark && ( // Conditionally render the bookmark button
+                <li className="nav-item">
+                  <a className="nav-link navbarComponent" onClick={handleBookmarkClick}>
+                    <FontAwesomeIcon icon={faBookmark} />
+                  </a>
+                </li>
+              )}
               <li
                 className="nav-item"
                 key="bell-icon"
@@ -151,13 +163,18 @@ export default function Navbar() {
                       notifications.map((notification) => (
                         <div key={notification.id} className="notificationItem">
                           <div className="notificationText">
-                            {notification.type}:
+                            {["Join", "Invite"].includes(notification.type) 
+                              ? `${notification.type} Request From` 
+                              : `${notification.type} By`}
                             <br />
-                            <a href={`/profile/${notification.username}`} className="username">
+                            <a> {"User: "} </a>
+                            <a href={`/account?username=${notification.username}`} className="username">
                               {notification.username}
-                            </a>{" "}
-                            <a href={`/project/${notification.project}`} className="projectName">
-                              ({notification.project})
+                            </a>
+                            <br />
+                            <a> {"Project:"} </a>
+                            <a href={`/post?creator=${notification.creator}&title=${notification.project}`} className="projectName">
+                              {notification.project}
                             </a>
                           </div>
                           <div className="iconContainer">
@@ -176,7 +193,7 @@ export default function Navbar() {
                               className="iconButton"
                               onClick={(e) => {
                                 e.stopPropagation();
-                                removeNotifs(notification.id);
+                                rejectNotifs(notification.id);
                               }}
                             >
                               <FontAwesomeIcon icon={faTimes} />

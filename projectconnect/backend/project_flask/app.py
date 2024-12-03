@@ -44,16 +44,21 @@ def test_db_connection():
 ## make sure to find out if account exists 
 @app.route('/register', methods=['POST'])
 def register_account():
-    data = request.json 
+    data = request.json  
 
-    result = Account.register(
+    account = Account(
         username=data.get('username'),
-        displayname=data.get('displayname'),
+        displayName=data.get('displayName'),
         loginEmail=data.get('loginEmail'),
-        password=data.get('password')  
+        password=data.get('password')
     )
 
-    return jsonify(result), 201 if 'error' not in result else 400
+    result = account.register()
+
+    if 'error' in result:
+        return jsonify(result), 400  
+    else:
+        return jsonify(result), 201 
 
 @app.route('/api/login', methods=['POST'])
 def login():
@@ -61,80 +66,98 @@ def login():
     check = data.get("check") 
     password = data.get("password")
 
+    account = None
+    
     if "@" in check:
-        account = Account.get_account_by_email(check)
-        if not account:
-            return jsonify({"error": "Incorrect email"}), 404
+        account = Account( username=None, displayName=None, loginEmail=check,password=None).get_account_by_email() 
     else:
-        account = Account.get_account_by_username(check)
-        if not account:
-            return jsonify({"error": "Incorrect username"}), 404
+        account = Account(username=check, displayName=None, loginEmail=None, password=None).get_account_by_username()  
 
     if not account:
-        return jsonify({"error": "Account doesn't exist"}), 404
+        return jsonify({"error": "Incorrect username or email"}), 404
 
     if account['password'] != password:
         return jsonify({"error": "Incorrect password"}), 401
 
-    if account and account['password'] == password:
-        return jsonify({"message": "Login successful", "user": account['username']}), 200
-    else:
-        return jsonify({"error": "Invalid credentials"}), 401
+    # Successful login
+    return jsonify({"message": "Login successful", "user": account['username']}), 200
+
 
 @app.route('/api/leave-project', methods=['POST'])
 def leave_project():
     data = request.json
     username = data.get("username")
     project_title = data.get("project_title")
-    result = Member.leaveProject(username, project_title)
+    member = Member(username=username, displayName=None, loginEmail=None, password=None, aboutMe=None, contactInfo=None, skills=None)
+    result = member.leaveProject(project_title)
 
     if "error" in result:
         return jsonify(result), 400
     else:
         return jsonify(result), 200
     
-
+## important ##
 @app.route('/updateProfileFromEdit', methods=['POST'])
-def updateProfileFromEdit():
+def update_profile_from_edit():
     data = request.json
     username = data.get("username")
     column = data.get("column")
     value = data.get("value")
-    
-    result = User.updateProfileFromEdit(username, column, value)
-    if "error" in result:
-        return jsonify(result), 400  # 400 for bad request (like duplicate entry)
-    else:
-        return jsonify(result), 201  # 201 for successful creation
-    # Check if the result is an error
 
-@app.route('/api/join-project', methods=['POST'])
-def join_project():
-    data = request.json
-    username = data.get("username")
-    project_title = data.get("project_title")
+    if not username or not column or value is None:
+        return jsonify({"status": "error", "message": "Username, column, and value are required"}), 400
 
-    if not username or not project_title:
-        return jsonify({"error": "Missing username or project title"}), 400
+    try:
+        user = User(username=username, displayName=None, loginEmail=None, password=None, aboutMe=None, contactInfo=None, skills=None)
+        result = user.updateProfileFromEdit(column, value)  
 
-    result = User.join_project(username, project_title)
+        if "error" in result:
+            return jsonify(result), 400  
+        else:
+            return jsonify(result), 200 
+    except Exception as e:
+        print(f"Error updating profile: {e}")
+        return jsonify({"status": "error", "message": str(e)}), 500
 
-    if "error" in result:
-        return jsonify(result), 400
-    else:
-        return jsonify(result), 201
+# @app.route('/api/join-project', methods=['POST'])
+# def join_project():
+#     data = request.json
+#     username = data.get("username")
+#     project_title = data.get("project_title")
+
+#     if not username or not project_title:
+#         return jsonify({"error": "Missing username or project title"}), 400
+
+#     result = User.join_project(username, project_title)
+
+#     if "error" in result:
+#         return jsonify(result), 400
+#     else:
+#         return jsonify(result), 201
 
 @app.route('/delete-project', methods=['POST'])
 def delete_project():
     data = request.json
     creatorusername = data.get("creatorusername")
     title = data.get("title")
-    print(title, creatorusername)
-    result = Creator.deleteProject(creatorusername, title)
+    if not creatorusername or not title:
+        return jsonify({"error": "Missing creatorusername or title"}), 400
+    
+    creator = Creator(
+        username=creatorusername,
+        displayName=None,
+        loginEmail=None,
+        password= None,
+        aboutMe= None,
+        contactInfo=None,
+        skills=None
+    )
+
+    result = creator.deleteProject(title)
+    
     if "error" in result:
         return jsonify(result), 400  # 400 for bad request (like duplicate entry)
-    else:
-        return jsonify(result), 201  # 201 for successful creation
+    return jsonify(result), 201  # 201 for successful creation
         
 @app.route('/getEmailByUser', methods=['POST'])
 def getEmailByUser():
@@ -147,62 +170,48 @@ def getEmailByUser():
 
     try:
         print(f"Attempting to fetch email for username: {username}")
-        with Account.get_db_connection() as conn:
-            with conn.cursor() as cursor:
-                cursor.execute(
-                    """
-                    SELECT loginemail FROM users WHERE username = %s
-                    """,
-                    (username,)
-                )
-                result = cursor.fetchone()
+        
+        user = User(username=username, displayName=None, loginEmail=None, password=None, aboutMe=None, contactInfo=None, skills=None)
+        
+        email_result = user.get_email_by_username()
 
-        if result:
-             # Extract email directly
-            email = result['loginemail'] 
-            return jsonify({"email": email}), 200 
+        if email_result:
+            email = email_result['loginemail']
+            return jsonify({"email": email}), 200
         else:
-            print(result)
             return jsonify({"status": "error", "message": "User not found"}), 404
     except Exception as e:
+        print(f"Error in getEmailByUser endpoint: {e}")
         return jsonify({"status": "error", "message": "Internal server error"}), 500
+
     
 ## USER ##
 @app.route('/api/editSkills', methods=['POST'])
-def editSkils():
+def edit_skills():
     data = request.json
     username = data.get("username")
     loginEmail = data.get("loginEmail")
     newSkills = data.get("skills")
 
-    if not username or not newSkills or not newSkills:
+    if not username or not newSkills:
         return jsonify({"error": "Username and skills are required"}), 400
 
-    account = Account.account_exists(username,loginEmail)
+    account = Account(username=username, displayName=None, loginEmail=loginEmail, password=None)
 
-    if not account:
+    if not account.account_exists():
         return jsonify({"error": "Invalid credentials"}), 401
-    
-    skills_list = [skill.strip() for skill in newSkills.split(",") if skill.strip()]
-    all_skills = ", ".join(skills_list)  
 
     try:
-        with Account.get_db_connection() as conn:
-            with conn.cursor() as cursor:
-                cursor.execute(
-                    """
-                    UPDATE users 
-                    SET skills = %s
-                    WHERE username = %s
-                    """,
-                    (all_skills, username)
-                )
-                conn.commit()
+        user = User(username=username, displayName=None, loginEmail=loginEmail, password=None, aboutMe=None, contactInfo=None, skills=None)
+        response = user.editSkills(newSkills)
 
-        return jsonify({"status": "success", "updatedSkills": all_skills}), 200
+        if response["status"] == "success":
+            return jsonify(response), 200
+        else:
+            return jsonify(response), 400
 
     except Exception as e:
-        print(f"Error updating skills: {e}")
+        print(f"Error in edit_skills API: {e}")
         return jsonify({"status": "error", "message": str(e)}), 500
 
 @app.route('/api/getSkills', methods=['POST'])
@@ -213,25 +222,12 @@ def get_skills():
     if not username:
         return jsonify({"status": "error", "message": "Username is required"}), 400
 
-    try:
-        with Account.get_db_connection() as conn:
-            with conn.cursor() as cursor:
-                cursor.execute(
-                    """
-                    SELECT skills FROM users WHERE username = %s
-                    """,
-                    (username,)
-                )
-                result = cursor.fetchone()
+    result = User.getSkills(username)
 
-        if result:
-            return jsonify({"status": "success", "skills": result["skills"]}), 200
-        else:
-            return jsonify({"status": "error", "message": "User not found"}), 404
-
-    except Exception as e:
-        print(f"Error fetching skills: {e}")
-        return jsonify({"status": "error", "message": str(e)}), 500
+    if result["status"] == "success":
+        return jsonify({"status": "success", "skills": result["skills"]}), 200
+    else:
+        return jsonify({"status": "error", "message": result["message"]}), 500
        
 @app.route('/api/editAboutMe', methods=['POST'])
 def edit_about_me():
@@ -243,33 +239,14 @@ def edit_about_me():
     if not username or not new_about_me:
         return jsonify({"status": "error", "message": "Both username and newAboutMe are required"}), 400
 
-    account = Account.account_exists(username,loginEmail)
+    user = User( username=username, displayName=None, loginEmail=loginEmail, password=None, aboutMe=None, contactInfo=None, skills=None)
 
-    if not account:
-        return jsonify({"error": "Invalid credentials"}), 401
-    try:
-        with Account.get_db_connection() as conn:
-            with conn.cursor() as cursor:
-                cursor.execute(
-                    """
-                    UPDATE users 
-                    SET aboutme = %s 
-                    WHERE username = %s
-                    RETURNING aboutme;
-                    """,
-                    (new_about_me, username)
-                )
-                updated_record = cursor.fetchone()
-                conn.commit()
+    result = user.editAboutMe(new_about_me)
 
-        if updated_record:
-            return jsonify({"status": "success", "aboutme": updated_record["aboutme"]}), 200
-        else:
-            return jsonify({"status": "error", "message": "User not found"}), 404
-
-    except Exception as e:
-        print(f"Error updating aboutMe: {e}")
-        return jsonify({"status": "error", "message": str(e)}), 500
+    if "status" in result and result["status"] == "success":
+        return jsonify(result), 200
+    else:
+        return jsonify(result), 400
 
 @app.route('/api/getAboutMe', methods=['POST'])
 def get_about_me():
@@ -277,31 +254,27 @@ def get_about_me():
     username = data.get("username")
     loginEmail = data.get("loginEmail")
 
+    account = Account(username=username, loginEmail=loginEmail, password=None)
+
     if not username or not loginEmail:
         return jsonify({"status": "error", "message": "Username and loginEmail are required"}), 400
 
-    account_exists = Account.account_exists(username, loginEmail)
-    if not account_exists:
+    if not account.account_exists():
         return jsonify({"error": "Invalid credentials"}), 401
 
     try:
-        with Account.get_db_connection() as conn:
-            with conn.cursor() as cursor:
-                cursor.execute(
-                    """
-                    SELECT aboutme FROM users WHERE username = %s AND loginEmail = %s
-                    """,
-                    (username, loginEmail)
-                )
-                result = cursor.fetchone()
+        user = User(username=username, displayName=None, loginEmail=loginEmail, password=None, aboutMe=None, contactInfo=None, skills=None)
+        
+        response = user.getAboutMe()
 
-        if result and "aboutme" in result:
-            return jsonify({"status": "success", "aboutme": result["aboutme"]}), 200
+        if response["status"] == "success":
+            return jsonify(response), 200
         else:
-            return jsonify({"status": "error", "message": "No aboutme found for the user"}), 404
+            return jsonify(response), 404
     except Exception as e:
-        print(f"Error fetching aboutMe: {e}")
+        print(f"Error in get_about_me API: {e}")
         return jsonify({"status": "error", "message": str(e)}), 500
+
     
 @app.route('/api/editContactInfo', methods=['POST'])
 def edit_Contact_Info():
@@ -313,27 +286,16 @@ def edit_Contact_Info():
     if not username or not newContactInfo:
         return jsonify({"status": "error", "message": "Both username and contactInfo are required"}), 400
 
-    account = Account.account_exists(username,loginEmail)
+    account = Account(username=username, displayName=None, loginEmail=loginEmail, password=None)
 
-    if not account:
+    if not account.account_exists(username,loginEmail):
         return jsonify({"error": "Invalid credentials"}), 401
     try:
-        with Account.get_db_connection() as conn:
-            with conn.cursor() as cursor:
-                cursor.execute(
-                    """
-                    UPDATE users 
-                    SET contactinfo = %s 
-                    WHERE username = %s
-                    RETURNING contactinfo;
-                    """,
-                    (newContactInfo, username)
-                )
-                updated_record = cursor.fetchone()
-                conn.commit()
+        user = User(username=username, displayName=None, loginEmail=loginEmail, password=None, aboutMe=None, contactInfo=None, skills=None)
 
-        if updated_record:
-            return jsonify({"status": "success", "contactinfo": updated_record["contactinfo"]}), 200
+        response = user.editContactInfo(newContactInfo)
+        if response:
+            return jsonify({"status": "success", "contactinfo": response["contactinfo"]}), 200
         else:
             return jsonify({"status": "error", "message": "User not found"}), 404
 
@@ -350,28 +312,19 @@ def get_Contact_Info():
     if not username or not loginEmail:
         return jsonify({"status": "error", "message": "Username and loginEmail are required"}), 400
 
-    account_exists = Account.account_exists(username, loginEmail)
-    if not account_exists:
-        return jsonify({"error": "Invalid credentials"}), 401
+    account = Account(username=username, displayName=None,loginEmail=loginEmail, password=None)
 
-    try:
-        with Account.get_db_connection() as conn:
-            with conn.cursor() as cursor:
-                cursor.execute(
-                    """
-                    SELECT contactinfo FROM users WHERE username = %s AND loginEmail = %s
-                    """,
-                    (username, loginEmail)
-                )
-                result = cursor.fetchone()
+    account_exists = account.account_exists()  
+    if account_exists["status"] != "success":
+        return jsonify({"status": "error", "message": "Invalid credentials"}), 401
 
-        if result and "contactinfo" in result:
-            return jsonify({"status": "success", "contactinfo": result["contactinfo"]}), 200
-        else:
-            return jsonify({"status": "error", "message": "No contactinfo found for the user"}), 404
-    except Exception as e:
-        print(f"Error fetching aboutMe: {e}")
-        return jsonify({"status": "error", "message": str(e)}), 500
+    user = User(username=username, displayName=None, loginEmail=loginEmail, password=None, aboutMe=None, contactInfo=None, skills=None)
+    contact_info_result = user.getContactInfo()
+
+    if contact_info_result["status"] == "success":
+        return jsonify(contact_info_result), 200
+    else:
+        return jsonify(contact_info_result), 404
 
 ## important ##
 @app.route('/api/getUserDetails', methods=['POST'])
@@ -384,25 +337,14 @@ def get_user_details():
         if not username:
             return jsonify({"status": "error", "message": "Username is required"}), 400
 
-        with Account.get_db_connection() as conn:
-            with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cursor:
-                cursor.execute("""
-                    SELECT displayname, loginemail, aboutme, contactinfo, skills
-                    FROM users
-                    WHERE username = %s
-                """, (username,))
-                result = cursor.fetchone()
-                print("SQL query result:", result)
+        user = User(username=username, displayName=None, loginEmail=None, password=None, aboutMe=None, contactInfo=None, skills=None)
 
-                if result:
-                    # Directly jsonify the RealDictRow
-                    return jsonify({
-                        "status": "success",
-                        **result
-                    }), 200
-                else:
-                    return jsonify({"status": "error", "message": "User not found"}), 404
+        result = user.getUserDetails()
 
+        if result.get("status") == "success":
+            return jsonify(result), 200
+        else:
+            return jsonify(result), 404  # User not found or other errors
     except Exception as e:
         print(f"Error fetching user details: {e}")
         return jsonify({"status": "error", "message": str(e)}), 500
@@ -415,14 +357,14 @@ def update_user_info():
     skills = data.get("skills")
     about_me = data.get("aboutMe")
 
-    result = User.updateUserInfo(username, contact_info, skills, about_me)
+    user = User(username=username, displayName=None, loginEmail=None, password=None, aboutMe=about_me, contactInfo=contact_info, skills=skills)
+    result = user.updateUserInfo(contact_info, skills, about_me)
 
     if result["status"] == "success":
         return jsonify(result), 200
     else:
         return jsonify(result), 400 if result.get("message") == "Username is required" else 500
-    
-# Project API's
+#ProjectAPI
 @app.route('/buildProject', methods=['POST'])
 def buildProject():
     data = request.json
@@ -436,9 +378,11 @@ def buildProject():
     memberDescription= data.get('memberDescription', None)
     memberLinks= data.get('memberLinks', None)
     memberContact= data.get('memberContact', None)
-    if not all([creatorusername, title, description, tag]):
+
+    required_fields = ['creatorusername', 'title', 'description', 'tag']
+    if not all(field in data for field in required_fields):
         return jsonify({"error": "Missing required fields: 'creatorusername', 'title', 'description', or 'tag'"}), 400
-   
+
     creator = Creator(
         username=creatorusername,
         displayName= None,
@@ -455,8 +399,7 @@ def buildProject():
     # Check if the result is an error
     if "error" in result:
         return jsonify(result), 400  # 400 for bad request (like duplicate entry)
-    else:
-        return jsonify(result), 201  # 201 for successful creation
+    return jsonify(result), 201  # 201 for successful creation
     
 @app.route('/getProjectInfo', methods=['POST', 'OPTIONS'])
 def getProjectInfo():
@@ -501,14 +444,22 @@ def archiveProject():
 
     if not creatorusername or not title:
         return jsonify({"error": "Missing creatorusername or title"}), 400
-
-    result = Creator.archiveProject(creatorusername, title)
+ 
+    creator = Creator(
+        username=creatorusername,
+        displayName=None,
+        loginEmail=None,
+        password= None,
+        aboutMe= None,
+        contactInfo=None,
+        skills=None
+    )
+    result = creator.archiveProject(title)
 
     # Check if the result is an error
     if "error" in result:
         return jsonify(result), 400  # 400 for bad request (like duplicate entry)
-    else:
-        return jsonify(result), 201  # 201 for successful creation
+    return jsonify(result), 201  # 201 for successful creation
     
 @app.route('/unarchiveProject', methods=['POST'])
 def unarchiveProject():
@@ -516,7 +467,16 @@ def unarchiveProject():
     creatorusername = data.get('creatorusername')
     title = data.get('title')
 
-    result = Creator.unarchiveProject(creatorusername, title)
+    creator = Creator(
+        username=creatorusername,
+        displayName=None,
+        loginEmail=None,
+        password= None,
+        aboutMe= None,
+        contactInfo=None,
+        skills=None
+    )
+    result = creator.unarchiveProject(title)
 
     # Check if the result is an error
     if "error" in result:
@@ -615,7 +575,8 @@ def verifyMembership():
 
     try:
         # Check if the member is part of the project
-        in_project = Member.verifyMembership(memberusername, title, creatorusername)
+        member = Member(username=memberusername, displayName=None, loginEmail=None, password=None, aboutMe=None, contactInfo=None, skills=None)
+        in_project = member.verifyMembership(title, creatorusername)
 
         # Always return a 200 status with success message
         if in_project:
@@ -643,30 +604,41 @@ def edit_project():
     if not creatorusername or not title or not new_details:
         return jsonify({"error": "Missing required fields"}), 400
 
-    result = Creator.editPost(creatorusername, title, new_details)
+    creator = Creator(
+        username=creatorusername,
+        displayName=None,
+        loginEmail=None,
+        password= None,
+        aboutMe= None,
+        contactInfo=None,
+        skills=None
+    )
+    result = creator.editPost(title, new_details)
 
     if "error" in result:
         return jsonify(result), 400
-    else:
-        return jsonify(result), 200
+    return jsonify(result), 200
+    
 @app.route('/projects/by_member', methods=['POST'])
 def get_projects_by_member():
     data = request.json
     username = data.get('username')
-    
+
     if not username:
         return jsonify({"error": "Username is required"}), 400
-
-    result = Member.get_projects_by_member(username)
+    member = Member(username=username, displayName=None, loginEmail=None, password=None, aboutMe=None, contactInfo=None, skills=None)
+    print("member: ",member)
+    result = member.get_projects_by_member()
     if "error" in result:
         return jsonify(result), 404
     return jsonify(result), 200
 
-@app.route('/removeNotification', methods=['POST'])
-def removeNotification():
+@app.route('/rejectNotification', methods=['POST'])
+def rejectNotification():
     data = request.json
     notif_id = data.get('notificationid')
-    result = Notification.removeNotification(notif_id)
+    notif = Notification()
+    result = notif.rejectNotification(notif_id)
     if result["status"] == "error":
         return jsonify(result), 400  # 400 for bad request (like duplicate entry)
     else:
@@ -676,7 +648,8 @@ def removeNotification():
 def acceptNotification():
     data = request.json
     notif_id = data.get('notificationid')
-    result = Notification.acceptNotification(notif_id)
+    notif = Notification()
+    result = notif.acceptNotification(notif_id)
     if result["status"] == "error":
         return jsonify(result), 400  # 400 for bad request (like duplicate entry)
     else:
@@ -686,7 +659,8 @@ def acceptNotification():
 def retrieveNotifications():
     data = request.json
     user = data.get('username')
-    result = Notification.retrieveNotifications(user)
+    Notification_manager = Notification(toUser = user) 
+    result = Notification_manager.retrieveNotifications()
     return result, 201  # 201 for successful creation        
 
 @app.route('/sendNotification', methods=['POST'])
@@ -696,7 +670,8 @@ def sendNotification():
     fromuser = data.get('fromuserid')
     messagetype = data.get('messagetype')
     title = data.get('projectitle')
-    result = Notification.sendNotification(touser, fromuser, messagetype, title)
+    Notification_manager = Notification(toUser = touser, fromUser = fromuser, messageType = messagetype, title = title) 
+    result = Notification_manager.sendNotification()
     if result["status"] == "error":
         return jsonify(result), 400  # 400 for bad request (like duplicate entry)
     else:
@@ -709,7 +684,8 @@ def verifyNotif():
     fromuser = data.get('fromuserid')
     messagetype = data.get('messagetype')
     title = data.get('projectitle')
-    result = Notification.verifyNotifExists(touser, fromuser, messagetype, title)
+    Notification_manager = Notification(toUser = touser, fromUser = fromuser, messageType = messagetype, title = title)
+    result = Notification_manager.verifyNotifExists()
     return jsonify({"status": "success", "result": result}), 201  # 400 for bad request (like duplicate entry)
 
 

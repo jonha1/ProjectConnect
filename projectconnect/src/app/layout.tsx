@@ -4,6 +4,12 @@ import './styles/globals.css';
 import '@fortawesome/fontawesome-svg-core/styles.css';
 import { SearchProvider } from '../app/context/SearchContext'; // Import the provider
 import React, { useEffect } from 'react';
+import { Jockey_One } from 'next/font/google';
+
+const jockeyOne = Jockey_One({
+  subsets: ['latin'], // Specify the subset(s) you need
+  weight: '400', // Specify the font weight
+});
 
 // export const metadata = {
 //   title: 'ProjectConnect',
@@ -26,7 +32,7 @@ export default function RootLayout({
     <html lang="en">
       <head>
       </head>
-      <body>
+      <body className={jockeyOne.className}>
         {/* Wrap the children in the SearchProvider */}
         <SearchProvider>{children}</SearchProvider>
       </body>
