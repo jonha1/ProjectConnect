@@ -107,8 +107,14 @@ export default function Account() {
       const fetchData = async () => {
         setIsLoading(true); // Start loading
 
+        const isProduction =
+        window.location.hostname !== "localhost" && window.location.hostname !== '127.0.0.1';
+        const apiUrl = isProduction
+          ? "/api"
+          : "http://127.0.0.1:5001/api";
+
         // Define promises for each API call
-        const fetchUserDetails = fetch("http://127.0.0.1:5001/api/getUserDetails", {
+        const fetchUserDetails = fetch(`${apiUrl}/getUserDetails`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -126,7 +132,7 @@ export default function Account() {
             console.error("Error fetching user details:", error);
           });
 
-        const fetchCreatedPosts = fetch("http://127.0.0.1:5001/projects/by_creator", {
+        const fetchCreatedPosts = fetch(`${apiUrl}/projects/by_creator`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -141,7 +147,7 @@ export default function Account() {
             console.error("Error fetching projects:", error);
           });
 
-        const fetchJoinedProjects = fetch("http://127.0.0.1:5001/projects/by_member", {
+        const fetchJoinedProjects = fetch(`${apiUrl}/projects/by_member`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -156,7 +162,7 @@ export default function Account() {
             console.error("Error fetching joined projects:", error);
           });
 
-        const fetchBookmarks = fetch("http://localhost:5001/retrieveBookmarks", {
+        const fetchBookmarks = fetch(`${apiUrl}/retrieveBookmarks`, {
           method: "POST",
           credentials: "include",
           headers: {
@@ -255,7 +261,13 @@ export default function Account() {
     value: string
   ): Promise<void> => {
     try {
-      const response = await fetch('http://localhost:5001/updateProfileFromEdit', {
+      const isProduction =
+        window.location.hostname !== "localhost" && window.location.hostname !== '127.0.0.1';
+        const apiUrl = isProduction
+          ? "/api"
+          : "http://127.0.0.1:5001/api";
+
+      const response = await fetch(`${apiUrl}/updateProfileFromEdit`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

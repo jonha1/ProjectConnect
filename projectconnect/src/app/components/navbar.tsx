@@ -14,6 +14,7 @@ import {
 import "../styles/navbar.modules.css";
 import "../styles/notifications.css"; 
 import { getUsernameFromCookie } from "../lib/cookieUtils";
+import { useSearchContext } from "../context/SearchContext"; 
 
 interface Notification {
   notificationid: string;
@@ -36,6 +37,7 @@ export default function Navbar() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [hideBookmark, setHideBookmark] = useState(false);
   const router = useRouter();
+  const { setSearchText, setTag } = useSearchContext();
 
   // Helper function to normalize string | null to string | undefined
   const normalizeString = (value: string | undefined): string | undefined => value ?? undefined;
@@ -54,7 +56,13 @@ export default function Navbar() {
   // Fetch notifications for the logged-in user
   const fetchNotifs = async (user: string | undefined) => {
     try {
-      const response = await fetch("http://localhost:5001/retrieveNotifications", {
+      const isProduction =
+      window.location.hostname !== "localhost" && window.location.hostname !== '127.0.0.1';
+      const apiUrl = isProduction
+        ? "/api"
+        : "http://127.0.0.1:5001/api";
+
+      const response = await fetch(`${apiUrl}/retrieveNotifications`, {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
@@ -84,7 +92,13 @@ export default function Navbar() {
   // Accept a notification
   const acceptNotifs = async (notifId: number) => {
     try {
-      const response = await fetch("http://localhost:5001/acceptNotification", {
+      const isProduction =
+      window.location.hostname !== "localhost" && window.location.hostname !== '127.0.0.1';
+      const apiUrl = isProduction
+        ? "/api"
+        : "http://127.0.0.1:5001/api";
+      
+      const response = await fetch(`${apiUrl}/acceptNotification`, {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
@@ -101,7 +115,13 @@ export default function Navbar() {
   // Remove a notification from the server and locally
   const rejectNotifs = async (notifId: number) => {
     try {
-      const response = await fetch("http://localhost:5001/rejectNotification", {
+      const isProduction =
+      window.location.hostname !== "localhost" && window.location.hostname !== '127.0.0.1';
+      const apiUrl = isProduction
+        ? "/api"
+        : "http://127.0.0.1:5001/api";
+      
+      const response = await fetch(`${apiUrl}/rejectNotification`, {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
@@ -123,11 +143,18 @@ export default function Navbar() {
     router.push("/account?query=bookmark");
   };
 
+  const handleHomeClick = (event: React.MouseEvent) => {
+    event.preventDefault(); // Prevent default link behavior
+    setSearchText(""); // Reset searchText
+    setTag(""); // Reset tag
+    router.push("/"); // Navigate to the homepage
+  };
+
   return (
     <div>
       <nav className="navbar navbar-expand-lg bg-body-tertiary navbarClass">
         <div className="container-fluid">
-          <a className="navbar-brand" href="/">
+          <a className="navbar-brand" onClick={handleHomeClick}>
             <h2 className="navbarTitle">ProjectConnect</h2>
           </a>
           <div className="collapse navbar-collapse" id="navbarNav">

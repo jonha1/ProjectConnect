@@ -3,33 +3,43 @@ import psycopg2
 from psycopg2.extras import RealDictCursor
 from dotenv import load_dotenv
 from flask import Flask, request, jsonify, make_response
-from project_flask.models.account import Account
-from project_flask.models.member import Member
-from project_flask.models.creator import Creator
-from project_flask.models.project import Project
-from project_flask.models.bookmark import Bookmark
-from project_flask.models.notification import Notification
-from project_flask.models.user import User
+from .models.account import Account
+from .models.member import Member
+from .models.creator import Creator
+from .models.project import Project
+from .models.bookmark import Bookmark
+from .models.notification import Notification
+from .models.user import User
+import os
 
 load_dotenv()
 app = Flask(__name__)
-CORS(app)
-# CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}}, supports_credentials=True)
+
+env = os.getenv("production", "development")
+print(env)
+
+if env == "production":
+    cors_origins = ["https://projectconnect-eight.vercel.app/"]    
+else:
+    cors_origins = ["http://localhost:3000"]
+
+CORS(app, resources={r"/*": {"origins": cors_origins}}, supports_credentials=True)
 
 @app.after_request
 def add_cors_headers(response):
-    response.headers['Access-Control-Allow-Origin'] = 'http://localhost:3000'
+    response.headers['Access-Control-Allow-Origin'] = request.headers.get('Origin')
     response.headers['Access-Control-Allow-Credentials'] = 'true'
     response.headers['Access-Control-Allow-Methods'] = 'GET, POST, OPTIONS'
     response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization'
     return response
 
 
-@app.route('/')
+
+@app.route('/api/')
 def home():
     return "Hello, Flask!"
 
-@app.route('/test-db-connection')
+@app.route('/api/test-db-connection')
 def test_db_connection():
     try:
         with Account.get_db_connection() as conn:
@@ -42,7 +52,7 @@ def test_db_connection():
 
 ## ACCOUNT ##
 ## make sure to find out if account exists 
-@app.route('/register', methods=['POST'])
+@app.route('/api/register', methods=['POST'])
 def register_account():
     data = request.json  
 
@@ -96,9 +106,8 @@ def leave_project():
     else:
         return jsonify(result), 200
     
-## important ##
-@app.route('/updateProfileFromEdit', methods=['POST'])
-def update_profile_from_edit():
+@app.route('/api/updateProfileFromEdit', methods=['POST'])
+def updateProfileFromEdit():
     data = request.json
     username = data.get("username")
     column = data.get("column")
@@ -135,7 +144,7 @@ def update_profile_from_edit():
 #     else:
 #         return jsonify(result), 201
 
-@app.route('/delete-project', methods=['POST'])
+@app.route('/api/delete-project', methods=['POST'])
 def delete_project():
     data = request.json
     creatorusername = data.get("creatorusername")
@@ -159,7 +168,7 @@ def delete_project():
         return jsonify(result), 400  # 400 for bad request (like duplicate entry)
     return jsonify(result), 201  # 201 for successful creation
         
-@app.route('/getEmailByUser', methods=['POST'])
+@app.route('/api/getEmailByUser', methods=['POST'])
 def getEmailByUser():
     data = request.json
     username = data.get("username")
@@ -364,8 +373,8 @@ def update_user_info():
         return jsonify(result), 200
     else:
         return jsonify(result), 400 if result.get("message") == "Username is required" else 500
-#ProjectAPI
-@app.route('/buildProject', methods=['POST'])
+
+@app.route('/api/buildProject', methods=['POST'])
 def buildProject():
     data = request.json
     creatorusername = data.get('creatorusername')
@@ -401,7 +410,7 @@ def buildProject():
         return jsonify(result), 400  # 400 for bad request (like duplicate entry)
     return jsonify(result), 201  # 201 for successful creation
     
-@app.route('/getProjectInfo', methods=['POST', 'OPTIONS'])
+@app.route('/api/getProjectInfo', methods=['POST', 'OPTIONS'])
 def getProjectInfo():
     if request.method == "OPTIONS":
         response = make_response()
@@ -436,7 +445,7 @@ def getProjectInfo():
     else:
         return jsonify(result), 201  # 201 for successful creation
     
-@app.route('/archiveProject', methods=['POST'])
+@app.route('/api/archiveProject', methods=['POST'])
 def archiveProject():
     data = request.json
     creatorusername = data.get('creatorusername')
@@ -461,7 +470,7 @@ def archiveProject():
         return jsonify(result), 400  # 400 for bad request (like duplicate entry)
     return jsonify(result), 201  # 201 for successful creation
     
-@app.route('/unarchiveProject', methods=['POST'])
+@app.route('/api/unarchiveProject', methods=['POST'])
 def unarchiveProject():
     data = request.json
     creatorusername = data.get('creatorusername')
@@ -484,7 +493,7 @@ def unarchiveProject():
     else:
         return jsonify(result), 201  # 201 for successful creation
 
-@app.route('/findProjects', methods=['POST', 'OPTIONS'])
+@app.route('/api/findProjects', methods=['POST', 'OPTIONS'])
 def findProjects():
     if request.method == "OPTIONS":
         response = make_response()
@@ -520,7 +529,7 @@ def findProjects():
     else:
         return jsonify(result), 200  # Return the project list with 200 OK
     
-@app.route('/projects/by_creator', methods=['POST'])
+@app.route('/api/projects/by_creator', methods=['POST'])
 def get_projects_by_creator():
     try:
         data = request.json
@@ -554,7 +563,7 @@ def get_projects_by_creator():
         print(f"Error in /projects/by_creator: {e}")
         return jsonify({"status": "error", "message": "Internal server error"}), 500
     
-@app.route('/verifyMembership', methods=['POST', 'OPTIONS'])
+@app.route('/api/verifyMembership', methods=['POST', 'OPTIONS'])
 def verifyMembership():
     if request.method == "OPTIONS":
         response = make_response()
@@ -594,7 +603,7 @@ def verifyMembership():
         return jsonify({"status": "error", "message": str(e)}), 500
 
     
-@app.route('/editProject', methods=['POST'])
+@app.route('/api/editProject', methods=['POST'])
 def edit_project():
     data = request.json
     creatorusername = data.get('creatorusername')
@@ -617,9 +626,10 @@ def edit_project():
 
     if "error" in result:
         return jsonify(result), 400
-    return jsonify(result), 200
-    
-@app.route('/projects/by_member', methods=['POST'])
+    else:
+        return jsonify(result), 200
+
+@app.route('/api/projects/by_member', methods=['POST'])
 def get_projects_by_member():
     data = request.json
     username = data.get('username')
@@ -633,7 +643,7 @@ def get_projects_by_member():
         return jsonify(result), 404
     return jsonify(result), 200
 
-@app.route('/rejectNotification', methods=['POST'])
+@app.route('/api/rejectNotification', methods=['POST'])
 def rejectNotification():
     data = request.json
     notif_id = data.get('notificationid')
@@ -644,7 +654,7 @@ def rejectNotification():
     else:
         return jsonify(result), 201  # 201 for successful creation
 
-@app.route('/acceptNotification', methods=['POST'])
+@app.route('/api/acceptNotification', methods=['POST'])
 def acceptNotification():
     data = request.json
     notif_id = data.get('notificationid')
@@ -655,7 +665,7 @@ def acceptNotification():
     else:
         return jsonify(result), 201  # 201 for successful creation
 
-@app.route('/retrieveNotifications', methods=['POST'])
+@app.route('/api/retrieveNotifications', methods=['POST'])
 def retrieveNotifications():
     data = request.json
     user = data.get('username')
@@ -663,7 +673,7 @@ def retrieveNotifications():
     result = Notification_manager.retrieveNotifications()
     return result, 201  # 201 for successful creation        
 
-@app.route('/sendNotification', methods=['POST'])
+@app.route('/api/sendNotification', methods=['POST'])
 def sendNotification():
     data = request.json
     touser = data.get('touserid')
@@ -677,7 +687,7 @@ def sendNotification():
     else:
         return jsonify(result), 201  # 201 for successful creation
 
-@app.route('/verifyNotif', methods=['POST'])
+@app.route('/api/verifyNotif', methods=['POST'])
 def verifyNotif():
     data = request.json
     touser = data.get('touserid')
@@ -697,7 +707,7 @@ def verifyNotif():
     Currently only have add bookmark, retrieve bookmark, and view all bookmarks.
 '''
 
-@app.route('/verifyBookmark', methods=['POST'])
+@app.route('/api/verifyBookmark', methods=['POST'])
 def verifyBookmark():
     data = request.json
     user = data.get('username')
@@ -707,7 +717,7 @@ def verifyBookmark():
     result = {"status": "success", "result": user_bookmark.verifyBookmark(post, post_creator)}
     return jsonify(result), 201
 
-@app.route('/addBookmark', methods=['POST'])
+@app.route('/api/addBookmark', methods=['POST'])
 def addBookmark():
     data = request.json
     user = data.get('username')
@@ -720,7 +730,7 @@ def addBookmark():
     else:
         return jsonify(result), 201  # 201 for successful creation
 
-@app.route('/retrieveBookmarks', methods=['POST'])
+@app.route('/api/retrieveBookmarks', methods=['POST'])
 def retrieveBookmarks():
     data = request.json
     user = data.get('username')
@@ -732,7 +742,7 @@ def retrieveBookmarks():
     print(result)
     return jsonify(result), 201  # 201 for successful creation
 
-@app.route('/deleteBookmark', methods=['POST'])
+@app.route('/api/deleteBookmark', methods=['POST'])
 def deleteBookmark():
     data = request.json
     user = data.get('username')
@@ -745,7 +755,7 @@ def deleteBookmark():
     else:
         return jsonify(result), 201  # 201 for successful creation
 
-@app.route('/updateProjectDetails', methods=['POST', 'OPTIONS'])
+@app.route('/api/updateProjectDetails', methods=['POST', 'OPTIONS'])
 def updateProjectDetails():
     if request.method == "OPTIONS":
         response = make_response()

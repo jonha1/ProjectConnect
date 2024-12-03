@@ -15,7 +15,7 @@ function AutoResizeTextarea({
 }) {
   const handleChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
     const textarea = event.target;
-    textarea.style.height = "auto"; 
+    textarea.style.height = "auto";
     textarea.style.height = `${textarea.scrollHeight}px`;
     onChange(textarea.value);
   };
@@ -50,14 +50,24 @@ export default function Createpost() {
   // State to store username
   const [storedUsername, setStoredUsername] = useState<string | null>(null);
 
-  // Fetch username from cookies
+  // State for API URL
+  const [apiUrl, setApiUrl] = useState<string>("");
+
+  // Fetch username from cookies and set API URL
   useEffect(() => {
+    // Set username from cookies
     const username = Cookies.get("username");
     if (!username) {
       router.push("/login"); // Redirect to login if username is not found
     } else {
       setStoredUsername(username); // Store username in state
     }
+
+    // Determine environment (client-side only)
+    const isProduction =
+      window.location.hostname !== "localhost" &&
+      window.location.hostname !== "127.0.0.1";
+    setApiUrl(isProduction ? "/api" : "http://127.0.0.1:5001/api");
   }, [router]);
 
   // Update state when input changes
@@ -70,22 +80,22 @@ export default function Createpost() {
 
   // Submit form data to backend
   const handleSubmit = async (event: React.FormEvent) => {
-    event.preventDefault(); 
-    console.log(storedUsername)
+    event.preventDefault();
+    console.log(storedUsername);
     if (!storedUsername) {
       console.error("No username found in cookies.");
       return;
     }
 
     try {
-      const response = await fetch("http://127.0.0.1:5001/api/updateUserInfo", {
+      const response = await fetch(`${apiUrl}/updateUserInfo`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
           ...formData,
-          username: storedUsername, 
+          username: storedUsername,
         }),
       });
 
@@ -109,7 +119,7 @@ export default function Createpost() {
         </div>
 
         <form className="formInput" onSubmit={handleSubmit}>
-        <AutoResizeTextarea
+          <AutoResizeTextarea
             placeholder="About Me"
             value={formData.aboutMe}
             onChange={(value) => handleInputChange("aboutMe", value)}
