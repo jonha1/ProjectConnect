@@ -473,7 +473,8 @@ export default function ProjectView() {
 
         const data = await response.json();
         if (data.status == 'error') {
-            throw new Error(`HTTP error! status: ${data.error}`);
+          alert("Unable to send request. Check if Username is correct.");
+          throw new Error(`HTTP error! status: ${data.error}`);
         }
         alert(data.result);
     } catch (error) {
