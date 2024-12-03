@@ -6,9 +6,7 @@ from project_flask.models.user import User
 class Member(User):
     def __init__(self, username, displayName, loginEmail, password, aboutMe, contactInfo, skills):
         super().__init__(username, displayName, loginEmail, password, aboutMe, contactInfo, skills)
-        self.username = username
 
-    @staticmethod
     def get_db_connection():
         return psycopg2.connect(
             os.getenv("DATABASE_URL"),  
@@ -28,7 +26,6 @@ class Member(User):
             print(f"Error checking membership: {e}")
             return False
         
-    @staticmethod
     def leaveProject(self, project_title):
         # Remove the user from a project
         try:
@@ -44,7 +41,6 @@ class Member(User):
             print(f"Error leaving project: {e}")
             return {"error": str(e)}
     
-    @staticmethod
     def get_projects_by_member(self):
         try:
             with Member.get_db_connection() as conn:
