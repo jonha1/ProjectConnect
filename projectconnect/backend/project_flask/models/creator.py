@@ -78,7 +78,7 @@ class Creator(Member):
         
     def editPost(self, title, new_details):
         try:
-            with Creator.get_db_connection() as conn:
+            with self.get_db_connection() as conn:
                 with conn.cursor() as cursor:
                     # Check if the project exists and is owned by the creator
                     cursor.execute("""

@@ -15,7 +15,7 @@ class Member(User):
     
     def verifyMembership(self, project_title, creator):
         try:
-            with Member.get_db_connection() as conn:
+            with self.get_db_connection() as conn:
                 with conn.cursor() as cursor:
                     cursor.execute("""
                         SELECT 1 FROM joinedProjects 
@@ -29,7 +29,7 @@ class Member(User):
     def leaveProject(self, project_title):
         # Remove the user from a project
         try:
-            with Member.get_db_connection() as conn:
+            with self.get_db_connection() as conn:
                 with conn.cursor() as cursor:
                     cursor.execute("""
                         DELETE FROM joinedprojects
@@ -43,7 +43,7 @@ class Member(User):
     
     def get_projects_by_member(self):
         try:
-            with Member.get_db_connection() as conn:
+            with self.get_db_connection() as conn:
                 with conn.cursor() as cursor:
                     cursor.execute("""
                         SELECT p.*
