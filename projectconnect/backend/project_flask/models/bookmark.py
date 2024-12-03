@@ -1,7 +1,7 @@
 import os
 import psycopg2
 from psycopg2.extras import RealDictCursor
-from project_flask.models.project import Project
+# from project_flask.models.project import Project
 
 class Bookmark:
     def __init__(self, user):

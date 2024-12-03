@@ -1,0 +1,27 @@
+{
+"version": 2,
+"builds": [
+    {
+    "src": "package.json", 
+    "use": "@vercel/next" 
+    },
+    {
+    "src": "backend/project_flask/app.py",
+    "use": "@vercel/python",
+    "config": {
+        "installCommand": "pip install --upgrade pip && pip install psycopg2-binary==2.9.6 && pip install -r backend/project_flask/requirements.txt"
+      }
+    }  
+],
+"routes": [
+    {
+    "src": "/api/(.*)",
+    "dest": "backend/project_flask/app.py"
+    },
+    {
+    "src": "/(.*)", 
+    "dest": "src/app/$1"  
+    }
+]
+}
+  

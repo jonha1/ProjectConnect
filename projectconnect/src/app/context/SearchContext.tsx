@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useState, ReactNode } from "react";
+import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
 
 // Define the shape of the context data
 interface SearchContextType {
@@ -15,8 +15,20 @@ const SearchContext = createContext<SearchContextType | undefined>(undefined);
 
 // Create a provider component
 export const SearchProvider = ({ children }: { children: ReactNode }) => {
-  const [searchText, setSearchText] = useState<string>("");
-  const [tag, setTag] = useState<string>("");
+  const [searchText, setSearchText] = useState<string>(() =>
+    typeof window !== "undefined" ? localStorage.getItem("searchText") || "" : ""
+  );
+  const [tag, setTag] = useState<string>(() =>
+    typeof window !== "undefined" ? localStorage.getItem("tag") || "" : ""
+  );
+
+  useEffect(() => {
+    localStorage.setItem("searchText", searchText);
+  }, [searchText]);
+
+  useEffect(() => {
+    localStorage.setItem("tag", tag);
+  }, [tag]);
 
   return (
     <SearchContext.Provider value={{ searchText, setSearchText, tag, setTag }}>
@@ -33,4 +45,3 @@ export const useSearchContext = () => {
   }
   return context;
 };
-

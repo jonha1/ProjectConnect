@@ -105,8 +105,14 @@ export default function Createpost() {
         memberContact: projectData.memberContact,
         tag: selectedTag,
       };
+      
+      const isProduction =
+        window.location.hostname !== "localhost" && window.location.hostname !== '127.0.0.1';
+        const apiUrl = isProduction
+          ? "/api"
+          : "http://127.0.0.1:5001/api";
 
-      const response = await fetch('http://127.0.0.1:5001/buildProject', {
+      const response = await fetch(`${apiUrl}/buildProject`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -1,7 +1,7 @@
 import os
 import psycopg2
 from psycopg2.extras import RealDictCursor
-from project_flask.models.user import User
+from .user import User
 
 class Member(User):
     def __init__(self, username, displayName, loginEmail, password, aboutMe, contactInfo, skills):
